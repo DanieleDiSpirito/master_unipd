@@ -1,0 +1,654 @@
+---
+title: "Homework #1"
+subtitle: "Inferential Statistics 2026/2027 -- Detailed Walkthrough"
+author: "Daniele Di Spirito"
+date: "October 23, 2026"
+output: 
+  pdf_document: 
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    fig_height: 6
+    fig_width: 8
+geometry: "margin=1in"
+editor_options: 
+  markdown: 
+    wrap: 80
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 8,
+  fig.height = 7,
+  out.width = "90%",
+  fig.align = "center",
+  comment = "#>"
+)
+```
+
+\newpage
+
+# Introduction: What Are We Doing and Why? (A Beginner's Primer)
+
+If you are new to inferential statistics, simulation studies might seem abstract at first. Let's build the intuition from the ground up:
+
+1. **What is a Binomial Experiment?**
+   Suppose you flip a biased coin $n$ times. The coin lands on "Heads" (a success) with some true, unknown probability $\theta \in (0, 1)$. The total number of heads you observe is $S \sim \text{Bin}(n, \theta)$. Your best point estimate for $\theta$ is the sample proportion $\hat\theta = S / n$.
+
+2. **What is a 90% Confidence Interval?**
+   Because of random chance, your estimate $\hat\theta$ will rarely equal the exact true $\theta$. Instead of a single number, we build an interval $[L(S), U(S)]$.
+   A **90% confidence level** does *not* mean that the true parameter $\theta$ has a 90% chance of falling into a fixed interval you just computed. The true parameter $\theta$ is a fixed (unknown) constant in classical statistics.
+   Rather, it means that **the procedure itself is reliable**: if you repeat the experiment thousands of times under identical conditions, generating thousands of random intervals, at least 90% of those generated intervals will successfully trap (contain) the true parameter $\theta$.
+
+3. **What is Empirical Coverage?**
+   To test if a formula really lives up to its 90% promise, we use a computer to simulate $N = 100,000$ independent experiments for known values of $n$ and $\theta$. For each simulated experiment, we construct the interval and check: *did it trap the true $\theta$?*
+   The fraction of times the interval captures $\theta$ is called the **empirical coverage**. If a formula claims to be a 90% interval but only traps $\theta$ 64% of the time, the formula is broken in practice!
+
+\newpage
+
+# Problem 1.1: Exact vs. Approximate Confidence Intervals
+
+## Problem Statement
+
+For each sample size $n \in \{10, 30, 50, 100\}$ and each true parameter $\theta \in \{0.1, 0.5, 0.9\}$, generate $N = 10^5$ datasets from $\text{Bin}(n, \theta)$. For each dataset, compute:
+
+1. The **exact binomial 0.90 confidence interval** (Clopper-Pearson, corresponding to `binom.test`).
+2. The **approximate 0.90 confidence interval** using the $Z$-formula from the course slides (Wald interval).
+3. The **approximate 0.90 confidence interval** used by R's `prop.test` command with `correct = FALSE` (Wilson score interval).
+
+Report the empirical coverage for each combination of $(n, \theta)$ using tables and diagrams, and comment on the findings.
+
+---
+
+## Understanding the Three Formulas
+
+Before writing code, let's understand how each of the three methods works under the hood.
+
+### Method 1: The Wald (Z) Interval (The Classic Textbook Formula)
+From the Central Limit Theorem, the sample proportion $\hat\theta = S/n$ is approximately normal with mean $\theta$ and variance $\theta(1-\theta)/n$.
+In the Wald approach, we replace the unknown true $\theta$ in the variance with our sample estimate $\hat\theta = p$:
+$$
+\text{SE}_{\text{Wald}} = \sqrt{\frac{p(1 - p)}{n}}, \quad \text{where } p = \frac{S}{n}.
+$$
+The 90% interval is:
+$$
+\left[ p - z_{0.95} \sqrt{\frac{p(1 - p)}{n}}, \quad p + z_{0.95} \sqrt{\frac{p(1 - p)}{n}} \right].
+$$
+Here $z_{0.95} \approx 1.645$ is the 95th percentile of the standard normal distribution $\mathcal{N}(0, 1)$ (leaving 5% in each tail, so 90% remains in the middle).
+
+> **Beginner Warning:** What happens if you flip a coin 10 times and get $S = 0$ heads?
+> Then $p = 0/10 = 0$. The standard error is $\sqrt{0(1-0)/10} = 0$!
+> The Wald interval becomes $[0 - 0, 0 + 0] = [0, 0]$: a single point! If the true probability was $\theta = 0.1$, this interval fails completely. This is the fatal flaw of the Wald interval for rare events or small samples.
+
+### Method 2: The Wilson Score Interval (`prop.test(..., correct = FALSE)`)
+Edwin Wilson (1927) asked: *Why plug in the noisy sample estimate $p$ into the variance?*
+Instead, we test $H_0: \theta = \theta_0$ using the *hypothesized* true variance $\theta_0(1-\theta_0)/n$:
+$$
+-z \le \frac{p - \theta}{\sqrt{\frac{\theta(1 - \theta)}{n}}} \le z.
+$$
+Squaring both sides and solving the quadratic equation for $\theta$ gives:
+$$
+\text{Center} = \frac{p + \frac{z^2}{2n}}{1 + \frac{z^2}{n}}, \quad
+\text{Margin} = \frac{z \sqrt{\frac{p(1 - p)}{n} + \frac{z^2}{4n^2}}}{1 + \frac{z^2}{n}}.
+$$
+Notice the magic here: even if $p = 0$, the center is shifted towards $0.5$ (an effect known as *Bayesian shrinkage* or regularization), and the margin is strictly positive. The interval never collapses to a single point!
+
+### Method 3: The Exact Clopper-Pearson Interval (`binom.test`)
+Instead of assuming a normal bell curve, Clopper and Pearson (1934) used the exact Binomial distribution:
+- Lower limit $L$: solves $P_\theta(S \ge s) = \alpha / 2 = 0.05$.
+- Upper limit $U$: solves $P_\theta(S \le s) = \alpha / 2 = 0.05$.
+
+Because the binomial distribution is discrete, these tail probabilities cannot be solved with basic algebra. However, there is a beautiful theorem in statistics linking binomial sums to the continuous **Beta distribution**:
+$$
+L = \text{Beta}\left(\frac{\alpha}{2};\; s,\; n - s + 1\right), \quad
+U = \text{Beta}\left(1 - \frac{\alpha}{2};\; s + 1,\; n - s\right).
+$$
+In R, `qbeta()` evaluates this instantly for $100,000$ simulated values at once, giving the exact same limits as calling `binom.test()` $100,000$ times!
+
+---
+
+## Step-by-Step R Code and Simulation
+
+Let's now run the simulation. The code below is heavily commented so you can follow every line:
+
+```{r p11-code}
+# Step 1: Set seed for reproducibility.
+# Anyone running this exact code will get the identical simulated random numbers.
+set.seed(47)
+
+# Step 2: Define simulation parameters
+ns <- c(10, 30, 50, 100)        # Sample sizes
+thetas <- c(0.1, 0.5, 0.9)      # True binomial probabilities
+N <- 1e5                        # 100,000 simulated datasets per condition
+conf_level <- 0.90              # 90% nominal confidence
+alpha <- 1 - conf_level         # alpha = 0.10 (two-sided error)
+
+# Critical value from standard normal distribution N(0, 1).
+# We take 1 - alpha/2 = 0.95 so that 5% is in each tail (total middle = 90%).
+z <- qnorm(1 - alpha / 2)       # ~ 1.644854
+
+# Step 3: Pre-allocate matrices to hold empirical coverage fractions.
+# Rows will be sample sizes (n), columns will be thetas.
+cov_exact <- matrix(NA, nrow = length(ns), ncol = length(thetas),
+                    dimnames = list(paste0("n=", ns), paste0("th=", thetas)))
+cov_wald  <- cov_exact
+cov_score <- cov_exact
+
+# Step 4: Run the simulation loops
+for (i in seq_along(ns)) {
+  n <- ns[i]
+  
+  for (j in seq_along(thetas)) {
+    theta <- thetas[j]
+    
+    # Generate N = 100,000 independent binomial outcomes
+    # S is a vector of 100,000 integers between 0 and n.
+    S <- rbinom(N, size = n, prob = theta)
+    p <- S / n  # Sample proportions
+    
+    # --- 1. Exact Clopper-Pearson (via Beta quantiles) ---
+    lo_e <- qbeta(alpha / 2, S, n - S + 1)
+    up_e <- qbeta(1 - alpha / 2, S + 1, n - S)
+    # Check what fraction of the 100,000 intervals contain the true theta
+    cov_exact[i, j] <- mean(lo_e <= theta & theta <= up_e)
+    
+    # --- 2. Wald (Z) Interval ---
+    se_w <- sqrt(p * (1 - p) / n)
+    lo_w <- p - z * se_w
+    up_w <- p + z * se_w
+    cov_wald[i, j] <- mean(lo_w <= theta & theta <= up_w)
+    
+    # --- 3. Wilson Score Interval ---
+    denom  <- 1 + (z^2) / n
+    center <- (p + (z^2) / (2 * n)) / denom
+    half   <- (z * sqrt(p * (1 - p) / n + (z^2) / (4 * n^2))) / denom
+    lo_s   <- center - half
+    up_s   <- center + half
+    cov_score[i, j] <- mean(lo_s <= theta & theta <= up_s)
+  }
+}
+```
+
+---
+
+## Results and Tables
+
+Let's organize the simulated coverage into a clean table:
+
+```{r p11-table}
+# Build a tidy data frame to display with kable
+p11_results <- list()
+for (j in seq_along(thetas)) {
+  p11_results[[j]] <- data.frame(
+    True_Theta = thetas[j],
+    n          = ns,
+    Exact_C_P  = round(cov_exact[, j], 4),
+    Wald_Z     = round(cov_wald[, j], 4),
+    Score      = round(cov_score[, j], 4)
+  )
+}
+p11_table <- do.call(rbind, p11_results)
+rownames(p11_table) <- NULL
+
+knitr::kable(
+  p11_table,
+  caption = "Problem 1.1: Empirical coverage of 0.90 confidence intervals across N = 100,000 simulations."
+)
+```
+
+---
+
+## Visualizing the Coverage Across Methods
+
+To ensure all three panels and the legend are clearly visible without being cut off by page boundaries, we arrange the plots in a $2 \times 2$ grid:
+
+```{r p11-plot, fig.cap="Problem 1.1: Empirical coverage vs. sample size n for each theta. The dotted line represents the nominal 90% confidence target."}
+# Setup 2x2 grid with comfortable margins
+par(mfrow = c(2, 2), mar = c(4.5, 4.5, 3, 1))
+
+cols <- c("black", "red", "blue")
+pchs <- c(15, 16, 17) # Square = Exact, Circle = Wald, Triangle = Score
+
+for (j in seq_along(thetas)) {
+  matplot(
+    ns, cbind(cov_exact[, j], cov_wald[, j], cov_score[, j]),
+    type = "b", pch = pchs, lty = 1, lwd = 2, col = cols,
+    ylim = c(0.6, 1.0),
+    xlab = "Sample size (n)",
+    ylab = "Empirical Coverage Fraction",
+    main = bquote("True" ~ theta == .(thetas[j]))
+  )
+  # Nominal target line at 0.90
+  abline(h = conf_level, lty = 2, col = "gray40", lwd = 1.5)
+}
+
+# The 4th panel is dedicated to the legend so it never overlaps the curves!
+plot.new()
+legend(
+  "center",
+  legend = c("Exact (Clopper-Pearson)", "Wald (Z-formula)", "Score (prop.test)"),
+  col = cols, pch = pchs, lty = 1, lwd = 2,
+  bty = "n", cex = 1.1, title = "Method"
+)
+```
+
+---
+
+## Detailed Interpretation for Beginners
+
+Looking at the table and graphs, we observe three fundamental statistical phenomena:
+
+1. **The Wald Interval Fails Near the Boundaries ($\theta = 0.1$ and $0.9$):**
+   - For $n = 10$ and $\theta = 0.1$, the Wald interval's coverage drops to **63.8%** (compared to the promised 90%).
+   - Even at $n = 100$, coverage is still only **86.3%**.
+   - Why? Because when $\theta$ is close to 0 or 1, the binomial distribution is strongly skewed (not bell-shaped), and the probability of observing $S = 0$ is high ($0.9^{10} \approx 35\%$), in which case the Wald interval degenerates into a single point $[0, 0]$.
+   - Only when $\theta = 0.5$ (symmetric distribution) does Wald perform reasonably well ($\approx 88\% - 91\%$).
+
+2. **The Exact (Clopper-Pearson) Interval is Over-Conservative:**
+   - Its coverage is **guaranteed to never drop below 90%**.
+   - However, for $n = 10$, its coverage reaches nearly **98.7%**!
+   - Why? Because binomial counts are discrete integers, the method must "round up" tail probabilities to ensure the $\ge 90\%$ guarantee holds for *all* possible values of $\theta$. This safety guarantee comes at the cost of wider, less informative intervals.
+
+3. **The Wilson Score Interval is the Clear Winner:**
+   - Its coverage hovers reliably between **87% and 93%** across all sample sizes and all $\theta$ values.
+   - It does not collapse at $S = 0$ or $S = n$, and it does not suffer from the excessive width of the exact method.
+
+\newpage
+
+# Problem 1.2: The Continuity Correction (Newcombe, 1998)
+
+## Problem Statement
+
+Read Newcombe (1998) and repeat the simulation experiment of Problem 1.1, now applying the **continuity correction (CC)** to all possible methods:
+
+- **Wald vs. Wald + CC**
+- **Wilson Score vs. Wilson Score + CC** (`prop.test(..., correct = TRUE)`)
+- **Exact Mid-$p$ vs. Exact Clopper-Pearson**
+
+Evaluate both the **empirical coverage** and the **average interval width**, and discuss conclusions.
+
+---
+
+## Understanding Continuity Correction and Mid-$p$
+
+### What is a Continuity Correction (CC)?
+A binomial random variable $S$ is **discrete** (it jumps by integer steps $0, 1, 2, \dots$). When we approximate it by a **continuous** normal distribution, a single integer outcome $s$ corresponds to the continuous interval $[s - 0.5, \; s + 0.5]$.
+Dividing by $n$, the adjustment to the sample proportion is:
+$$
+\pm \frac{0.5}{n} = \pm \frac{1}{2n}.
+$$
+This correction pushes the confidence limits outward, making the interval wider and thereby increasing the probability of capturing $\theta$.
+
+- **Wald + CC:** We simply widen the margin of error by $1/(2n)$:
+  $$
+  \left[ p - z\sqrt{\frac{p(1-p)}{n}} - \frac{1}{2n}, \quad p + z\sqrt{\frac{p(1-p)}{n}} + \frac{1}{2n} \right].
+  $$
+- **Score + CC:** This is R's default when you call `prop.test(x, n, correct = TRUE)`. It evaluates the Wilson formula starting from $p - 0.5/n$ for the lower bound and $p + 0.5/n$ for the upper bound.
+
+### What is the Mid-$p$ Interval?
+In the exact Clopper-Pearson method, the tail probability includes the *entire* probability mass of the observed outcome $P(S = s)$. This makes Clopper-Pearson inherently "continuity corrected" and overly conservative.
+To create an "uncorrected" exact counterpart, Lancaster (1961) proposed the **mid-$p$** approach: count only **half** of the probability of the observed outcome:
+$$
+P_\theta(S > s) + \frac{1}{2} P_\theta(S = s) = \frac{\alpha}{2}, \quad
+P_\theta(S < s) + \frac{1}{2} P_\theta(S = s) = \frac{\alpha}{2}.
+$$
+Because this cannot be written in simple closed-form algebra, we use R's numerical root-finder `uniroot()`.
+
+---
+
+## Step-by-Step R Code and Simulation
+
+```{r p12-code}
+# Step 1: Re-use seed 47 to ensure exact comparability with Problem 1.1
+set.seed(47)
+
+ns <- c(10, 30, 50, 100)
+thetas <- c(0.1, 0.5, 0.9)
+N <- 1e5
+conf_level <- 0.90
+alpha <- 1 - conf_level
+z <- qnorm(1 - alpha / 2)
+
+# Helper function: Wilson score formula
+calc_wilson <- function(p, n) {
+  denom  <- 1 + (z^2) / n
+  center <- (p + (z^2) / (2 * n)) / denom
+  half   <- (z * sqrt(p * (1 - p) / n + (z^2) / (4 * n^2))) / denom
+  cbind(center - half, center + half)
+}
+
+# Helper function: Mid-p exact interval solved numerically with uniroot()
+calc_midp_single_s <- function(s, n) {
+  lo <- 0
+  up <- 1
+  if (s > 0) {
+    # Lower bound solves: P(S > s) + 0.5*P(S = s) - alpha/2 = 0
+    f_lo <- function(th) (1 - pbinom(s, n, th)) + 0.5 * dbinom(s, n, th) - alpha / 2
+    lo <- uniroot(f_lo, interval = c(0, 1), tol = 1e-8)$root
+  }
+  if (s < n) {
+    # Upper bound solves: P(S < s) + 0.5*P(S = s) - alpha/2 = 0
+    f_up <- function(th) pbinom(s - 1, n, th) + 0.5 * dbinom(s, n, th) - alpha / 2
+    up <- uniroot(f_up, interval = c(0, 1), tol = 1e-8)$root
+  }
+  c(lo, up)
+}
+
+# Methods to evaluate
+method_names <- c("Wald", "Wald+CC", "Score", "Score+CC", "Mid-p", "Exact (C-P)")
+
+# 3D arrays to record coverage and width: [sample size, theta, method]
+cov_p12   <- array(NA, dim = c(length(ns), length(thetas), length(method_names)),
+                   dimnames = list(paste0("n=", ns), paste0("th=", thetas), method_names))
+width_p12 <- cov_p12
+
+for (i in seq_along(ns)) {
+  n <- ns[i]
+  
+  # Optimization for beginners: s can only be 0, 1, ..., n.
+  # Instead of solving uniroot 100,000 times, we precalculate the table of
+  # (n + 1) possible intervals and look it up!
+  midp_lookup <- t(sapply(0:n, function(s) calc_midp_single_s(s, n)))
+  
+  for (j in seq_along(thetas)) {
+    theta <- thetas[j]
+    S <- rbinom(N, size = n, prob = theta)
+    p <- S / n
+    se <- sqrt(p * (1 - p) / n)
+    
+    lo <- list()
+    up <- list()
+    
+    # 1. Wald (no CC)
+    lo[["Wald"]] <- p - z * se
+    up[["Wald"]] <- p + z * se
+    
+    # 2. Wald + CC (bounded to [0, 1])
+    lo[["Wald+CC"]] <- pmax(0, p - z * se - 1 / (2 * n))
+    up[["Wald+CC"]] <- pmin(1, p + z * se + 1 / (2 * n))
+    
+    # 3. Score (no CC)
+    w_un <- calc_wilson(p, n)
+    lo[["Score"]] <- w_un[, 1]
+    up[["Score"]] <- w_un[, 2]
+    
+    # 4. Score + CC (as in prop.test(correct = TRUE))
+    cc_shift <- ifelse(S == n / 2, 0, 0.5 / n)
+    lo[["Score+CC"]] <- ifelse(p - cc_shift <= 0, 0, calc_wilson(p - cc_shift, n)[, 1])
+    up[["Score+CC"]] <- ifelse(p + cc_shift >= 1, 1, calc_wilson(p + cc_shift, n)[, 2])
+    
+    # 5. Mid-p (exact without CC)
+    lo[["Mid-p"]] <- midp_lookup[S + 1, 1]
+    up[["Mid-p"]] <- midp_lookup[S + 1, 2]
+    
+    # 6. Clopper-Pearson (exact with CC)
+    lo[["Exact (C-P)"]] <- qbeta(alpha / 2, S, n - S + 1)
+    up[["Exact (C-P)"]] <- qbeta(1 - alpha / 2, S + 1, n - S)
+    
+    # Store empirical coverage and mean width for each method
+    for (m in method_names) {
+      cov_p12[i, j, m]   <- mean(lo[[m]] <= theta & theta <= up[[m]])
+      width_p12[i, j, m] <- mean(up[[m]] - lo[[m]])
+    }
+  }
+}
+```
+
+---
+
+## Results and Tables (Coverage and Width)
+
+```{r p12-tables}
+# Format coverage results
+cov_df_list <- list()
+w_df_list   <- list()
+
+for (j in seq_along(thetas)) {
+  c_df <- as.data.frame(round(cov_p12[, j, ], 4))
+  c_df <- cbind(Theta = thetas[j], n = ns, c_df)
+  cov_df_list[[j]] <- c_df
+  
+  w_df <- as.data.frame(round(width_p12[, j, ], 3))
+  w_df <- cbind(Theta = thetas[j], n = ns, w_df)
+  w_df_list[[j]] <- w_df
+}
+
+table_coverage <- do.call(rbind, cov_df_list)
+table_width    <- do.call(rbind, w_df_list)
+rownames(table_coverage) <- NULL
+rownames(table_width)    <- NULL
+
+knitr::kable(
+  table_coverage,
+  caption = "Problem 1.2: Empirical coverage comparison (with and without continuity correction)."
+)
+
+knitr::kable(
+  table_width,
+  caption = "Problem 1.2: Average confidence interval width (shorter intervals convey more precision)."
+)
+```
+
+---
+
+## Visualizing Coverage and Interval Width
+
+```{r p12-plots, fig.cap=c("Problem 1.2: Empirical coverage across methods (solid lines: without CC; dashed lines: with CC).", "Problem 1.2: Mean interval width across methods.")}
+# Color palette: Red = Wald, Blue = Score, Green = Exact
+cols <- c("red", "red", "blue", "blue", "darkgreen", "darkgreen")
+ltys <- c(1, 2, 1, 2, 1, 2) # 1 = Solid (no CC), 2 = Dashed (with CC)
+pchs <- c(16, 1, 17, 2, 15, 0)
+
+# FIGURE 1: COVERAGE
+par(mfrow = c(2, 2), mar = c(4.5, 4.5, 3, 1))
+for (j in seq_along(thetas)) {
+  matplot(
+    ns, cov_p12[, j, ], type = "b", pch = pchs, col = cols, lty = ltys,
+    lwd = 2, ylim = c(0.6, 1.0),
+    xlab = "Sample size (n)", ylab = "Empirical Coverage Fraction",
+    main = bquote("Coverage:" ~ theta == .(thetas[j]))
+  )
+  abline(h = conf_level, lty = 3, col = "gray40", lwd = 1.5)
+}
+plot.new()
+legend("center", legend = method_names, col = cols, lty = ltys, pch = pchs,
+       lwd = 2, bty = "n", cex = 1.05, title = "Method")
+
+# FIGURE 2: WIDTH
+par(mfrow = c(2, 2), mar = c(4.5, 4.5, 3, 1))
+for (j in seq_along(thetas)) {
+  matplot(
+    ns, width_p12[, j, ], type = "b", pch = pchs, col = cols, lty = ltys,
+    lwd = 2, ylim = c(0, 0.6),
+    xlab = "Sample size (n)", ylab = "Average Interval Width",
+    main = bquote("Width:" ~ theta == .(thetas[j]))
+  )
+}
+plot.new()
+legend("center", legend = method_names, col = cols, lty = ltys, pch = pchs,
+       lwd = 2, bty = "n", cex = 1.05, title = "Method")
+```
+
+---
+
+## Detailed Conclusions (The Newcombe 1998 Takeaway)
+
+1. **Continuity Correction Widens the Intervals:**
+   Adding $\pm 1/(2n)$ mechanically expands the interval. As a result, coverage increases for every method, but at the cost of **wider intervals** (less informative estimates). For example, at $n = 10, \theta = 0.5$, adding CC widens the score interval from $0.442$ to $0.500$ (a $13\%$ increase in width).
+
+2. **Wald + CC Still Fails at the Boundaries:**
+   Although CC improves Wald's performance for moderate $n$, it does not cure its structural defect: at $n = 10, \theta = 0.1$, coverage is still only **64.9%**! When $S = 0$, Wald + CC yields $[0, 0.05]$, which still completely misses $\theta = 0.10$.
+
+3. **Two Distinct Statistical Philosophies (Newcombe, 1998):**
+   - **Nominal Average Coverage:** If your goal is to have an interval that, on average across practical scenarios, covers around 90% while being as narrow and precise as possible, **Wilson Score without CC** or **Mid-$p$** are the top choices.
+   - **Guaranteed Minimum Coverage:** If you are in a regulatory or medical setting where under-coverage is unacceptable and you must guarantee coverage $\ge 90\%$ under all circumstances, choose **Wilson Score with CC** or **Clopper-Pearson**.
+
+\newpage
+
+# Problem 1.3: Simulating the de Moivre-Laplace Theorem
+
+## Problem Statement
+
+According to the **de Moivre-Laplace theorem**, as $n \to \infty$, the standardized binomial variable:
+$$
+W = \frac{S - n\theta}{\sqrt{n\theta(1 - \theta)}} \xrightarrow{d} \mathcal{N}(0, 1).
+$$
+For each $\theta \in \{0.1, 0.5, 0.9\}$ and each $n \in \{30, 50, 100, 150, 300, 500\}$, generate $N = 10^5$ realizations of $W$ and estimate:
+$$
+p_{n, \theta} = P(-0.5 \le W_\theta \le -0.1) \approx \hat{p}_n.
+$$
+Plot the pairs $(n, \hat{p}_{n, \theta})$ alongside the target normal asymptotic value $\Phi(-0.1) - \Phi(-0.5)$ and the exact binomial probability. Comment on the results.
+
+---
+
+## The Asymptotic Target and the "Lattice" Surprise
+
+### Computing the Asymptotic Normal Limit
+If $W$ converges to $\mathcal{N}(0, 1)$, the probability of landing in $[-0.5, -0.1]$ must approach:
+$$
+p_\infty = \Phi(-0.1) - \Phi(-0.5),
+$$
+where $\Phi(x)$ is the cumulative distribution function of $\mathcal{N}(0, 1)$. In R, this is evaluated with `pnorm(-0.1) - pnorm(-0.5)` $\approx 0.15163$.
+
+### Why Does the Convergence Oscillate? (The Beginner's Surprise)
+A beginner might assume that as $n$ grows ($30 \to 50 \to 100 \dots$), $\hat{p}_n$ will steadily and smoothly approach $0.1516$.
+Instead, our simulation reveals that $\hat{p}_n$ **jumps wildly above and below the target line**! Why?
+
+Because $S$ can only take integer values ($0, 1, 2, \dots$), $W$ can only live on a **discrete ladder (lattice)** with step size:
+$$
+\text{Step Size} = \frac{1}{\sqrt{n\theta(1 - \theta)}}.
+$$
+The condition $-0.5 \le W \le -0.1$ corresponds to an interval for $S$ of width $0.4\sqrt{n\theta(1-\theta)}$.
+Depending on $n$, this window might capture $k$ integers or $k+1$ integers. Because each integer carries a substantial probability mass of order $1/\sqrt{n}$, including or excluding a single integer produces a discontinuous jump!
+
+---
+
+## Step-by-Step R Code and Simulation
+
+```{r p13-code}
+# Step 1: Parameters
+set.seed(47)
+ns <- c(30, 50, 100, 150, 300, 500)
+thetas <- c(0.1, 0.5, 0.9)
+N <- 1e5
+a <- -0.5
+b <- -0.1
+
+# Step 2: Compute the normal asymptotic target
+target_norm <- pnorm(b) - pnorm(a)
+
+# Step 3: Pre-allocate matrices
+p_hat   <- matrix(NA, nrow = length(ns), ncol = length(thetas),
+                  dimnames = list(paste0("n=", ns), paste0("th=", thetas)))
+p_exact <- p_hat
+
+# Step 4: Run simulation and exact calculation
+for (j in seq_along(thetas)) {
+  theta <- thetas[j]
+  
+  for (i in seq_along(ns)) {
+    n <- ns[i]
+    sigma <- sqrt(n * theta * (1 - theta))
+    
+    # 1. Simulated relative frequency
+    S <- rbinom(N, size = n, prob = theta)
+    W <- (S - n * theta) / sigma
+    p_hat[i, j] <- mean(W >= a & W <= b)
+    
+    # 2. Exact theoretical probability from the binomial distribution
+    s_all <- 0:n
+    w_all <- (s_all - n * theta) / sigma
+    valid_s <- s_all[w_all >= a & w_all <= b]
+    p_exact[i, j] <- sum(dbinom(valid_s, size = n, prob = theta))
+  }
+}
+```
+
+---
+
+## Results and Tables
+
+```{r p13-tables}
+p13_list <- list()
+for (j in seq_along(thetas)) {
+  p13_list[[j]] <- data.frame(
+    Theta       = thetas[j],
+    n           = ns,
+    Simulated   = round(p_hat[, j], 4),
+    Exact_Binom = round(p_exact[, j], 4),
+    Target_Norm = round(target_norm, 4),
+    Abs_Error   = round(abs(p_hat[, j] - target_norm), 4)
+  )
+}
+table_p13 <- do.call(rbind, p13_list)
+rownames(table_p13) <- NULL
+
+knitr::kable(
+  table_p13,
+  caption = "Problem 1.3: Convergence of P(-0.5 <= W <= -0.1) toward the normal limit (0.1516)."
+)
+```
+
+---
+
+## Visualizing the Convergence (Log-Scale x-axis)
+
+```{r p13-plot, fig.cap="Problem 1.3: Convergence of the probability P(-0.5 <= W <= -0.1) toward the normal limit 0.1516 (dashed line). Blue points = simulated; Red crosses = exact binomial."}
+par(mfrow = c(2, 2), mar = c(4.5, 4.5, 3, 1))
+
+for (j in seq_along(thetas)) {
+  # Log scale for x-axis provides even spacing across 30 to 500
+  plot(
+    ns, p_hat[, j], type = "b", pch = 16, col = "blue", lwd = 2,
+    ylim = c(0, 0.22), log = "x", xaxt = "n",
+    xlab = "Sample size n (log scale)",
+    ylab = expression(hat(p)[list(n, theta)]),
+    main = bquote("Convergence for" ~ theta == .(thetas[j]))
+  )
+  axis(1, at = ns, labels = ns)
+  
+  # Overlay exact binomial values as red crosses
+  points(ns, p_exact[, j], pch = 4, col = "red", cex = 1.3, lwd = 2)
+  
+  # Asymptotic normal target line
+  abline(h = target_norm, lty = 2, col = "black", lwd = 1.5)
+}
+
+# 4th panel for clean legend
+plot.new()
+legend(
+  "center",
+  legend = c("Simulated frequency (p_hat)", "Exact binomial probability", "Normal limit (0.1516)"),
+  col = c("blue", "red", "black"),
+  pch = c(16, 4, NA), lty = c(1, NA, 2), lwd = 2,
+  bty = "n", cex = 1.05, title = "Legend"
+)
+```
+
+---
+
+## Detailed Explanations of Key Observations
+
+### 1. Why Did We Get Exactly 0.0000 for $n = 30$ and $\theta = 0.1$?
+Look at the table: for $n = 30, \theta = 0.1$, the probability is **0.0000**. Is this a bug?
+Let's do the arithmetic manually:
+- Mean of $S$: $\mu = n\theta = 30 \times 0.1 = 3$.
+- Standard deviation: $\sigma = \sqrt{30 \times 0.1 \times 0.9} = \sqrt{2.7} \approx 1.6432$.
+- The condition $-0.5 \le W \le -0.1$ requires:
+  $$
+  3 + (-0.5)(1.6432) \le S \le 3 + (-0.1)(1.6432) \iff 2.1784 \le S \le 2.8357.
+  $$
+- But $S$ can **only be an integer** ($0, 1, 2, 3, \dots$).
+- There are **no integers** in the interval $[2.1784, 2.8357]$!
+- Therefore, $P(-0.5 \le W \le -0.1) = 0$ **strictly and exactly**.
+
+### 2. Simulations vs. Exact Binomial Probabilities
+Notice that the blue simulated points ($\hat{p}_n$) sit directly on top of the red crosses (exact binomial probabilities). This proves that the non-monotonic jumps are **not simulation errors or Monte Carlo noise**; they are an inherent mathematical reality of discrete probability distributions!
+
+### 3. Faster Convergence for $\theta = 0.5$
+When $\theta = 0.5$:
+- The distribution is perfectly symmetric (skewness is 0).
+- The variance $n\theta(1-\theta)$ is maximal, making the discrete lattice finer for a given $n$.
+- Consequently, the oscillations are smaller and the curve stabilizes towards $0.1516$ faster than for $\theta = 0.1$ or $0.9$.

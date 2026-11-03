@@ -1,0 +1,51 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{5}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Machine Learning}{5}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Limits of Supervised Learning}{5}{section.1.2}%
+\contentsline {section}{\numberline {1.3}RL Formalism}{5}{section.1.3}%
+\contentsline {section}{\numberline {1.4}RL Problem}{6}{section.1.4}%
+\contentsline {chapter}{\numberline {2}RL Elements and Multi-Armed Bandits}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}The RL Elements}{7}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Reward}{7}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}The Agent and the Environment}{7}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Observation and History}{8}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Components of an Agent}{8}{subsection.2.1.4}%
+\contentsline {section}{\numberline {2.2}Multi-armed Bandits}{8}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Action Values}{9}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Incremental Implementation of Action Value Estimate}{9}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Greedy Policy}{10}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Exploration vs Exploitation}{10}{subsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {2.2.4.1}$\boldsymbol {\varepsilon }$-Greedy Policy}{10}{subsubsection.2.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.2.4.2}Greedy with Optimistic Initialization}{12}{subsubsection.2.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.2.4.3}Upper-Confidence-Bound (UCB)}{12}{subsubsection.2.2.4.3}%
+\contentsline {subsubsection}{\numberline {2.2.4.4}Gradient Bandit Algorithms (GBA)}{13}{subsubsection.2.2.4.4}%
+\contentsline {subsection}{\numberline {2.2.5}Summary: comparing exploration strategies}{14}{subsection.2.2.5}%
+\contentsline {section}{\numberline {2.3}What Really Matters: Rewards, Not Estimates}{15}{section.2.3}%
+\contentsline {chapter}{\numberline {3}MDPs and Bellman Equations}{17}{chapter.3}%
+\contentsline {section}{\numberline {3.1}The story so far ...}{17}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Markov Processes}{17}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Markov Reward Processes}{18}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Bellman Equation}{19}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Markov Decision Processes}{19}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Bellaman Expectation Equation}{21}{subsection.3.3.3}%
+\contentsline {chapter}{\numberline {4}Bellman Optimality Equations and DP}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Optimal Policy}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Bellman Optimality Equation}{23}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Dynamic Programming for MDPs}{24}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Prediction: Policy Evaluation}{25}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Control: Policy Improvement}{26}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Control: Value Iteration}{28}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Synchronous vs.\ In-place Updates}{29}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}Recap: in-place vs.\ synchronous}{29}{subsection.4.3.5}%
+\contentsline {chapter}{\numberline {5}Monte Carlo Methods}{31}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Prediction: First-visit MC prediction}{31}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Control: Model-free Generalized Policy Iteration (GPI)}{32}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Control: Exploring Starts (ES)}{33}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Control: $\epsilon $-greedy and $\epsilon $-soft policies}{34}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Prediction/Control: On-policy vs Off-policy learning}{35}{subsection.5.2.3}%
+\contentsline {chapter}{\numberline {6}Temporal Difference Learning}{39}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Limits of Monte Carlo approaches}{39}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Monte Carlo vs TD-Learning}{39}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Bias/Variance Trade-off}{40}{section.6.3}%
+\contentsline {section}{\numberline {6.4}TD-Learning Control}{41}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Control: SARSA-On-policy TD learning}{41}{subsection.6.4.1}%

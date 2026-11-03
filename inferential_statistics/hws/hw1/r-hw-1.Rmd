@@ -1,0 +1,472 @@
+---
+title: "Homework #1"
+subtitle: "Inferential Statistics 2026/2027"
+author: "Daniele Di Spirito"
+date: "October 23, 2026"
+output: 
+  pdf_document: 
+    toc: true
+    fig_height: 6
+editor_options: 
+  markdown: 
+    wrap: 80
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 7, out.width = "100%",
+                      fig.align = "center")
+```
+
+\newpage
+
+# Problem 1.1
+
+This problem invites you to learn more about the "exact" vs "approximate"
+confidence intervals in the case of the parameter of a binomial distribution.
+Concretely, for any $n\in \{10, 30, 50, 100\}$, and any
+$\theta\in \{0.1, 0.5, 0.9\}$ generate $N=10^5$ data sets from the resulting
+binomial distribution. For each data set, compute
+
+- the exact binomial 0.90 confidence interval
+- the approximate 0.90 confidence interval (using the Z formula in the slides)
+- the approximate 0.90 confidence interval used by \texttt{prop.test} command
+  with the option \texttt{correct=FALSE}
+
+For each $n$ and $\theta$, compute and report relative number of times the $N$
+intervals trap $\theta$. That is, for any $n\in \{10, 30, 50, 100\}$, and for
+any $\theta\in \{0.1, 0.5, 0.9\}$, generate $N=10^5$ binomial random numbers and
+for of these compute the above intervals. For the $10^5$ intervals report the
+fraction of times $\theta$ is in it.
+
+Show your results by means of suitable table or diagram and the results.
+
+## Solution to Problem 1.1
+
+The full stand-alone script is `problem_1_1.R`. The three intervals are
+
+- **exact (Clopper–Pearson)**, obtained with `binom.test`, built by inverting
+  the binomial tail probabilities;
+- **Wald (Z)**, from the slides: $\hat\theta \pm z_{0.95}\sqrt{\hat\theta(1-\hat\theta)/n}$,
+  with $\hat\theta = S/n$ and $z_{0.95}\approx 1.645$;
+- **Wilson score**, obtained with `prop.test(..., correct = FALSE)`, i.e. the set
+  of $\theta$ such that $|S/n-\theta|/\sqrt{\theta(1-\theta)/n} \le z_{0.95}$.
+
+Since $S$ can only take the values $0,1,\dots,n$, each interval is computed once
+for every possible outcome $s$ and then looked up for the $N$ simulated counts.
+This gives exactly the same result as calling `binom.test`/`prop.test` on each of
+the $10^5$ data sets, at a tiny fraction of the cost.
+
+```{r p11-sim}
+set.seed(47)
+ns     <- c(10, 30, 50, 100)
+thetas <- c(0.1, 0.5, 0.9)
+N      <- 1e5
+level  <- 0.90
+z      <- qnorm(1 - (1 - level) / 2)   # 1.645
+
+# ---- intervals for every possible outcome s = 0, ..., n --------------------
+# each function returns a (n + 1) x 2 matrix: [lower, upper]
+
+ci_exact <- function(n, level) {
+  t(sapply(0:n, function(s) binom.test(s, n, conf.level = level)$conf.int))
+}
+
+ci_wald <- function(n, level) {
+  z <- qnorm(1 - (1 - level) / 2)
+  p <- (0:n) / n
+  cbind(p - z * sqrt(p * (1 - p) / n), p + z * sqrt(p * (1 - p) / n))
+}
+
+ci_score <- function(n, level) {
+  t(sapply(0:n, function(s)
+    prop.test(s, n, conf.level = level, correct = FALSE)$conf.int))
+}
+
+methods <- list(
+  "Exact (Clopper-Pearson)"      = ci_exact,
+  "Wald (Z)"                     = ci_wald,
+  "Score (prop.test, no corr.)"  = ci_score
+)
+
+# ---- simulation ------------------------------------------------------------
+res <- expand.grid(n = ns, theta = thetas, method = names(methods),
+                   stringsAsFactors = FALSE)
+res$coverage <- NA_real_
+
+for (n in ns) {
+  # intervals for all possible outcomes, for every method
+  cis <- lapply(methods, function(f) f(n, level))
+  for (theta in thetas) {
+    S <- rbinom(N, size = n, prob = theta)   # N simulated data sets
+    for (m in names(methods)) {
+      lo <- cis[[m]][S + 1, 1]
+      up <- cis[[m]][S + 1, 2]
+      res$coverage[res$n == n & res$theta == theta & res$method == m] <-
+        mean(lo <= theta & theta <= up)
+    }
+  }
+}
+
+# ---- table -----------------------------------------------------------------
+tab <- reshape(res, idvar = c("theta", "n"), timevar = "method",
+               direction = "wide")
+names(tab) <- sub("coverage.", "", names(tab), fixed = TRUE)
+tab <- tab[order(tab$theta, tab$n), ]
+rownames(tab) <- NULL
+```
+
+```{r p11-table}
+knitr::kable(tab, digits = 4,
+             caption = "Empirical coverage of the nominal 0.90 intervals")
+```
+
+```{r p11-plot, fig.cap="Empirical coverage of the three 0.90 intervals (dotted line: nominal level)."}
+cols <- c("black", "red", "blue")
+pchs <- c(15, 16, 17)
+par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+for (theta in thetas) {
+  plot(NA, xlim = range(ns), ylim = c(0.6, 1), xaxt = "n",
+       xlab = "n", ylab = "Empirical coverage",
+       main = bquote(theta == .(theta)))
+  axis(1, at = ns)
+  abline(h = level, lty = 2, col = "gray40")
+  for (k in seq_along(methods)) {
+    d <- res[res$theta == theta & res$method == names(methods)[k], ]
+    lines(d$n, d$coverage, type = "b", col = cols[k], pch = pchs[k], lwd = 2)
+  }
+}
+plot.new()   # 4th panel: legend
+legend("center", legend = names(methods), col = cols, pch = pchs, lwd = 2,
+       bty = "n", title = "Method")
+```
+
+**Comments.**
+
+- **Exact (Clopper–Pearson).** Its coverage is *always* at least the nominal
+  0.90, as guaranteed by construction, but it is conservative: for $n=10$ it
+  traps $\theta$ about 98–99% of the times, and it is still around 0.93–0.94
+  for $n=100$ when $\theta=0.1, 0.9$. The price is wider intervals than needed.
+- **Wald (Z).** It is the worst method. For $\theta=0.5$ it behaves reasonably
+  well (coverage 0.88–0.91), but for $\theta$ close to the boundaries the
+  coverage is dramatically below the nominal level: $\approx 0.64$ for $n=10$,
+  $\approx 0.79$ for $n=30$ and still only $\approx 0.86$ for $n=100$. The
+  reason is that the normal approximation of $\hat\theta$ is poor when
+  $n\theta$ or $n(1-\theta)$ is small, and the estimated standard error
+  $\sqrt{\hat\theta(1-\hat\theta)/n}$ is very unreliable (when $S=0$ or $S=n$
+  the interval degenerates to a single point).
+- **Score (`prop.test`, `correct = FALSE`).** It is the best compromise: its
+  coverage oscillates *around* the nominal value (0.87–0.93) for all $n$ and
+  $\theta$, without the systematic under-coverage of Wald and without the
+  over-coverage of the exact interval.
+- For $\theta=0.5$ the Wald and the score intervals give exactly the same
+  coverage: the intervals differ, but they contain $\theta=0.5$ for the same
+  values of $s$.
+- Results for $\theta=0.1$ and $\theta=0.9$ are (up to simulation error)
+  identical, by symmetry ($S \mapsto n-S$).
+- Coverage is not a monotone function of $n$: because $S$ is discrete, the set of
+  outcomes $s$ whose interval contains $\theta$ changes in jumps, producing the
+  well known "oscillating" behaviour of binomial coverage probabilities.
+
+\newpage
+
+# Problem 1.2
+
+This problem invites you to learn more about the continuity correction in the
+context of confidence intervals for the the parameter of a binomial
+distribution. In particular,
+
+- read Newcombe (1998) article;
+- repeat the experiments in Problem 1, now applying the continuity correction to
+  all possible methods.
+
+Show your results by means of suitable diagram and compare the results with the
+previous ones. Conclusions?
+
+## Solution to Problem 1.2
+
+The full stand-alone script is `problem_1_2.R`. Following Newcombe (1998), the
+methods with and without continuity correction (CC) are:
+
+| Method | without CC | with CC |
+|:-------|:-----------|:--------|
+| Wald | $\hat\theta \pm z\sqrt{\hat\theta(1-\hat\theta)/n}$ (method 1) | $\hat\theta \pm \left(z\sqrt{\hat\theta(1-\hat\theta)/n} + \frac{1}{2n}\right)$ (method 2) |
+| Score (Wilson) | `prop.test(correct = FALSE)` (method 3) | `prop.test(correct = TRUE)` (method 4) |
+| Exact | mid-$p$ interval (method 6) | Clopper–Pearson, `binom.test` (method 5) |
+
+For the exact family the Clopper–Pearson interval already plays the role of the
+"continuity corrected" interval: its limits solve
+$P_\theta(S\ge s)=\alpha/2$ and $P_\theta(S\le s)=\alpha/2$, i.e. they count the
+*whole* probability of the observed value $s$ in the tails. The uncorrected
+counterpart is the mid-$p$ interval, whose limits solve
+$P_\theta(S>s)+\tfrac12 P_\theta(S=s)=\alpha/2$ and
+$P_\theta(S<s)+\tfrac12 P_\theta(S=s)=\alpha/2$. The Wald + CC limits are
+truncated to $[0,1]$.
+
+The same seed as in Problem 1.1 is used, so all methods are evaluated on
+exactly the same simulated data sets. Besides the coverage we also record the
+mean width of the intervals, to quantify the cost of the correction.
+
+```{r p12-sim}
+set.seed(47)
+ns     <- c(10, 30, 50, 100)
+thetas <- c(0.1, 0.5, 0.9)
+N      <- 1e5
+level  <- 0.90
+alpha  <- 1 - level
+
+# ---- intervals for every possible outcome s = 0, ..., n --------------------
+
+ci_wald <- function(n, level, cc = FALSE) {
+  z <- qnorm(1 - (1 - level) / 2)
+  p <- (0:n) / n
+  half <- z * sqrt(p * (1 - p) / n) + cc / (2 * n)
+  cbind(pmax(0, p - half), pmin(1, p + half))   # truncated to [0, 1]
+}
+
+ci_score <- function(n, level, cc = FALSE) {
+  t(sapply(0:n, function(s)
+    prop.test(s, n, conf.level = level, correct = cc)$conf.int))
+}
+
+ci_exact <- function(n, level) {               # Clopper-Pearson
+  t(sapply(0:n, function(s) binom.test(s, n, conf.level = level)$conf.int))
+}
+
+ci_midp <- function(n, level) {                # mid-p exact interval
+  a <- (1 - level) / 2
+  t(sapply(0:n, function(s) {
+    # lower: P(S > s) + P(S = s)/2 = a ; upper: P(S < s) + P(S = s)/2 = a
+    lo <- if (s == 0) 0 else uniroot(function(th)
+      pbinom(s, n, th, lower.tail = FALSE) + 0.5 * dbinom(s, n, th) - a,
+      c(0, 1), tol = 1e-10)$root
+    up <- if (s == n) 1 else uniroot(function(th)
+      pbinom(s - 1, n, th) + 0.5 * dbinom(s, n, th) - a,
+      c(0, 1), tol = 1e-10)$root
+    c(lo, up)
+  }))
+}
+
+methods <- list(
+  "Wald"            = function(n, l) ci_wald(n, l, cc = FALSE),
+  "Wald + CC"       = function(n, l) ci_wald(n, l, cc = TRUE),
+  "Score"           = function(n, l) ci_score(n, l, cc = FALSE),
+  "Score + CC"      = function(n, l) ci_score(n, l, cc = TRUE),
+  "Exact mid-p"     = ci_midp,
+  "Exact C-P (CC)"  = ci_exact
+)
+
+# ---- simulation (same random numbers as in Problem 1.1) -------------------
+res <- expand.grid(n = ns, theta = thetas, method = names(methods),
+                   stringsAsFactors = FALSE)
+res$coverage <- NA_real_
+res$width    <- NA_real_
+
+for (n in ns) {
+  cis <- lapply(methods, function(f) f(n, level))
+  for (theta in thetas) {
+    S <- rbinom(N, size = n, prob = theta)
+    for (m in names(methods)) {
+      lo <- cis[[m]][S + 1, 1]
+      up <- cis[[m]][S + 1, 2]
+      idx <- res$n == n & res$theta == theta & res$method == m
+      res$coverage[idx] <- mean(lo <= theta & theta <= up)
+      res$width[idx]    <- mean(up - lo)
+    }
+  }
+}
+
+# ---- tables ----------------------------------------------------------------
+wide <- function(var) {
+  d <- reshape(res[, c("n", "theta", "method", var)],
+               idvar = c("theta", "n"), timevar = "method", direction = "wide")
+  names(d) <- sub(paste0(var, "."), "", names(d), fixed = TRUE)
+  d <- d[order(d$theta, d$n), ]
+  rownames(d) <- NULL
+  d
+}
+tab_cov   <- wide("coverage")
+tab_width <- wide("width")
+```
+
+```{r p12-tables}
+knitr::kable(tab_cov, digits = 4,
+             caption = "Empirical coverage, with and without continuity correction")
+knitr::kable(tab_width, digits = 3,
+             caption = "Mean width of the intervals")
+```
+
+```{r p12-plots, fig.cap=c("Empirical coverage (solid: no CC, dashed: with CC; dotted line: nominal level).", "Mean width of the intervals (solid: no CC, dashed: with CC).")}
+cols <- c("red", "red", "blue", "blue", "darkgreen", "darkgreen")
+ltys <- c(1, 2, 1, 2, 1, 2)
+pchs <- c(16, 1, 17, 2, 15, 0)
+
+plot_res <- function(var, ylim, ylab, hline = NULL) {
+  par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+  for (theta in thetas) {
+    plot(NA, xlim = range(ns), ylim = ylim, xaxt = "n",
+         xlab = "n", ylab = ylab, main = bquote(theta == .(theta)))
+    axis(1, at = ns)
+    if (!is.null(hline)) abline(h = hline, lty = 3, col = "gray40")
+    for (k in seq_along(methods)) {
+      d <- res[res$theta == theta & res$method == names(methods)[k], ]
+      lines(d$n, d[[var]], type = "b", col = cols[k], lty = ltys[k],
+            pch = pchs[k], lwd = 2)
+    }
+  }
+  plot.new()   # 4th panel: legend
+  legend("center", legend = names(methods), col = cols, lty = ltys,
+         pch = pchs, lwd = 2, bty = "n", title = "Method")
+}
+
+plot_res("coverage", ylim = c(0.6, 1), ylab = "Empirical coverage",
+         hline = level)
+plot_res("width", ylim = c(0, max(res$width)), ylab = "Mean interval width")
+```
+
+**Comparison with Problem 1.1 and conclusions.**
+
+- The "Wald", "Score" and "Exact C-P" columns coincide with the results of
+  Problem 1.1 (same data sets): the new information is given by the corrected
+  Wald and score intervals and by the mid-$p$ interval.
+- **The continuity correction always widens the interval** (it moves both
+  limits outwards), and therefore the coverage can only increase. On the
+  other hand the mean width increases too: e.g. for $n=10$, $\theta=0.5$ the
+  score interval goes from $\approx 0.44$ to $\approx 0.50$; the relative cost
+  becomes small as $n$ grows ($\approx 0.16$ vs $0.17$ for $n=100$).
+- **Wald + CC** improves the Wald interval for $n\ge 30$, but it does not cure
+  its fundamental defect: for $n=10$, $\theta=0.1$ (or $0.9$) the coverage is
+  still $\approx 0.65$, since when $S=0$ the interval is just
+  $[0, 1/(2n)] = [0, 0.05]$, which cannot contain $\theta = 0.1$; its coverage
+  is moreover very erratic (0.95 for $n=30$, 0.88 for $n=50$). Wald-type
+  intervals remain unreliable with or without correction.
+- **Score + CC** (`prop.test` default) is conservative: its coverage is never
+  below 0.90 and behaves very much like the Clopper–Pearson interval (in many
+  cells the coverage is even identical), sometimes being even more
+  conservative (e.g. 0.974 vs 0.931 for $n=30$, $\theta=0.1$).
+- **Mid-$p$** (the "uncorrected exact" interval) behaves like the uncorrected
+  score interval: coverage close to 0.90 on average, sometimes slightly below
+  (minimum $\approx 0.88$), with narrower intervals than Clopper–Pearson.
+- Hence the methods split in two groups, as pointed out by Newcombe (1998):
+    - *uncorrected* methods (score, mid-$p$) aim at a **mean** coverage
+      close to $1-\alpha$, accepting that for some $(n,\theta)$ the coverage
+      is slightly lower;
+    - *corrected* methods (score + CC, Clopper–Pearson) aim at a **minimum**
+      coverage of $1-\alpha$, at the price of being conservative (wider
+      intervals, coverage often well above $1-\alpha$).
+- Conclusion: the Wald interval (with or without CC) should be avoided,
+  especially for small $n$ or $\theta$ close to 0 or 1. If we want an
+  interval whose coverage is on average close to the nominal level, the score
+  interval without CC (or the mid-$p$ interval) is the best choice; if we
+  require the coverage to be *never* below the nominal level, the
+  continuity-corrected score interval or the exact Clopper–Pearson interval
+  should be used. This agrees with Newcombe's recommendation of the score
+  method (with or without CC) and of the exact/mid-$p$ methods.
+
+\newpage
+
+# Problem 1.3
+
+According de Moivre-Laplace's theorem, $W$ must converge to the standard normal
+distribution as $n$ increases. You are invited to illustrate one aspect of this
+fact via simulations as follows. For each $\theta \in \{0.1, 0.5, 0.9\}$ and for
+each $n \in\{30,50,100,150, 300, 500\}$, generate $N=10^5$ random numbers of $W$
+and approximate $p_{n,\theta} = P(-0.5\leq W_\theta\leq -0.1)$ by $\hat p_n$,
+given by the relative frequency of $W_\theta$'s that satisfy the inequality.
+Plot the pairs $(n ,\hat{p}_{n,\theta})$ for all $n$, for each $\theta$ along
+with the target value provided by the aforementioned theorem. Comment the
+results.
+
+## Solution to Problem 1.3
+
+The full stand-alone script is `problem_1_3.R`. With $S\sim \text{Bin}(n,\theta)$,
+$$
+W_\theta = \frac{S-n\theta}{\sqrt{n\theta(1-\theta)}} \xrightarrow{d} N(0,1),
+$$
+so the target value is
+$p_\infty = \Phi(-0.1)-\Phi(-0.5) \approx `r round(pnorm(-0.1) - pnorm(-0.5), 4)`$.
+For reference, the exact value of $p_{n,\theta}$, computed from the binomial
+distribution, is also reported.
+
+```{r p13-sim}
+set.seed(47)
+ns     <- c(30, 50, 100, 150, 300, 500)
+thetas <- c(0.1, 0.5, 0.9)
+N      <- 1e5
+a <- -0.5
+b <- -0.1
+
+target <- pnorm(b) - pnorm(a)    # limit value given by the theorem
+
+res <- expand.grid(n = ns, theta = thetas)
+res$p_hat   <- NA_real_
+res$p_exact <- NA_real_
+
+for (i in seq_len(nrow(res))) {
+  n     <- res$n[i]
+  theta <- res$theta[i]
+  sd    <- sqrt(n * theta * (1 - theta))
+  S <- rbinom(N, size = n, prob = theta)
+  W <- (S - n * theta) / sd
+  res$p_hat[i] <- mean(a <= W & W <= b)
+  # exact: P(n theta + a sd <= S <= n theta + b sd)
+  s_vals <- 0:n
+  w_vals <- (s_vals - n * theta) / sd
+  res$p_exact[i] <- sum(dbinom(s_vals[a <= w_vals & w_vals <= b], n, theta))
+}
+```
+
+```{r p13-table}
+knitr::kable(res, digits = 4,
+             caption = "Simulated and exact values of P(-0.5 <= W <= -0.1)")
+```
+
+```{r p13-plot, fig.cap="Simulated relative frequencies (blue), exact binomial probabilities (red crosses) and normal limit (dashed line)."}
+par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+ylim <- range(c(0, res$p_hat, res$p_exact, target))
+for (theta in thetas) {
+  d <- res[res$theta == theta, ]
+  plot(d$n, d$p_hat, type = "b", pch = 16, lwd = 2, col = "blue",
+       ylim = ylim, xlab = "n", ylab = expression(hat(p)[list(n, theta)]),
+       main = bquote(theta == .(theta)), log = "x", xaxt = "n")
+  axis(1, at = ns)
+  points(d$n, d$p_exact, pch = 4, col = "red", cex = 1.5, lwd = 2)
+  abline(h = target, lty = 2, lwd = 2)
+}
+plot.new()   # 4th panel: legend
+legend("center", bty = "n",
+       legend = c("Simulated (relative frequency)", "Exact binomial",
+                  "Normal limit"),
+       col = c("blue", "red", "black"), pch = c(16, 4, NA),
+       lty = c(1, NA, 2), lwd = 2)
+```
+
+**Comments.**
+
+- The simulated relative frequencies $\hat p_{n,\theta}$ practically coincide
+  with the exact binomial probabilities $p_{n,\theta}$: with $N=10^5$ the Monte
+  Carlo standard error is about $\sqrt{0.15\cdot 0.85/10^5}\approx 0.001$.
+  Hence the discrepancies from the dashed line are **not** due to the
+  simulation, but to the fact that, for finite $n$, $W_\theta$ is not normal.
+- The convergence towards $p_\infty\approx 0.152$ is clearly **not
+  monotone**: $\hat p_{n,\theta}$ oscillates around the target. The reason is
+  that $W_\theta$ is a discrete random variable living on a lattice with step
+  $1/\sqrt{n\theta(1-\theta)}$; the interval $[-0.5,-0.1]$, of length 0.4,
+  contains either $\lfloor 0.4\sqrt{n\theta(1-\theta)}\rfloor$ or one more
+  lattice point, depending on $n$, and each point carries a probability
+  $\approx \varphi(w)/\sqrt{n\theta(1-\theta)}$. Including/excluding one point
+  makes $\hat p$ jump above or below the target.
+- The extreme case is $n=30$, $\theta=0.1$ (and $0.9$): here
+  $\sqrt{n\theta(1-\theta)}\approx 1.64$ and
+  $-0.5\le W\le -0.1 \iff 2.18\le S\le 2.84$, an interval containing no
+  integer, so $p_{30,\theta}=0$ exactly, far from $0.152$.
+- As $n$ grows the lattice becomes finer, each point carries less probability
+  and the oscillations shrink (their amplitude is of order $1/\sqrt{n}$), so
+  $\hat p_{n,\theta}\to p_\infty$, as stated by the de Moivre–Laplace theorem.
+- The convergence is faster for $\theta=0.5$ than for $\theta=0.1$ or $0.9$:
+  the effective sample size governing the approximation is $n\theta(1-\theta)$,
+  which is maximal at $\theta=0.5$, and for $\theta \ne 0.5$ the binomial
+  distribution is skewed, which further slows the convergence. Note also that
+  the results for $\theta=0.1$ and $\theta=0.9$ are similar but not identical:
+  the interval $[-0.5,-0.1]$ is not symmetric around 0, so it sees the two
+  opposite skewnesses differently.

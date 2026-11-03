@@ -1,0 +1,256 @@
+% !TEX root = ../main.tex
+\chapter{RL Elements and Multi-Armed Bandits}
+
+\section{The RL Elements}
+\subsection{Reward}
+A reward $R_t$ is a scalar feedback that indicates how well the agent is doing at step $t$.
+Step $t$ indicates a discrete time-step (contionuos-time treatment is possible but not considered in this course).
+We consider a time-step in:
+\begin{enumerate}
+    \item \textbf{Episodic tasks:} last for a finite amount of time;
+    \item \textbf{Continuing tasks:} never ends and continue indefinitely.
+\end{enumerate}
+The agent's job is to maximize the \textit{cumulative reward}:
+\begin{enumerate}
+    \item In episodic tasks, cumulative reward over an episode;
+    \item In continuing tasks, cumulative reward over the entire lifetime of the agent.
+\end{enumerate}
+RL is based on the \textit{reward hypotesis}:
+\begin{center}
+  \itshape ``All goals can be achieved by maximizing the expected cumulative reward.''
+\end{center}
+That means that immediate rewards can be sacrificed to gain more long term rewards.
+
+\subsection{The Agent and the Environment}
+At each step $t$ the agent is in the state $S_t$ and takes an action $A_t$ that is a feasible action from that state. The environment, based on the state-action pair $(S_t, A_t)$, returns a reward $R_{t+1}$ and moves the agent in the state $S_{t+1}$.
+
+\subsection{Observation and History}
+Moreover, at each step the agents sees an \textit{observation} $O_{t+1}$:
+\begin{itemize}
+    \item In \textit{fully observable environments} $S_{t+1}=O_{t+1}$;
+    \item In \textit{partially observable environments} the state is not available and must be inferred from the history: \[H_t=O_1,R_1,A_1,...,A_{t-1},O_t,R_t\]\[S_t=f(H_t)\] 
+\end{itemize}
+If we can't have a reliable state we must define different strategies (taking whole history as state or estimate the state with a supervised learning approximation).
+
+\subsection{Components of an Agent}
+An agent may have the following components:
+\begin{itemize}
+    \item (always) a \textit{policy}, the function that describes the behavior of the agent and maps states to actions. The RL goal is to find the optimal policy. Policy can be:
+        \begin{itemize}
+            \item \textit{Deterministic policy}, $a=\pi(s)$
+            \item \textit{Stochastic policy}, $\pi(a|s)=P[A_t=a|S_t=s]$
+        \end{itemize}
+    \item (possibly) a \textit{value function}, a quantitave description of how good each state is;
+    \item (possibly) a \textit{q-value function}, a quantitative description of how good a (state,action) pair is;
+    \item (possibly) a \textit{model}, the agent's representation of the environment.
+\end{itemize}
+
+\section{Multi-armed Bandits}
+In this case we consider simple settings where there is only one state ($S_t=S_{t+1}$) and the agent has to choose among $k$ actions (arms of a bandit). The agent's goal is to maximize the expected reward over time. The agent must balance exploration (trying new actions) and exploitation (choosing the best-known action).
+
+In the example of slot machines, each machine is associated with a different probability distribution of rewards. At each episode the agent can pull only one lever. The aim is to understand the best strategy to maximize cumulative rewards over different episodes. 
+
+\subsection{Action Values}
+Each action provides a stochastic reward, and the q-value of an action is the following (we are considering that the state never changes):
+\[q_*(a)\overset{\text{def}}{=}\mathbb{E}[R_t|A_t=a]\]
+In this case $t$ indicates the episode number, while in typical RL settings it indicates the time-stamp within an episode.
+
+The q-value for an action is not known and must be estimated, a simple way is by the \textit{Sample-Average} method:
+\[Q_t(a)\overset{\text{.}}{=}\frac{\text{sum of rewards when }a\text{ is taken prior to }t}{\text{number of times }a\text{ is taken prior to }t}=\frac{\sum_{i=1}^{t-1}R_i\cdot\mathds{1}_{A_i=a}}{\sum_{i=1}^{t-1}\mathds{1}_{A_i=a}}\]
+every time i collect a new data point i can recompute this estimation.
+
+\subsection{Incremental Implementation of Action Value Estimate}
+If we consider a single action $a$ and $R_i$ the reward acheived at the $i$-th selection of $a$, after $n-1$ selections of action $a$ we can estimates it's action value as:
+\[Q_t\overset{.}{=}\frac{R_1+R_2+\cdots{}+R_{n-1}}{n-1}\]
+This approach is not efficient beacause memory and computation will grow over time.
+\begin{equation}
+\begin{split}
+  Q_{n+1}&=\frac{1}{n}\sum_{i=1}^{n}R_i \\
+  &=\frac{1}{n}\left(R_n+\sum_{i=1}^{n-1}R_i\right) \\
+  &=\frac{1}{n}\left(R_n+(n-1)Q_n\right) \\
+  &=\frac{1}{n}\left(R_n+nQ_n-Q_n\right) \\
+  &=Q_n+\frac{1}{n}\left(R_n-Q_n\right)
+\end{split}
+\end{equation}
+This implementation requires only $Q_n$ and $n$ to compute $Q_{n+1}$, we don't need all the past values of the rewards.
+The more reward i see, the less relevant the innovation is (not ideal for non stationary problems).
+For this reason we move to the use of a step-size that does not change over time (tipically $\alpha\in(0,1]$).
+\[\textit{NewEstimate}\leftarrow\textit{OldEstimate}+\textit{StepSize}\left[\textit{Target}-\textit{OldEstimate}\right]\]
+In this way i also don't need to keep track of the number of times an action has been selected, but i need to choose a step-size $\alpha$. This is also convenient for \textit{non-stationary} problems where the reward distribution of the actions changes over time.
+\begin{equation}
+\begin{split}
+  Q_{n+1}&=Q_n+\alpha\left(R_n-Q_n\right) \\
+  &=\alpha R_n+(1-\alpha)Q_n \\
+  &=\alpha R_n+(1-\alpha)\left[\alpha R_{n-1}+(1-\alpha)Q_{n-1}\right] \\
+  &=\alpha R_n+\alpha(1-\alpha)R_{n-1}+(1-\alpha)^2Q_{n-1} \\
+  &=\alpha R_n+\alpha(1-\alpha)R_{n-1}+\alpha(1-\alpha)^2R_{n-2}+ \\ &\cdots{}+\alpha(1-\alpha)^{n-1}R_1+(1-\alpha)^nQ_1 \\
+  &=(1-\alpha)^nQ_1+\sum_{i=1}^{n}\alpha(1-\alpha)^{n-i}R_i
+\end{split}
+\end{equation}
+\subsection{Greedy Policy}
+With a greedy policy the selected action will be:
+\[A_t\overset{\cdot}{=}\argmax_{a}Q_t(a)\]
+This policy is the simplest one, but it is not optimal because it does not explore new actions, this can lead to a suboptimal solution.
+
+\subsection{Exploration vs Exploitation}
+\textit{Exploration} allows us to improve knowledge for long-term benefit, while \textit{Exploitation} exploits knowledge for short-term benefit.
+Implementing a trade-off is necessary to avoid suboptimal solutions. There are different approaches to cope with the trade-off:
+\begin{itemize}
+    \item $\varepsilon$-greedy;
+    \item greedy with optimistic initialization;
+    \item Upper Confidence Bound (UCB);
+    \item Gradient Bandit.
+\end{itemize}
+
+\subsubsection{\texorpdfstring{$\boldsymbol{\varepsilon}$}{epsilon}-Greedy Policy}
+This is a stochastic policy, defined as follows:
+\begin{equation}
+  A_t\overset{def}{=}
+  \begin{cases}
+    \text{greedy action with probability }1-\varepsilon\\
+    \text{a random action among all }k\text{ with probability } \varepsilon
+  \end{cases}
+\end{equation}
+with $\varepsilon\in(0,1)$ (tipically a small number). In random case the action is chosen uniformly among all $k$, including the greedy one.
+
+\begin{esempio}{The 10-armed testbed}
+Consider \textbf{2000 randomly generated} 10-armed bandit problems.
+
+\medskip
+\noindent\textbf{Generating a problem.}
+For each problem, the true action values are drawn as
+$q_*(a) \sim \mathcal{N}(0,1)$ for $a = 1,\dots,10$.
+When the agent selects action $a$, it receives
+$R \sim \mathcal{N}(q_*(a),\,1)$.
+
+\medskip
+\noindent\textbf{What the agent does.}
+In each problem the agent starts with all estimates set to zero and plays
+$1000$ steps, updating $Q_t(a)$ along the way. There is no memory
+between one problem and the next (independent problems).
+
+\medskip
+\noindent\textbf{Evaluation.}
+At each step $t$, performance is averaged over the 2000 problems:
+\[
+  \bar{R}_t = \frac{1}{2000}\sum_{k=1}^{2000} R_t^{(k)}
+  \qquad
+  \%\text{ optimal}_t = \frac{1}{2000}\sum_{k=1}^{2000}
+  \mathds{1}_{A_t^{(k)} = \arg\max_a q_*^{(k)}(a)}
+\]
+\begin{center}
+  \includegraphics[width=0.85\linewidth]{./figures/chapter2/bandit_testbed.png}
+  \captionof{figure}{Comparison of $\varepsilon$-greedy policies on the 10-armed testbed, averaged over 2000 randomly generated problems, each played for 1000 steps.}
+  \label{fig:testbed}
+\end{center}
+\end{esempio} 
+
+\begin{algobox}{A simple bandit algorithm}
+Initialize, for $a = 1$ to $k$:\\
+\hspace*{1.5em}$Q(a) \leftarrow 0$\\
+\hspace*{1.5em}$N(a) \leftarrow 0$
+
+\medskip
+Loop forever:\\
+\hspace*{1.5em}$A \leftarrow
+\begin{cases}
+  \argmax_a Q(a) & \text{with probability } 1-\varepsilon \\
+  \text{a random action} & \text{with probability } \varepsilon
+\end{cases}$\\[2pt]
+\hspace*{1.5em}$R \leftarrow \mathit{bandit}(A)$\\
+\hspace*{1.5em}$N(A) \leftarrow N(A) + 1$\\
+\hspace*{1.5em}$Q(A) \leftarrow Q(A) + \frac{1}{N(A)}\bigl[R - Q(A)\bigr]$
+\end{algobox}
+
+\subsubsection{Greedy with Optimistic Initialization}
+We can initialize the action-value estimates to a high value, this will encourage exploration in the early stages of learning. The agent will try all actions and then converge to the optimal one.
+The only difference in the algorithm is the initialization of the action-value estimates, which are set to a high value instead of zero ($Q(a)\leftarrow Q_0$). However, this approach is not suitable for non-stationary problems, because the agent will converge to the optimal action and will not explore anymore.
+Anyway it is a convenient heuristic to use combined other approches. 
+
+\subsubsection{Upper-Confidence-Bound (UCB)}
+\textit{UCB} uses uncertainty in the value estimates to balance exploration and exploitation. The action selection is based on the following formula:
+\[A_t\overset{.}{=}\argmax_a \left[Q_t(a) + c\sqrt{\frac{\ln t}{N_t(a)}}\right]\]
+that uses the \textit{Hoeffding's Inequality}. The more we take an action, the narrower the confidence interval becomes, and the less we explore that action. The parameter $c$ controls the degree of exploration. In a sense, we take the action that potentially could be the best, considering both the estimated value and the uncertainty in that estimate.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/chapter2/hoeffding_ucb.png}
+  \caption{Intuition behind UCB via Hoeffding's inequality. Each curve represents
+  the uncertainty about $q_*(a)$; the dashed lines are the upper bounds
+  $Q_t(a) + U_t(a)$, chosen so that the shaded tails have the same small
+  probability. The least explored action ($N=2$) has the largest bound and is
+  selected.}
+  \label{fig:hoeffding-ucb}
+\end{figure}
+
+\subsubsection{Gradient Bandit Algorithms (GBA)}
+In \textit{GBA} a preference for each action is defined $H_t(a)\in\R$, the larger the preference, the more likely the action will be selected. The action selection is based on a softmax distribution:
+\[Pr\{A_t=a\}\overset{.}{=}\frac{e^{H_t(a)}}{\sum_{b=1}^k e^{H_t(b)}}\overset{.}{=}\pi_t(a)\]
+The Gradient Bandit Algorithm updates action preferences using
+gradient ascent on the expected reward:
+
+\[
+H_{t+1}(a) = H_t(a) +
+\alpha (R_t - \bar{R}_t)
+\frac{\partial \ln \pi_t(A_t)}{\partial H_t(a)}
+\]
+
+Given the softmax policy:
+
+\[
+\pi_t(a) =
+\frac{e^{H_t(a)}}{\sum_{b=1}^{k} e^{H_t(b)}}
+\]
+
+Taking its logarithm:
+
+\[
+\ln \pi_t(A_t)
+= H_t(A_t) -
+\ln \left( \sum_{b=1}^{k} e^{H_t(b)} \right)
+\]
+
+The derivative depends on whether the action is selected:
+
+\[
+\frac{\partial \ln \pi_t(A_t)}{\partial H_t(a)}
+=
+\begin{cases}
+1 - \pi_t(A_t), & a = A_t \\[4pt]
+-\pi_t(a), & a \neq A_t
+\end{cases}
+\]
+
+Therefore, the two update rules follow directly from
+the gradient of the log-softmax policy.
+
+\[H_{t+1}(A_t)\overset{.}{=}H_t(A_t)+\alpha(R_t-\bar{R}_t)(1-\pi_t(A_t))\]
+and for all $a\ne A_t$:
+\[H_{t+1}(a)\overset{.}{=}H_t(a)-\alpha(R_t-\bar{R}_t)\pi_t(a)\]
+with $\alpha$ the step-size parameter and $\bar{R}_t$ the average of the rewards received up to time $t$. The update rule increases the preference for the selected action if the received reward is greater than the average reward, and decreases it otherwise.
+Higher $\alpha$ causes faster updates, making the policy more deterministic (more Exploitation). A low $\alpha$ causes slower updates, making the policy more stochastic (more Exploration).
+
+\subsection{Summary: comparing exploration strategies}
+
+To compare the methods, each algorithm was run on the 10-armed testbed
+for different values of its own parameter, measuring the average reward
+over the first 1000 steps (\cref{fig:parameter-study}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/chapter2/parameter_study.png}
+  \caption{}
+  \label{fig:parameter-study}
+\end{figure}
+The result depends on the problem and on the number of steps
+available: with a different horizon, or a non-stationary
+problem, the ranking and the best parameters may change a lot.
+
+\section{What Really Matters: Rewards, Not Estimates}
+In RL we do not try to model the full reward distributions: it would be too
+data-expensive and unnecessary, since our goal is only to maximize the reward
+(\emph{``All models are wrong, but some are useful''}, G.~Box). For the same reason, we do not need our estimates $Q(a)$ to be close to the
+true values $q_*(a)$. What matters is that they lead us to choose the right
+action. A policy is evaluated by the rewards it collects, not by how accurate
+its estimates are: estimates that are far from the true values, but still
+identify the best action are more useful than estimates that are closer on
+average but point to the wrong action.

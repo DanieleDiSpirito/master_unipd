@@ -1,0 +1,153 @@
+% !TEX root = ../main.tex
+\chapter{MDPs and Bellman Equations}
+
+\section{The story so far ...}
+With multiharmed bandits, we have not yet reached a real RL scenario:
+\begin{itemize}
+    \item The state is always the same, the same action is always optimal;
+    \item A single action does not influence future rewards and states.
+\end{itemize}
+
+In a real RL scenario, \textit{Markov Decision Processes (MDPs)} describes the environment for Reinforcement Learning.
+
+\section{Markov Processes}
+A state $s_t$ is \textit{Markov} if and only if: 
+\[P[S_{t+1}|S_t]=P[S_{t+1}|S_1,\cdots,S_t]\]
+In Markov processes, we don't have rewards and actions, so the agent has no agency in this case. \textit{State transiction matrix} $\mathcal{P}$ defines the transition probabilities between all states in the environment.
+\[
+  \mathcal{P} = \textit{from}\;
+  \overset{\textstyle\textit{to}}{
+  \begin{bmatrix}
+    \mathcal{P}_{11} & \dots & \mathcal{P}_{1n} \\
+    \vdots           &       &                  \\
+    \mathcal{P}_{n1} & \dots & \mathcal{P}_{nn}
+  \end{bmatrix}}
+\]
+
+\begin{defbox}{Markov Process}
+A Markov Process (or \textit{Markov Chain}) is a tuple $\langle \mathcal{S}, \mathcal{P} \rangle$ such that:
+\begin{itemize}
+    \item $\mathcal{S}$ is a finite set of states;
+    \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{s,s'} = P[S_{t+1}=s'|S_t=s]\]
+        
+\end{itemize}
+We will always consider finite cases when dealing with episodic tasks.
+\end{defbox}
+
+\section{Markov Reward Processes}
+\textit{Markov Reward Processes} are Markov chains with reward values.
+\begin{defbox}{Markov Reward Process}
+A \textit{Markov Reward Process} is a tuple $\langle \mathcal{S}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ such that:
+\begin{itemize}
+    \item $\mathcal{S}$ is a finite set of states;
+    \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{s,s'} = P[S_{t+1}=s'|S_t=s]\]
+    \item $\mathcal{R}$ is a reward function, $\mathcal{R}_s=\mathbb{E}[R_{t+1}|S_t=s]$;
+    \item $\gamma$ is the discount factor, $\gamma\in[0, 1]$.
+\end{itemize}
+\end{defbox}
+
+\begin{defbox}{}
+    The Return $G_t$ is the total discounted reward from time-step $t$:
+    \[G_t \doteq R_{t+1} + \gamma R_{t+2} + \cdots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}\]
+    where $\gamma$ is a discount factor, $\gamma\in[0, 1]$ (0=miopic, 1=far-sighted)
+\end{defbox}
+
+The discount is the present value of future rewards.
+
+\begin{defbox}{State Value Function}
+    The \textit{state value function} $v(s)$ of a Markov Reward Process is the expected return starting from state $s$:
+    \[v(s)=\mathbb{E}[G_t|S_t=s]\]
+\end{defbox}
+
+\subsection{Bellman Equation}
+We can exploit $G_t$ as follows:
+\begin{equation}
+\begin{split}
+  G_t &\doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots \\
+      &= R_{t+1} + \gamma \left( R_{t+2} + \gamma R_{t+3} + \cdots \right) \\
+      &= R_{t+1} + \gamma G_{t+1}
+\end{split}
+\end{equation}
+so we have that: 
+\begin{equation}
+    \begin{split}
+        v(s) &= \mathbb{E}[G_t|S_t=s] = \mathbb{E}[R_{t+1} + \gamma G_{t+1}] \\
+        &= \mathbb{E}[R_{t+1}+\gamma v(S_{t+1})|S_t=s]
+    \end{split}
+\end{equation}
+
+We need to consider all possible successor states with the related transition probabilities (real value of $v(s)$, empirical):
+\[\mathrm{v}=\mathcal{R}_s+ \gamma \sum_{s'\in S}^{}\mathcal{P}_{ss'}\mathrm{v}(s')\]
+The Bellman equation can be written concisely in matrix form:
+\[
+  \mathrm{v} = \mathcal{R} + \gamma \mathcal{P} \mathrm{v}
+\]
+where $\mathrm{v}$ is a column vector with one entry per state:
+\[
+  \begin{bmatrix} \mathrm{v}(1) \\ \vdots \\ \mathrm{v}(n) \end{bmatrix}
+  =
+  \begin{bmatrix} \mathcal{R}_1 \\ \vdots \\ \mathcal{R}_n \end{bmatrix}
+  + \gamma
+  \begin{bmatrix}
+    \mathcal{P}_{11} & \dots & \mathcal{P}_{1n} \\
+    \vdots           &       &                  \\
+    \mathcal{P}_{n1} & \dots & \mathcal{P}_{nn}
+  \end{bmatrix}
+  \begin{bmatrix} \mathrm{v}(1) \\ \vdots \\ \mathrm{v}(n) \end{bmatrix}
+\]
+so this is a linear system of equations that can be solved in closed form:
+\[\mathrm{v}=\mathcal{R}+\gamma \mathcal{P}\mathrm{v}\]
+\[(I-\gamma\mathcal{P})\mathrm{v}=\mathcal{R}\]
+\[\mathrm{v}=(I-\gamma\mathcal{P})^{-1}\mathcal{R}\]
+if we have $n$ states, the cost is $O(n^3)$, affordable only for small Markov Reward Processes. For large MRPs we will look for efficient methods (Dynamic Programming, Monte Carlo evaluation, Temporal Difference Learning).
+
+\subsection{Markov Decision Processes}
+A Markov Decision Process (MDP) is a Markov Reward Process with decisions. The agent can choose an action that influences the next state and the reward.
+\begin{defbox}{Markov Decision Process}
+    A Markov Decision Process is a tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ such that:
+    \begin{itemize}
+        \item $\mathcal{S}$ is a finite set of states;
+        \item $\mathcal{A}$ is a finite set of actions;
+        \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{ss'}^a = P[S_{t+1}=s'|S_t=s, A_t=a]\]
+        \item $\mathcal{R}$ is a reward function, $\mathcal{R}_s^a=\mathbb{E}[R_{t+1}|S_t=s, A_t=a]$;
+        \item $\gamma$ is the discount factor, $\gamma\in[0, 1]$.
+    \end{itemize}
+\end{defbox}
+Now there is control and agency, whe should define a policy and we can try to maximize the reward.
+\begin{definition}[Policy]
+    A policy $\pi$ is a distribution over actions given that we are in a state:
+    \[\pi(a|s)=P[A_t=a|S_t=s]\]
+\end{definition}
+The policy fully defines the agent's behavior. In MDP policies are stationary (independent of $t$). Moreover we consider stochastic policies, that is, the agent can choose an action with a certain probability, this allow us to deal with exploration.
+
+Given an MDP $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ and a policy $\pi$:
+\begin{itemize}
+    \item The state sequence $S_0, S_1, S_2, \ldots$ is a Markov Process where: \\ \[\mathcal{P}_{ss'}^\pi=\sum_{a\in\mathcal{A}}\pi(a|s)\mathcal{P}_{ss'}^a\]
+    \item The state and reward sequence $S_0, R_1, S_1, R_2, S_2, R_3, \ldots$ is a Markov Reward Process where: \\ \[\mathcal{R}_s^\pi=\sum_{a\in\mathcal{A}}\pi(a|s)\mathcal{R}_s^a\] 
+\end{itemize}
+
+Now we can define the value function, and also a q-value function, for a policy $\pi$:
+\begin{defbox}{State Value Function for a Policy}
+    The \textit{state value function} $v_\pi(s)$ of a Markov Decision Process is the expected return starting from state $s$ and following policy $\pi$:
+    \[v_\pi(s)=\mathbb{E}_\pi[G_t|S_t=s]\]
+\end{defbox}
+\begin{defbox}{Action Value Function for a Policy}
+    The \textit{action value function} $q_\pi(s, a)$ of a Markov Decision Process is the expected return starting from state $s$, taking action $a$ and following policy $\pi$:
+    \[q_\pi(s, a)=\mathbb{E}_\pi[G_t|S_t=s, A_t=a]\]
+\end{defbox}
+
+\subsection{Bellaman Expectation Equation}
+The value function $v_{\pi}(s)$ can, again, be decomposed as before:
+\[v_\pi(s) = \mathbb{E}_\pi[R_{t+1} + \gamma v_\pi(S_{t+1}) | S_t = s]\]
+similarly for the action value function:
+\[q_\pi(s, a) = \mathbb{E}_\pi[R_{t+1} + \gamma q_\pi(S_{t+1}, A_{t+1}) | S_t = s, A_t = a]\]
+We can define the true values for value and action-value functions as follows:
+\[\mathrm{v}_\pi(s)=\sum_{a\in A}^{}\pi(a|s)\mathrm{q}_\pi(s,a)\]
+\[\mathrm{q}_\pi(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in S}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\]
+and we can obtain recursive description of $\mathrm{v}$:
+\[\mathrm{v}_\pi(s)=\sum_{a\in A}^{}\pi(a|s)\left(\mathcal{R}_s^a+\gamma\sum_{s'\in S}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\right)\]
+and also for $\mathrm{q}$:
+\[\mathrm{q}_\pi(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in S}\mathcal{P}_{ss'}^a\sum_{a'\in A}\pi(a'|s')\mathrm{q}_\pi(s',a')\]
+Also Bellman Expectation Equations can be written in matrix form:
+\[\mathrm{v}_\pi=\mathcal{R}^\pi+\gamma\mathcal{P}^\pi\mathrm{v}_\pi\]
+\[\mathrm{v}_\pi=(I-\gamma\mathcal{P}^\pi)^{-1}\mathcal{R}^\pi\]

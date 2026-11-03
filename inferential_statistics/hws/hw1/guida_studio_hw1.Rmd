@@ -1,0 +1,366 @@
+---
+title: "Homework #1"
+subtitle: "Statistica Inferenziale -- Teoria, Formule e Comandi R per lo Studio"
+author: "Daniele Di Spirito"
+date: "23 Ottobre 2026"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    fig_height: 5
+    fig_width: 7
+geometry: "margin=1in"
+fontsize: 11pt
+header-includes:
+  - \usepackage{amsmath,amssymb,amsthm}
+  - \usepackage{booktabs}
+  - \usepackage{microtype}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center")
+```
+
+\newpage
+
+# Introduzione e Obiettivi dell'Homework 1
+
+L'Homework 1 affronta tre temi cardine dell'inferenza statistica classica:
+
+1. **Il confronto tra intervalli di confidenza esatti e asintotici** per il parametro $\theta$ di una distribuzione binomiale $\text{Bin}(n, \theta)$, valutandone la **copertura empirica** (*empirical coverage*) tramite simulazioni Monte Carlo.
+2. **Il ruolo della correzione di continuità (Continuity Correction, CC)** nel passaggio da distribuzioni discrete a distribuzioni continue, basandosi sull'articolo fondamentale di Newcombe (1998).
+3. **L'illustrazione numerica del Teorema del Limite Centrale di de Moivre-Laplace**, analizzando la convergenza asintotica della statistica standardizzata $W$ e spiegando il fenomeno non banale delle **oscillazioni non monotone** causate dalla natura discreta del supporto.
+
+Questa dispensa fornisce sia il rigore matematico-teorico, sia la comprensione intuitiva, sia l'analisi dettagliata di ogni singolo comando R utilizzato.
+
+---
+
+# Teoria degli Intervalli di Confidenza per la Binomiale
+
+## Il Modello Statistico
+
+Consideriamo una variabile aleatoria $S \sim \text{Bin}(n, \theta)$ che rappresenta il numero di successi in $n$ prove bernoulliane indipendenti con probabilità di successo $\theta \in (0, 1)$:
+$$
+P_\theta(S = s) = \binom{n}{s} \theta^s (1 - \theta)^{n - s}, \quad s \in \{0, 1, \dots, n\}.
+$$
+Lo stimatore di massima verosimiglianza (MLE) e dei momenti per $\theta$ è la proporzione campionaria:
+$$
+\hat\theta = \frac{S}{n}.
+$$
+Le sue proprietà esatte sono:
+- $E[\hat\theta] = \theta$ (corretto / unbiased),
+- $\text{Var}(\hat\theta) = \frac{\theta(1 - \theta)}{n}$,
+- Errore standard teorico: $\text{SE}(\theta) = \sqrt{\frac{\theta(1 - \theta)}{n}}$.
+
+## Definizione di Intervallo di Confidenza e Copertura
+
+Un intervallo di confidenza casuale $C(S) = [L(S), U(S)]$ al livello nominale $1 - \alpha$ (nel nostro caso $1 - \alpha = 0.90$, quindi $\alpha = 0.10$) soddisfa:
+$$
+P_\theta(\theta \in C(S)) = P_\theta(L(S) \le \theta \le U(S)).
+$$
+- Per intervalli **esatti**, si richiede rigorosamente che la copertura sia garantita per ogni $\theta$:
+  $$
+  \inf_{\theta \in (0, 1)} P_\theta(\theta \in C(S)) \ge 1 - \alpha.
+  $$
+- Per intervalli **asintotici** (o approssimati), la proprietà vale solo nel limite:
+  $$
+  \lim_{n \to \infty} P_\theta(\theta \in C(S)) = 1 - \alpha.
+  $$
+
+La **copertura empirica** stimata su $N$ replicazioni Monte Carlo $S_1, \dots, S_N \stackrel{iid}{\sim} \text{Bin}(n, \theta)$ è data dalla frequenza relativa:
+$$
+\widehat{\text{Coverage}} = \frac{1}{N} \sum_{k=1}^N \mathbb{I}\left( L(S_k) \le \theta \le U(S_k) \right).
+$$
+In base alla legge dei grandi numeri, per $N = 10^5$, l'errore standard Monte Carlo è trascurabile:
+$$
+\text{SE}_{\text{MC}} \approx \sqrt{\frac{0.90 \times 0.10}{10^5}} \approx 0.00095 \approx 0.1\%.
+$$
+
+---
+
+## Il Principio di Inversione del Test
+
+Tutti gli intervalli di confidenza possono essere costruiti **invertendo un test di ipotesi**.
+Per ogni valore ipotizzato $\theta_0 \in (0, 1)$, consideriamo il test bilaterale:
+$$
+H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \ne \theta_0.
+$$
+Se indichiamo con $A(\theta_0) \subseteq \{0, \dots, n\}$ la regione di accettazione del test al livello $\alpha$ (cioè l'insieme dei campioni $s$ per cui non rifiutiamo $H_0$), allora:
+$$
+P_{\theta_0}(S \in A(\theta_0)) \ge 1 - \alpha.
+$$
+L'intervallo di confidenza per un dato valore osservato $s$ è l'insieme di tutti i $\theta_0$ per cui $H_0$ non viene rifiutato:
+$$
+C(s) = \{\theta_0 \in (0, 1) : s \in A(\theta_0)\}.
+$$
+La differenza tra i vari metodi (Wald, Wilson, Clopper-Pearson) risiede esclusivamente nella statistica test adottata e nel modo in cui viene calcolata la distribuzione sotto $H_0$.
+
+---
+
+## Metodo 1: L'Intervallo di Wald ($Z$)
+
+### Derivazione Matematica
+
+Per il teorema del limite centrale, $\hat\theta$ è asintoticamente normale:
+$$
+\frac{\hat\theta - \theta}{\sqrt{\frac{\theta(1 - \theta)}{n}}} \xrightarrow{d} \mathcal{N}(0, 1).
+$$
+Nell'approccio di Wald, la varianza ignota $\theta(1 - \theta)$ viene stimata sostituendo direttamente $\theta$ con lo stimatore $\hat\theta$ (principio del plug-in):
+$$
+Z_{\text{Wald}} = \frac{\hat\theta - \theta}{\sqrt{\frac{\hat\theta(1 - \hat\theta)}{n}}} \approx \mathcal{N}(0, 1).
+$$
+Invertendo la disuguaglianza bilaterale $|Z_{\text{Wald}}| \le z_{1 - \alpha/2}$, si ottiene:
+$$
+\hat\theta - z_{1 - \alpha/2} \sqrt{\frac{\hat\theta(1 - \hat\theta)}{n}} \le \theta \le \hat\theta + z_{1 - \alpha/2} \sqrt{\frac{\hat\theta(1 - \hat\theta)}{n}}.
+$$
+
+### Perché l'intervallo di Wald fallisce nella pratica
+
+Nonostante sia l'intervallo più insegnato nei corsi introduttivi per via della sua semplicità algebrica, ha gravi difetti sistematici ampiamente documentati (Brown, Cai & DasGupta, 2001):
+
+1. **Collasso agli estremi ($S = 0$ o $S = n$):**
+   Se nel campione osserviamo $S = 0$, la stima puntuale è $\hat\theta = 0$. Di conseguenza:
+   $$
+   \widehat{\text{SE}} = \sqrt{\frac{0 \times 1}{n}} = 0 \implies C(0) = [0, 0].
+   $$
+   L'intervallo si riduce a un singolo punto, che non conterrà mai un valore interno $\theta > 0$. La probabilità che $S = 0$ è $(1 - \theta)^n$, che per $n = 10, \theta = 0.1$ è circa $(0.9)^{10} \approx 34.87\%$. Solo per questo motivo, la copertura massima raggiungibile non può superare $1 - 0.3487 = 65.13\%$. Questo spiega esattamente il valore simulato di $\approx 63.8\%$.
+2. **Sotto-copertura sistematica:**
+   Anche per $n = 50$ o $n = 100$, quando $\theta = 0.1$ o $\theta = 0.9$, la copertura rimane attorno all'86%, ben al di sotto del 90% nominale.
+3. **Limiti fuori dal supporto:**
+   L'intervallo può generare estremi negativi ($L < 0$) o superiori a 1 ($U > 1$), richiedendo troncamenti artificiali a $[0, 1]$.
+
+---
+
+## Metodo 2: L'Intervallo Score di Wilson (`prop.test`, `correct = FALSE`)
+
+### Derivazione Matematica
+
+A differenza di Wald, il metodo **Score** (proposto da Edwin B. Wilson nel 1927) non sostituisce $\theta$ con $\hat\theta$ al denominatore, ma mantiene la vera varianza sotto $H_0$:
+$$
+Z_{\text{Score}} = \frac{\hat\theta - \theta}{\sqrt{\frac{\theta(1 - \theta)}{n}}}.
+$$
+La regione di non rifiuto al livello nominale $1 - \alpha$ è:
+$$
+\left| \frac{\frac{S}{n} - \theta}{\sqrt{\frac{\theta(1 - \theta)}{n}}} \right| \le z, \quad \text{con } z = z_{1 - \alpha/2}.
+$$
+Elevando al quadrato ambo i membri:
+$$
+\left(\frac{S}{n} - \theta\right)^2 \le z^2 \frac{\theta(1 - \theta)}{n}.
+$$
+Ponendo $p = S/n$, sviluppiamo i quadrati:
+$$
+p^2 - 2p\theta + \theta^2 \le \frac{z^2}{n}\theta - \frac{z^2}{n}\theta^2,
+$$
+$$
+\left(1 + \frac{z^2}{n}\right)\theta^2 - 2\left(p + \frac{z^2}{2n}\right)\theta + p^2 \le 0.
+$$
+Questa è una disequazione di secondo grado in $\theta$ con coefficiente direttivo positivo. Le soluzioni sono comprese tra le due radici dell'equazione associata:
+$$
+\theta = \frac{\left(p + \frac{z^2}{2n}\right) \pm z \sqrt{\frac{p(1 - p)}{n} + \frac{z^2}{4n^2}}}{1 + \frac{z^2}{n}}.
+$$
+
+### Perché l'intervallo di Wilson è superiore
+
+1. **Centro regolarizzato (Shrinkage):**
+   Il centro dell'intervallo non è $p$, bensì:
+   $$
+   \tilde{p} = \frac{p + \frac{z^2}{2n}}{1 + \frac{z^2}{n}} = \frac{S + \frac{z^2}{2}}{n + z^2}.
+   $$
+   Per $\alpha = 0.05 \implies z \approx 1.96 \approx 2$, questa è la famosa regola di Agresti-Coull: si aggiungono 2 successi e 2 insuccessi fittizi ($n + 4$ osservazioni complessive). Il centro viene traslato verso $0.5$, agendo come una stima a posteriori Bayesiana (prior coniugato Beta).
+2. **Comportamento agli estremi:**
+   Quando $S = 0 \implies p = 0$, l'intervallo non collassa:
+   $$
+   L = 0, \quad U = \frac{\frac{z^2}{n}}{1 + \frac{z^2}{n}} > 0.
+   $$
+3. **Copertura stabile:**
+   La copertura media oscilla attorno al 90% per tutti gli $n$ e per qualsiasi valore di $\theta$.
+
+In R, la funzione `prop.test(x, n, correct = FALSE)` calcola esattamente questo intervallo.
+
+---
+
+## Metodo 3: L'Intervallo Esatto di Clopper-Pearson (`binom.test`)
+
+### Derivazione Matematica
+
+Introdotto da C. J. Clopper e E. S. Pearson nel 1934, questo intervallo inverte direttamente la funzione di ripartizione binomiale senza ricorrere ad alcuna approssimazione normale.
+I limiti inferiore $L(s)$ e superiore $U(s)$ per $s$ successi osservati risolvono:
+$$
+\sum_{k=s}^n \binom{n}{k} L^k (1 - L)^{n - k} = \frac{\alpha}{2} \quad \iff \quad P_L(S \ge s) = \frac{\alpha}{2},
+$$
+$$
+\sum_{k=0}^s \binom{n}{k} U^k (1 - U)^{n - k} = \frac{\alpha}{2} \quad \iff \quad P_U(S \le s) = \frac{\alpha}{2},
+$$
+con le convenzioni $L(0) = 0$ e $U(n) = 1$.
+
+### Connessione Fondamentale con la Distribuzione Beta
+
+Esiste una nota identità tra la funzione di ripartizione della binomiale e la funzione Beta incompleta regolarizzata $I_x(a, b)$:
+$$
+P(S \le s) = \sum_{k=0}^s \binom{n}{k} \theta^k (1 - \theta)^{n - k} = 1 - I_\theta(s + 1, n - s) = I_{1 - \theta}(n - s, s + 1).
+$$
+Grazie a questa relazione, i limiti di Clopper-Pearson possono essere scritti in forma chiusa tramite i **quantili della distribuzione Beta**:
+$$
+L(s) = \text{Quantile}_{\text{Beta}}\left(\frac{\alpha}{2};\; s,\; n - s + 1\right),
+$$
+$$
+U(s) = \text{Quantile}_{\text{Beta}}\left(1 - \frac{\alpha}{2};\; s + 1,\; n - s\right).
+$$
+In R, questa formula si valuta istantaneamente con `qbeta()`, evitando la chiamata a `binom.test()`:
+```r
+L <- qbeta(alpha / 2, s, n - s + 1)
+U <- qbeta(1 - alpha / 2, s + 1, n - s)
+```
+
+### Perché l'intervallo esatto è "conservativo"
+
+Poiché $S$ assume solo valori interi $\{0, 1, \dots, n\}$, la variabile $P_\theta(S \ge s)$ è discreta. Di conseguenza, non è possibile trovare un valore critico che renda la probabilità di rifiuto esattamente pari ad $\alpha$ per tutti i valori di $\theta$. Per garantire che la copertura sia **almeno** $1 - \alpha$:
+$$
+P_\theta(L(S) \le \theta \le U(S)) \ge 1 - \alpha \quad \forall \theta \in (0, 1),
+$$
+l'intervallo include sempre sia la massa di probabilità a destra che a sinistra, risultando sistematicamente **più largo** del necessario e con una copertura effettiva superiore al valore nominale (ad es. $98.7\%$ per $n = 10, \theta = 0.1$).
+
+---
+
+# La Correzione di Continuità (CC) e l'Articolo di Newcombe (1998)
+
+## Rationale della Correzione di Continuità
+
+Quando si approssima la distribuzione discreta di $S$ (a gradini) con la distribuzione normale continua $\mathcal{N}(n\theta, n\theta(1-\theta))$, la probabilità puntuale $P(S = s)$ corrisponde all'area sottesa dalla densità normale nell'intervallo continuo:
+$$
+\left[ s - \frac{1}{2}, \; s + \frac{1}{2} \right].
+$$
+Nelle proporzioni $\hat\theta = S/n$, questo intervallo diventa:
+$$
+\left[ \frac{s}{n} - \frac{1}{2n}, \; \frac{s}{n} + \frac{1}{2n} \right].
+$$
+La quantità $\frac{1}{2n}$ è la **correzione di continuità**.
+
+## Implementazione sui Diversi Metodi
+
+1. **Wald con CC:**
+   Si allarga l'intervallo sommando e sottraendo $\frac{1}{2n}$ al margine d'errore:
+   $$
+   \left[ \hat\theta - \left(z \sqrt{\frac{\hat\theta(1-\hat\theta)}{n}} + \frac{1}{2n}\right), \; \hat\theta + \left(z \sqrt{\frac{\hat\theta(1-\hat\theta)}{n}} + \frac{1}{2n}\right) \right].
+   $$
+2. **Score con CC (`prop.test`, `correct = TRUE`):**
+   Si applica la correzione alla statistica score:
+   $$
+   \frac{|S - n\theta| - 0.5}{\sqrt{n\theta(1 - \theta)}} \le z.
+   $$
+   Equivale ad applicare la formula di Wilson a $p - \frac{1}{2n}$ per il limite inferiore e a $p + \frac{1}{2n}$ per il limite superiore.
+3. **L'intervallo Mid-$p$:**
+   Per il metodo esatto, Clopper-Pearson include l'intera probabilità $P(S = s)$ in ciascuna coda. L'equivalente "senza correzione" è il **mid-$p$**:
+   $$
+   P_\theta(S > s) + \frac{1}{2} P_\theta(S = s) = \frac{\alpha}{2}.
+   $$
+   Dimezzando il peso della massa sul punto osservato, il mid-$p$ riduce la larghezza dell'intervallo e porta la copertura media vicino al 90%.
+
+## Le Conclusioni di Newcombe (1998)
+
+Robert G. Newcombe sintetizza la tassonomia dei metodi in due categorie filosofiche:
+
+| Obiettivo | Metodi Raccomandati | Caratteristiche |
+|:---|:---|:---|
+| **Copertura Media $\approx 1-\alpha$** | Score senza CC (`correct=FALSE`), Mid-$p$ | Intervalli più corti, ideali per stime realistiche nella ricerca scientifica applicata. |
+| **Copertura Minima $\ge 1-\alpha$** | Clopper-Pearson, Score con CC (`correct=TRUE`) | Intervalli conservativi, ideali quando la sotto-copertura comporta rischi critici (es. studi clinici o normativi). |
+| **Da evitare** | Wald (con o senza CC) | Inaffidabile e caotico per piccoli campioni e frequenze rare. |
+
+---
+
+# Teorema di de Moivre-Laplace e Oscillazioni Non Monotone
+
+## Enunciato del Teorema
+
+Sia $S_n \sim \text{Bin}(n, \theta)$. La variabile aleatoria standardizzata:
+$$
+W_n = \frac{S_n - n\theta}{\sqrt{n\theta(1 - \theta)}} \xrightarrow{d} \mathcal{N}(0, 1) \quad \text{per } n \to \infty.
+$$
+Di conseguenza, per ogni intervallo prefissato $[a, b] = [-0.5, -0.1]$:
+$$
+\lim_{n \to \infty} P(a \le W_n \le b) = \Phi(b) - \Phi(a) = \Phi(-0.1) - \Phi(-0.5) \approx 0.1516.
+$$
+
+## Perché la Convergenza Non è Monotona?
+
+Un errore comune degli studenti è aspettarsi che all'aumentare di $n$ il valore $\hat{p}_n$ si avvicini gradualmente e monotonicamente a 0.1516. La simulazione mostra invece forti oscillazioni. Il motivo teorico risiede nella **struttura reticolare (lattice structure)**:
+
+1. $S$ può assumere solo valori interi $s \in \{0, 1, \dots, n\}$.
+2. I valori possibili di $W$ sono disposti su una griglia discreta con passo:
+   $$
+   \Delta_n = \frac{1}{\sqrt{n\theta(1 - \theta)}}.
+   $$
+3. La condizione $-0.5 \le W \le -0.1$ equivale a:
+   $$
+   n\theta - 0.5\sqrt{n\theta(1-\theta)} \le S \le n\theta - 0.1\sqrt{n\theta(1-\theta)}.
+   $$
+   La lunghezza di questo intervallo continuo per $S$ è $0.4\sqrt{n\theta(1-\theta)}$.
+4. A seconda di $n$, questo intervallo conterrà $k$ oppure $k+1$ interi. Poiché ogni punto isolato trasporta una massa di probabilità dell'ordine di $\frac{1}{\sqrt{n}}$, l'inclusione o l'esclusione di un singolo intero provoca un **salto discontinuo** della probabilità totale.
+5. **Il caso $n = 30, \theta = 0.1$:**
+   $$
+   30 \times 0.1 - 0.5\sqrt{30 \times 0.1 \times 0.9} = 3 - 0.5(1.643) = 2.178,
+   $$
+   $$
+   30 \times 0.1 - 0.1\sqrt{30 \times 0.1 \times 0.9} = 3 - 0.1(1.643) = 2.836.
+   $$
+   L'intervallo $[2.178, 2.836]$ **non contiene alcun numero intero**. Pertanto:
+   $$
+   P(-0.5 \le W \le -0.1) = 0 \quad (\text{esattamente}).
+   $$
+   Questo risultato non è un errore di campionamento, ma una proprietà esatta della binomiale.
+
+---
+
+# Guida Dettagliata ai Comandi R Utilizzati
+
+## Distribuzioni di Probabilità in R
+
+In R ogni distribuzione ha quattro prefissi standard:
+- `d` (*density / pmf*): densità o probabilità puntuale $P(X = x)$.
+- `p` (*probability*): funzione di ripartizione cumulata $P(X \le x)$.
+- `q` (*quantile*): inversa della cdf, restituisce il valore $x$ tale che $P(X \le x) = p$.
+- `r` (*random*): generatore di numeri pseudo-casuali.
+
+### Funzioni Principali per la Binomiale e la Normale
+- `rbinom(N, size = n, prob = theta)`: genera un vettore di $N$ determinazioni indipendenti da $\text{Bin}(n, \theta)$.
+- `dbinom(s, size = n, prob = theta)`: calcola $\binom{n}{s}\theta^s(1-\theta)^{n-s}$.
+- `pnorm(x)`: calcola $\Phi(x)$ per la normale standard $\mathcal{N}(0, 1)$.
+- `qnorm(1 - alpha/2)`: restituisce il quantile critico (ad es. per $\alpha = 0.10 \implies \texttt{qnorm(0.95)} \approx 1.644854$).
+- `qbeta(p, shape1, shape2)`: calcola i quantili della distribuzione Beta.
+
+## Funzioni Inferenziali Built-in
+- `binom.test(x, n, conf.level)`: calcola l'intervallo esatto di Clopper-Pearson per $x$ successi su $n$ prove.
+- `prop.test(x, n, conf.level, correct = FALSE)`: calcola l'intervallo Score di Wilson (asintotico senza correzione).
+- `prop.test(x, n, conf.level, correct = TRUE)`: calcola l'intervallo Score con correzione di continuità.
+
+## Ottimizzazione Numerica con `uniroot`
+Per trovare i limiti dell'intervallo mid-$p$, dobbiamo risolvere l'equazione $f(\theta) = 0$.
+In R usiamo `uniroot(f, interval = c(0, 1), tol = 1e-8)`:
+- `f`: funzione continua di una variabile reale.
+- `interval`: intervallo iniziale $[a, b]$ in cui cercare la radice (deve verificare $f(a) \cdot f(b) \le 0$).
+- `tol`: precisione di convergenza.
+
+## Tecniche di Vettorizzazione ed Efficienza
+Eseguire un ciclo `for` per ciascuna delle $10^5$ estrazioni chiamando ogni volta `binom.test()` o `prop.test()` richiederebbe diversi minuti di calcolo. Nel nostro codice abbiamo usato due approcci molto più efficienti:
+1. **Formule vettorizzate chiuse:** Operando direttamente su interi vettori di dimensione $N = 10^5$ tramite `qbeta()` e le formule analitiche di Wilson e Wald.
+2. **Tabulazione dei possibili risultati (Lookup Table):** Poiché $S$ può assumere solo $n + 1$ valori interi distinti ($0, 1, \dots, n$), calcoliamo l'intervallo una sola volta per ciascun possibile $s \in \{0, \dots, n\}$ e poi indicizziamo la matrice con $S + 1$.
+
+## Comandi Grafici
+- `par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))`: imposta una matrice grafica $2 \times 2$. `mar` definisce i margini inferiori, sinistri, superiori e destri di ogni pannello.
+- `matplot(x, Y, type = "b", ...)`: disegna le colonne di una matrice $Y$ contro il vettore $x$ con linee e punti personalizzati.
+- `plot.new()`: apre un nuovo pannello vuoto, permettendo di posizionare una legenda chiara e leggibile al centro del 4° riquadro senza sovrapporla ai grafici.
+- `bquote(theta == .(thetas[j]))`: sintassi per comporre titoli matematici con variabili valutate dinamicamente.
+
+---
+
+# Domande Tipiche d'Esame / Colloquio
+
+1. **Perché l'intervallo di Wald non dovrebbe essere usato per proporzioni vicine a 0 o 1?**
+   *Risposta:* Perché la varianza asintotica stimata con $\hat\theta(1-\hat\theta)$ collassa a zero quando $S = 0$ o $S = n$, e l'approssimazione normale richiede $n\theta(1-\theta) \gg 5$. Quando $\theta$ è estremo, la distribuzione binomiale è fortemente asimmetrica e l'approssimazione normale fallisce.
+2. **Qual è la differenza fondamentale tra l'intervallo Score di Wilson e l'intervallo di Wald?**
+   *Risposta:* Il metodo Wald stima la varianza sostituendo $\theta$ con $\hat\theta$ (plug-in), mentre il metodo Score mantiene il vero parametro $\theta$ nella varianza sotto l'ipotesi nulla $H_0$, invertendo una disuguaglianza di secondo grado.
+3. **Perché l'intervallo di Clopper-Pearson è conservativo?**
+   *Risposta:* A causa della natura discreta della variabile aleatoria binomiale, le probabilità di coda fanno dei salti; per garantire che la copertura sia $\ge 1-\alpha$ per *qualsiasi* $\theta$, l'intervallo include sempre tutta la probabilità puntuale $P(S = s)$ nelle code, risultando sistematicamente più largo del necessario.
+4. **Cosa aggiunge la correzione di continuità?**
+   *Risposta:* Compensa il fatto che si approssima un gradino discreto di altezza unitaria con una curva continua, integrando tra $s - 0.5$ e $s + 0.5$. Allarga l'intervallo, aumentando la copertura minima al prezzo di una larghezza media maggiore.

@@ -1,0 +1,344 @@
+% !TEX root = ../main.tex
+\chapter{Bellman Optimality Equations and DP}
+
+\section{Optimal Policy}
+We can define an order over policies: $\pi\geq\pi'$ if $v_\pi(s)\geq v_{\pi'}(s)$ for all stestes.
+\begin{theorem}
+    For any finite MDP ($\mathcal{S},\mathcal{A}, \mathcal{R}$ finite sets):
+    \begin{enumerate}
+        \item There exists an optimal polici $\pi_*$ such that $\pi_*\geq\pi$ for all possible $\pi$;
+        \item All optimal policies achieve the optimal state-value function \[v_{\pi_*}(s)=v_*(s)\]
+        \item All optimal policies achieve the optimal action-value function \[q_{\pi_*}(s,a)=q_*(s,a)\]
+    \end{enumerate}
+\end{theorem}
+A simple approach to find the optimal policy, if we have $q_*(s,a)$, is to maximize over the actions:
+\[
+  \pi_*(a \mid s) =
+  \begin{dcases}
+    1 & \text{if } a = \argmax_{a \in \mathcal{A}} q_*(s, a) \\
+    0 & \textit{otherwise}
+  \end{dcases}
+\]
+but how do we get $q_*$?
+
+\section{Bellman Optimality Equation}
+The Bellman Optimality Equation is a way to define the optimal $v_*$:
+\begin{figure}[H]
+\centering
+\tikzset{
+  state/.style={circle, draw, thick, minimum size=7mm, inner sep=0pt},
+  action/.style={circle, fill, minimum size=3mm, inner sep=0pt}
+}
+\begin{subfigure}[t]{0.48\textwidth}
+  \centering
+  \begin{tikzpicture}
+    \node[state]  (s)  at (0, 0)     {};
+    \node[action] (a1) at (-1.3, -2) {};
+    \node[action] (a2) at ( 1.3, -2) {};
+    \draw[thick] (s) -- (a1);
+    \draw[thick] (s) -- (a2);
+    \draw[thick] (0,0) ++(237:1.15) arc (237:303:1.15); % max
+    \node[left=4mm of s]  {$v_*(s) \mapsfrom s$};
+    \node[left=2mm of a1] {$q_*(s,a) \mapsfrom a$};
+  \end{tikzpicture}
+  \caption{The arc indicates the max over all possible choices of the
+  action value: we don't need to average.}
+  \label{fig:backup-vstar}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+  \centering
+  \begin{tikzpicture}
+    \node[action] (sa) at (0, 0)     {};
+    \node[state]  (s1) at (-1.3, -2) {};
+    \node[state]  (s2) at ( 1.3, -2) {};
+    \draw[thick] (sa) -- (s1) node[midway, left=2mm] {$r$};
+    \draw[thick] (sa) -- (s2);
+    \node[left=2mm of sa] {$q_*(s,a) \mapsfrom s,a$};
+    \node[left=2mm of s1] {$v_*(s') \mapsfrom s'$};
+  \end{tikzpicture}
+  \caption{Here we need to average over the possible successor states
+  and rewards.}
+  \label{fig:backup-qstar}
+\end{subfigure}
+\caption{Backup diagrams for $v_*$ and $q_*$.}
+\label{fig:backup-optimal}
+\end{figure}
+\[\mathrm{v}_*(s)=\max_a\mathrm{q}_*(s,a)\qquad \mathrm{q}_*(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}^{}\mathcal{P}_{ss'}^a*\mathrm{v}_*(s')\]
+so, if we plug one into the other we obtain:
+\[\mathrm{v}_*(s)=\max_a\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}^{}\mathcal{P}_{ss'}^a*\mathrm{v}_*(s')\]
+Since there is a non linear operation (max) we don't have a closed-form solution.
+
+\section{Dynamic Programming for MDPs}
+In real Reinforcement Learning problems we don't have access to $\mathcal{P}$ and $\mathcal{R}$.
+Our goal is to solve the Markov Decision Process:
+\begin{itemize}
+    \item Policy Evaluation: given a policiy $\pi$ we want to derive the value function $v_\pi$ and $q_\pi$;
+    \item Policy improvement (control): improve the current policy $\pi$ to a better one $\pi'$, in order to find the optimal policy $\pi_*$ typically deriving $v_*$ and $q_*$;
+\end{itemize}
+There can be multiple optimal polices, but they all achieve the same optimal value function $v_*$ and $q_*$.
+
+Even in case $\mathcal{P}$ and $\mathcal{R}$ are known, we can use Dynamic Programming to solve the MDP. The idea is to use the Bellman Optimality Equations (non-linear) to iteratively update our estimates of $v_*$ and $q_*$ until they converge. This is useful also in linear problems in case they are complex problems where we can't solve the Bellman Expectiation Equations analytically.
+
+The idea of Dynamic Programming is to break complex problems into simpler subproblems and solve them recursively. Then we combine the solutions to the subproblems for solving the original one.
+DP is a tool that allow us to solve problems with this two properties:
+\begin{itemize}
+    \item Problems that have a substructure;
+    \item Problems that have overlapping subproblems;
+\end{itemize}
+
+\subsection{Prediction: Policy Evaluation}
+\begin{equation}
+  \begin{split}
+    v_\pi(s) &\doteq \mathbb{E}_\pi[G_t \mid S_t=s] \\
+      &= \mathbb{E}_\pi[R_{t+1}+\gamma G_{t+1} \mid S_t=s] \\
+      &= \mathbb{E}_\pi[R_{t+1}+\gamma v_\pi(S_{t+1}) \mid S_t=s] \\
+      &= \sum_{a}\pi(a|s)\sum_{s',r}p(s',r|s,a)\bigl[r+\gamma v_\pi(s')\bigr]
+  \end{split}
+\end{equation}
+Instead of solving the Bellman equation directly we can use it as an update rule (for all $s\in\mathcal{S}$):
+\begin{equation}
+  v_{k+1}(s) \doteq \sum_{a}\pi(a|s)\sum_{s',r}p(s',r|s,a)\bigl[r+\gamma v_k(s')\bigr]
+\end{equation}
+The dynamic programming procedure is associated with initial guesses of \textit{v} that are iteratively improved by repeatedly applying of the Bellman Expectation Equation.
+Iteratively the sequence ${v_k}$ coverges to $v_\pi$ as $k\to\infty$.
+
+\emph{Synchronous} policy evaluation stores two copies of the value
+function, for all states:
+\[
+  \mathrm{v}_{\text{new}}(s) \leftarrow \max_{a \in \mathcal{A}}
+  \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
+  \mathcal{P}_{ss'}^a \, \mathrm{v}_{\text{old}}(s') \right)
+\]
+\[
+  \mathrm{v}_{\text{old}} \leftarrow \mathrm{v}_{\text{new}}
+\]
+
+\emph{In-place} policy evaluation only stores one copy of the value
+function:
+\[
+  \mathrm{v}(s) \leftarrow \max_{a \in \mathcal{A}}
+  \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
+  \mathcal{P}_{ss'}^a \, \mathrm{v}(s') \right)
+\]
+While syncronous updates are more rigorous, in-place updates achieves faster convergence since we use the new estimations as soon as they are available. In practice we will typically use in-palce updates.
+\begin{algobox}{Iterative Policy Evaluation, for estimating $V \approx \mathrm{v}_\pi$} (in-place version)
+Input $\pi$, the policy to be evaluated\\
+Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation\\
+Initialize $V(s)$, for all $s \in \mathcal{S}^+$, arbitrarily except that
+$V(\mathit{terminal}) = 0$
+
+\medskip
+Loop:\\
+\hspace*{1.5em}$\Delta \leftarrow 0$\\
+\hspace*{1.5em}Loop for each $s \in \mathcal{S}$:\\
+\hspace*{3em}$v \leftarrow V(s)$\\
+\hspace*{3em}$V(s) \leftarrow \sum_a \pi(a \mid s) \sum_{s',r} p(s',r \mid s,a)
+  \bigl[r + \gamma V(s')\bigr]$\\
+\hspace*{3em}$\Delta \leftarrow \max\bigl(\Delta, \lvert v - V(s) \rvert\bigr)$\\
+until $\Delta < \theta$
+\end{algobox}
+
+\subsection{Control: Policy Improvement}
+One way to improve a policy is to evaluate a policy $\pi$ and improving it by acting greedly  with respect to $$v_\pi$$. 
+\[\pi'=greedy(\mathrm{v}_\pi)\]
+We can evaluate $v_{\pi'}$ and then improve it agian. This procedure of policy iteration will procede untill policy converges to the optimal policy $\pi_*$ and $v_{\pi_*}=v_*$.
+We will show that acting greedily can improve the policy and allow us to reach optimality.
+
+\begin{algobox}{Policy Iteration (using iterative policy evaluation) for estimating $\pi \approx \pi_*$}
+1. Initialization\\
+\hspace*{1.5em}$V(s) \in \mathbb{R}$ and $\pi(s) \in \mathcal{A}(s)$ arbitrarily for all $s \in \mathcal{S}$
+
+\medskip
+2. Policy Evaluation\\
+\hspace*{1.5em}Loop:\\
+\hspace*{3em}$\Delta \leftarrow 0$\\
+\hspace*{3em}Loop for each $s \in \mathcal{S}$:\\
+\hspace*{4.5em}$v \leftarrow V(s)$\\
+\hspace*{4.5em}$V(s) \leftarrow \sum_{s',r} p(s',r \mid s,\pi(s))\bigl[r + \gamma V(s')\bigr]$\\
+\hspace*{4.5em}$\Delta \leftarrow \max\bigl(\Delta, \lvert v - V(s) \rvert\bigr)$\\
+\hspace*{1.5em}until $\Delta < \theta$ (a small positive number determining the accuracy of estimation)
+
+\medskip
+3. Policy Improvement\\
+\hspace*{1.5em}$\mathit{policy\text{-}stable} \leftarrow \mathit{true}$\\
+\hspace*{1.5em}For each $s \in \mathcal{S}$:\\
+\hspace*{3em}$\mathit{old\text{-}action} \leftarrow \pi(s)$\\
+\hspace*{3em}$\pi(s) \leftarrow \argmax_a \sum_{s',r} p(s',r \mid s,a)\bigl[r + \gamma V(s')\bigr]$\\
+\hspace*{3em}If $\mathit{old\text{-}action} \neq \pi(s)$, then $\mathit{policy\text{-}stable} \leftarrow \mathit{false}$\\
+\hspace*{1.5em}If $\mathit{policy\text{-}stable}$, then stop and return $V \approx \mathrm{v}_*$ and $\pi \approx \pi_*$; else go to 2
+\end{algobox}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>={Stealth[length=2.6mm]}]
+  \coordinate (P) at (10,0);
+  \def\k{0.28}
+
+  % the two lines
+  \draw[thick] (0,{\k*10})  -- (P);
+  \draw[thick] (0,{-\k*10}) -- (P);
+
+  % zig-zag between the two lines
+  \draw[->, thick] (1.2, {\k*8.8})  -- (2.9, {-\k*7.1});
+  \draw[->, thick] (2.9, {-\k*7.1}) -- (4.7, {\k*5.3});
+  \draw[->, thick] (4.7, {\k*5.3})  -- (6.0, {-\k*4.0});
+  \draw[->, thick] (6.0, {-\k*4.0}) -- (7.1, {\k*2.9});
+  \draw[->, thick] (7.1, {\k*2.9})  -- (7.9, {-\k*2.1});
+  \draw[->, thick] (7.9, {-\k*2.1}) -- (8.5, {\k*1.5});
+  \draw[->, thick] (8.5, {\k*1.5})  -- (8.9, {-\k*1.1});
+  \draw[->, thick] (8.9, {-\k*1.1}) -- (9.2, {\k*0.8});
+
+  % starting point
+  \node[left, align=center] (start) at (-0.3, 0.2) {starting\\ $V$\;$\pi$};
+  \draw[->, thick] (start.east |- 0,0.5) -- (1.2, {\k*8.8});
+
+  % limit point and labels
+  \fill (P) circle (1.8pt);
+  \node[right, align=center] at (10.1, 0) {$\mathrm{v}_*$\\ $\pi_*$};
+  \node[above, rotate=-15.6, font=\small] at (3.0, {\k*7.0}) {$V = \mathrm{v}_\pi$};
+  \node[below, rotate=15.6, font=\small] at (4.5, {-\k*5.5}) {$\pi = \text{greedy}(V)$};
+\end{tikzpicture}
+\caption{}
+\label{fig:policy-iteration}
+\end{figure}
+
+\begin{theorem}[Policy Improvement Theorem]
+    Let's consider a deterministic policy $\pi$. We can improve the policy by acting greedily:
+    \[\pi'(s)=\argmax_{a\in\mathcal{A}}q_\pi(s,a)\]
+    we pick the one action that provides the best value and then we follow $\pi$. Then the new policy $\pi'$ is better than or equal to the old one $\pi$:
+    \[q_\pi(s,\pi'(s))=\max_{a\in\mathcal{A}}q_\pi(s,a)\geq q_\pi(s,\pi(s))=\mathrm{v}_\pi(s)\]
+    A policy $\pi'\geq\pi$ if $\mathrm{v}_{\pi'}(s)\geq\mathrm{v}_\pi(s)$ for all $s\in\mathcal{S}$. This improves the whole value function:
+    \begin{equation}
+      \begin{split}
+        \mathrm{v}_\pi(s)\leq q_\pi(s,\pi'(s))&=\mathbb{E}_{\pi'}[R_{t+1}+\gamma \mathrm{v}_\pi(S_{t+1})\mid S_t=s]\\
+        &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma q_\pi(S_{t+1},\pi'(S_{t+1}))\mid S_t=s]\\
+        &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma R_{t+2}+\gamma^2q_\pi(S_{t+2},\pi'(S_{t+2}))\mid S_t=s]\\
+        &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma R_{t+2}+\gamma^2+\cdots\mid S_t=s]\\
+        &=\mathrm{v}_{\pi'}(s)
+      \end{split}
+    \end{equation}
+    Now we are sure that acting greedily we are not going to do worse, but we have to prove that we reach optimality. Let's consider the case in which improvement stops:
+    \[q_\pi(s,\pi'(s))=\max_{a\in\mathcal{A}}q_\pi(s,a)=q_\pi(s,\pi(s))=\mathrm{v}_\pi(s)\]
+    In this case we have satisfied the Bellman Optimality Equation:
+    \[\mathrm{v}_\pi(s)=\max_{a\in\mathcal{A}}q_\pi(s,a)\]
+    Therefore we have reached optimality and $\pi$ is an optimal policy:
+    \[\mathrm{v}_\pi(s)=\mathrm{v}_*(s)\] for all $s\in\mathcal{S}$.
+\end{theorem}
+
+\subsection{Control: Value Iteration}
+In this case the evalutation step is stopped after one update. The approach can be written as:
+\begin{equation}
+  \begin{split}
+    v_{k+1}(s)&\doteq\max_a\mathbb{E}\left[R_{t+1}+\gamma v_k(\mathcal{S}_{t+1})|\mathcal{S}_t=s,\mathcal{A}_t=a\right]\\
+    &=\max_a\sum_{s',r}^{}p(s',r|s,a)\left[r+\gamma v_k(s')\right]
+  \end{split}
+\end{equation}
+for all steps. We are combining policy evaluation and policy update in a single step. It can be shown that this approach converges to the optimal value function $v_*$ and then we can derive the optimal policy $\pi_*$ by acting greedily with respect to $v_*$
+The main difference with policy evaluation is that in this case we use the Bellman Optimality Equation instad of using the Bellman Expectation Equation.
+In fact, instead of averaging over the all actions, we just consider the best one according to the current policy.
+\begin{algobox}{Value Iteration, for estimating $\pi \approx \pi_*$}
+Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation\\
+Initialize $V(s)$, for all $s \in \mathcal{S}^+$, arbitrarily except that
+$V(\mathit{terminal}) = 0$
+
+\medskip
+Loop:\\
+\hspace*{1.5em}$\Delta \leftarrow 0$\\
+\hspace*{1.5em}Loop for each $s \in \mathcal{S}$:\\
+\hspace*{3em}$v \leftarrow V(s)$\\
+\hspace*{3em}$V(s) \leftarrow \max_a \sum_{s',r} p(s',r \mid s,a)\bigl[r + \gamma V(s')\bigr]$\\
+\hspace*{3em}$\Delta \leftarrow \max\bigl(\Delta, \lvert v - V(s) \rvert\bigr)$\\
+until $\Delta < \theta$
+
+\medskip
+Output a deterministic policy, $\pi \approx \pi_*$, such that\\
+\hspace*{1.5em}$\pi(s) = \argmax_a \sum_{s',r} p(s',r \mid s,a)\bigl[r + \gamma V(s')\bigr]$
+\end{algobox}
+In this algorithm we are also considering the in-place update of $V$.
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+  \centering
+  \begin{tikzpicture}[scale=0.75, >={Stealth[length=2.2mm]}]
+    \gpibase
+    \tikzset{zig/.style={->, very thick, arrowblue}}
+    \draw[zig] (0,0.6)       -- (0.78,2.09);
+    \draw[zig] (0.78,2.09)   -- (1.66,-1.0);
+    \draw[zig] (1.66,-1.0)   -- (2.8,1.28);
+    \draw[zig] (2.8,1.28)    -- (3.38,-0.6);
+    \draw[zig] (3.38,-0.6)   -- (4.0,0.8);
+    \draw[zig] (4.0,0.8)     -- (4.37,-0.375);
+    \draw[zig] (4.37,-0.375) -- (4.78,0.49);
+    \draw[zig] (4.78,0.49)   -- (5.04,-0.22);
+  \end{tikzpicture}
+  \caption{Policy iteration}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+  \centering
+  \begin{tikzpicture}[scale=0.75, >={Stealth[length=2.2mm]}]
+    \gpibase
+    \tikzset{zig/.style={->, very thick, arrowblue}}
+    \draw[zig] (0,0.56)     -- (0.72,1.32);
+    \draw[zig] (0.72,1.32)  -- (1.6,-0.28);
+    \draw[zig] (1.6,-0.28)  -- (2.74,0.80);
+    \draw[zig] (2.74,0.80)  -- (3.36,-0.09);
+    \draw[zig] (3.36,-0.09) -- (3.88,0.28);
+    \draw[zig] (3.88,0.28)  -- (4.29,-0.09);
+    \draw[zig] (4.29,-0.09) -- (4.81,0.23);
+    \draw[zig] (4.81,0.23)  -- (5.17,-0.08);
+  \end{tikzpicture}
+  \caption{Value iteration}
+\end{subfigure}
+\caption{Policy iteration vs.\ value iteration (adapted from A.~White and
+M.~White, \emph{Fundamentals of Reinforcement Learning}).
+Policy iteration alternates full evaluation and improvement, jumping between
+the two lines; value iteration takes smaller, interleaved steps that stay
+between them.}
+\label{fig:pi-vs-vi}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}l p{5.5cm} l@{}}
+\toprule
+\textbf{Problem} & \textbf{Bellman equation} & \textbf{Algorithm} \\
+\midrule
+Prediction & Bellman expectation equation & Iterative Policy Evaluation \\
+Control    & Bellman expectation equation + Greedy Policy Improvement & Policy Iteration \\
+Control    & Bellman optimality equation & Value Iteration \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the (synchronous) DP algorithms.}
+\label{tab:dp-summary}
+\end{table}
+
+\subsection{Synchronous vs.\ In-place Updates}
+Asynchronous DP (In-place) can speed up things:
+\subsection{Recap: in-place vs.\ synchronous}
+
+\emph{Synchronous} policy evaluation stores two copies of the value
+function, for all states:
+\[
+  \mathrm{v}_{\text{new}}(s) \leftarrow \max_{a \in \mathcal{A}}
+  \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
+  \mathcal{P}_{ss'}^a \, \mathrm{v}_{\text{old}}(s') \right)
+\]
+\[
+  \mathrm{v}_{\text{old}} \leftarrow \mathrm{v}_{\text{new}}
+\]
+
+\emph{In-place} (or \emph{asynchronous}) policy evaluation only stores one
+copy of the value function:
+\[
+  \mathrm{v}(s) \leftarrow \max_{a \in \mathcal{A}}
+  \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
+  \mathcal{P}_{ss'}^a \, \mathrm{v}(s') \right)
+\]
+This approach can significantly reduce the computation. Moreover, if the state set is very large, then even a single sweep can be prohibitively expensive. 
+
+Asynchronous DP approaches update the values of states in any order
+whatsoever, using whatever values of other states happen to be
+available and, still converge if all states continue to be
+selected.

@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Focused reinforcement learning exam practice."><script>(function(){var t;try{t=localStorage.getItem('rl-study-theme');}catch(e){}document.documentElement.dataset.theme=t==='dark'||t==='light'?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');})();</script><title>RL Study Desk · New interface</title><style>
+:root{--bg:#f6f7fb;--paper:#fff;--ink:#22283d;--muted:#697186;--line:#e6e8f0;--accent:#6256d9;--accent-soft:#efedff;--green:#258567;--amber:#ad711b}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg);font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}button{border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}button:hover{border-color:#b9b2ec;background:#f5f3ff}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 3px 8px #6256d918}.primary:hover{background:#5144c3;color:white}a{color:var(--accent);text-underline-offset:3px}:focus-visible{outline:3px solid #9c8ff7;outline-offset:3px}[hidden]{display:none!important}.sidebar{position:fixed;inset:0 auto 0 0;width:260px;background:var(--paper);border-right:1px solid var(--line);padding:30px 18px;display:flex;flex-direction:column;overflow:auto}.brand{display:flex;align-items:center;gap:12px;padding:0 8px;text-decoration:none;color:var(--ink);font-size:19px;font-weight:750;letter-spacing:-.6px}.brand small{display:block;font-size:8px;letter-spacing:1.2px;font-weight:600;color:var(--muted);margin-top:2px}.mark{background:var(--accent);color:white;display:grid;place-content:center;width:43px;height:43px;border-radius:13px;font-size:29px;letter-spacing:-2px;position:relative}.mark span{display:none}.course-label{display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:7px;padding:8px 12px;margin:26px 8px;font-size:10px;letter-spacing:1px;color:var(--muted)}.section-nav{display:grid;gap:6px}.section-nav button{text-align:left;border:0;font-size:13px;display:flex;gap:12px;align-items:center;background:transparent;padding:12px}.section-nav button span{font-size:18px}.section-nav .active{background:var(--accent-soft);color:var(--accent)}.section-nav small{font-size:8px;color:var(--muted);background:#f1f2f7;padding:2px 5px;border-radius:4px;margin-left:auto}.nav-label{font-size:9px;letter-spacing:1.6px;color:#8b91a1;font-weight:700;margin:30px 12px 12px}#topic-nav{display:grid;gap:5px}#topic-nav button{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;padding:11px 10px;font-size:12px;font-weight:500}#topic-nav button.active{background:#f2f1fc;color:var(--accent);font-weight:650}#topic-nav button:hover{background:#f6f5fc}.topic-icon{color:#9296a8;font-size:10px;min-width:20px}.topic-count{margin-left:auto;font-size:10px;color:#9296a8}.sidebar-bottom{margin-top:auto;padding:35px 10px 0;font-size:10px;color:var(--muted)}.save-dot{display:inline-block;width:6px;height:6px;background:#38a281;border-radius:50%;margin-right:5px}.sidebar-bottom button{display:block;border:0;background:none;font-size:10px;color:var(--muted);padding:8px 0}.shell{margin-left:260px}header{height:76px;border-bottom:1px solid var(--line);padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:#ffffffad}.breadcrumb{font-size:12px;color:var(--muted)}.breadcrumb span{margin:0 12px;color:#c0c4d2}.breadcrumb b{color:var(--ink);font-weight:500}.course-tag{font-size:9px;letter-spacing:1.3px;border:1px solid var(--line);padding:4px 9px;border-radius:5px;color:var(--muted)}main{max-width:1380px;margin:auto;padding:34px 40px 16px}.page-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:27px}.eyebrow{font-size:9px;font-weight:700;letter-spacing:1.6px;color:var(--accent);margin:0 0 7px}h1{font-size:32px;font-weight:700;letter-spacing:-1.1px;line-height:1.25;margin:0 0 8px}.page-heading p:last-child{color:var(--muted);font-size:13px;margin:0}.shuffle{background:transparent;white-space:nowrap}.study-layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:26px}.practice-column{min-width:0}.filters{display:flex;gap:12px;padding-bottom:24px;border-bottom:1px solid var(--line)}label{font-size:10px;font-weight:650;color:var(--muted)}.filters label{flex:1;min-width:0}.filters .search{flex:1.2}select,input[type=search]{display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:var(--paper);color:var(--ink);font-size:12px;min-height:39px}.session-line{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:23px 0 14px;font-size:9px;font-weight:650;letter-spacing:1px;color:var(--muted)}#current-topic{letter-spacing:0;font-weight:400;font-size:11px}.card{padding:30px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 18px #26275204;min-height:390px;scroll-margin-top:15px}.card-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:9px;font-weight:650;color:var(--accent);letter-spacing:.7px}.card-meta>span{background:var(--accent-soft);padding:5px 9px;border-radius:5px}.card-meta a{color:var(--muted);font-weight:400;font-size:10px;letter-spacing:0;text-decoration:none}.card-meta a:hover{text-decoration:underline}.card h3{font-size:23px;font-weight:600;letter-spacing:-.5px;line-height:1.45;margin:25px 0}.card h3:focus{outline:none}textarea{display:block;width:100%;min-height:128px;border:1px solid var(--line);border-radius:9px;resize:vertical;padding:14px;background:#fafbfe;color:var(--ink);font-size:13px;line-height:1.7;margin:7px 0 18px}textarea::placeholder{color:#969dad}.actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:18px;margin-top:20px;border-top:1px solid var(--line)}.actions button{font-size:11px;padding:10px 12px}.actions .badge{background:#e8f5ef;border-color:#b2d6c6;color:var(--green)}.answer{background:#f0f6f3;border:1px solid #d4e6db;border-radius:9px;padding:18px;margin-top:20px;font-size:14px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}.answer p{margin:0}.answer .result{font-size:12px;font-weight:700;color:var(--green);margin-bottom:7px}.answer.wrong{background:#fff8ee;border-color:#f0dfc2}.answer.wrong .result{color:#926016}.options{border:0;padding:0;margin:0}.option{position:relative;display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:9px;padding:13px;margin:9px 0;font-weight:400;font-size:13px;color:var(--ink);cursor:pointer}.option input{position:absolute;opacity:0;width:1px;height:1px}.option-letter{border:1px solid #e0e3ed;background:#f8f9fc;color:var(--muted);border-radius:6px;width:28px;height:28px;display:grid;place-content:center;flex-shrink:0;font-size:11px}.option:has(input:checked){background:#f5f3ff;border-color:var(--accent)}.option:has(input:checked) .option-letter{background:var(--accent);color:white;border-color:var(--accent)}.option:has(input:focus-visible){outline:3px solid #a79af5;outline-offset:2px}.option.correct-option{background:#f0f9f4;border-color:#79b59b}.option.incorrect-option{background:#fff5ed;border-color:#dbac79}.navigation{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px}.navigation button{font-size:12px}.jump-label{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11px;font-weight:400}.jump-label select{margin:0;width:62px;min-height:35px}.keyboard-hint{text-align:center;color:#8e95a6;font-size:10px;margin:18px 0}.keyboard-hint span{margin:0 6px}kbd{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1px 5px;font-family:inherit}.progress-panel,.question-map{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px}.panel-label{display:flex;justify-content:space-between;letter-spacing:1px;font-size:9px;font-weight:700;color:var(--muted)}.panel-label>span{color:var(--accent);font-size:15px}.progress-value{display:flex;align-items:baseline;gap:7px;margin-top:12px}.progress-value strong{font-size:37px;line-height:1.2;letter-spacing:-1px;font-weight:650}.progress-value span{font-size:14px;color:#979cae}.progress-panel p{font-size:10px;color:var(--muted);margin:4px 0 14px}progress{display:block;width:100%;height:6px;border:0;border-radius:8px;overflow:hidden;accent-color:var(--accent);margin:18px 0 22px}progress::-webkit-progress-bar{background:#efedf8}progress::-webkit-progress-value{background:var(--accent);border-radius:8px}.stat-row{display:flex;justify-content:space-between;font-size:10px;margin:11px 0;color:var(--muted)}.stat-row b{font-weight:600;color:var(--ink)}.dot{width:6px;height:6px;border-radius:50%;display:inline-block;background:#cdd1dd;margin-right:6px}.dot.done{background:var(--green)}.dot.retry{background:#d6a048}#progress{border-top:1px solid var(--line);padding-top:12px;margin:15px 0 0;font-size:10px}.question-map{margin-top:16px}summary{cursor:pointer;font-size:12px;font-weight:650}.map-legend{font-size:10px;color:var(--muted);margin:10px 0 14px}#question-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:240px;overflow-y:auto;padding:3px}.map-button{padding:0;height:26px;font-size:9px;font-weight:500;border-radius:5px;background:#fafbfe;min-width:0}.map-button.done{background:#e8f5ef;color:var(--green);border-color:#d4e8df}.map-button.retry{background:#fff4e1;color:var(--amber);border-color:#efddbb}.map-button.current{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent);color:var(--accent);font-weight:750}.tip{padding:20px 5px}.tip>span{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--accent)}.tip p{font-size:11px;line-height:1.8;color:var(--muted);margin:8px 0}.scope{border-top:1px solid var(--line);margin-top:32px;padding:22px 0;font-size:12px;color:var(--muted)}.scope summary{font-size:11px;color:var(--muted);font-weight:500}.scope li{margin:9px 0}.scope p,.scope ul{max-width:850px}footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:16px;font-size:9px;color:#959bad}.book-placeholder{max-width:650px;margin:35px auto 70px;text-align:center;padding:45px;background:var(--paper);border:1px solid var(--line);border-radius:16px}.book-icon{display:grid;place-content:center;margin:0 auto 24px;width:60px;height:60px;background:var(--accent-soft);color:var(--accent);border-radius:16px;font-size:32px}.book-placeholder p{color:var(--muted);font-size:14px}.book-placeholder .eyebrow{color:var(--accent);font-size:9px}.book-status{display:inline-block;background:#fff7e9;color:var(--amber);padding:7px 12px;border-radius:6px;font-size:12px;margin:15px 0}.book-placeholder .muted{font-size:12px;margin-bottom:24px}.empty{padding:50px 25px;text-align:center;background:var(--paper);border-radius:14px;border:1px solid var(--line)}.empty p{color:var(--muted)}.skip{position:absolute;top:-100px;left:280px;background:var(--paper);padding:10px;z-index:10}.skip:focus{top:10px}@media(min-width:1550px){main{padding-top:48px}.card{padding:38px}.card h3{font-size:26px}}@media(max-width:1150px){.sidebar{width:225px;padding:25px 12px}.shell{margin-left:225px}main{padding:28px 24px}header{padding:0 24px}.study-layout{grid-template-columns:minmax(0,1fr) 205px;gap:18px}.card{padding:23px}.card-meta{flex-wrap:wrap}.study-aside .progress-panel,.question-map{padding:16px}#question-grid{grid-template-columns:repeat(5,1fr)}}@media(max-width:950px){.study-layout{grid-template-columns:1fr}.study-aside{display:grid;grid-template-columns:1fr 1fr;gap:16px}.question-map{margin:0}.tip{display:none}.progress-value{margin-top:5px}.progress-panel progress{margin:10px 0}#question-grid{grid-template-columns:repeat(6,1fr);max-height:190px}.card{min-height:360px}}@media(max-width:700px){.sidebar{position:static;width:auto;padding:16px;border-right:0;border-bottom:1px solid var(--line);overflow:visible}.brand{font-size:17px}.mark{height:35px;width:35px;font-size:24px}.course-label,.nav-label,.sidebar-bottom{display:none}.section-nav{display:flex;margin:16px 0 12px}.section-nav button{flex:1;justify-content:center;padding:8px;font-size:12px}.section-nav button span{font-size:15px}#topic-nav{display:flex;overflow-x:auto;padding-bottom:3px;gap:6px}#topic-nav button{white-space:nowrap;border:1px solid var(--line);border-radius:20px;padding:7px 12px;font-size:11px}.topic-icon,.topic-count{display:none}.shell{margin:0}header{display:none}main{padding:24px 16px 16px}.page-heading{gap:12px;margin-bottom:22px}h1{font-size:27px}.page-heading p:last-child{font-size:12px}.eyebrow{font-size:8px}.shuffle{font-size:11px;padding:8px 10px}.filters{flex-wrap:wrap;gap:10px;padding-bottom:16px}.filters label{flex:1 1 40%}.filters .search{flex:1 1 100%}.session-line{font-size:8px;margin-top:18px}#current-topic{font-size:9px}.card{padding:21px;min-height:0}.card h3{font-size:21px;margin:22px 0}.card-meta{font-size:8px}.card-meta a{font-size:9px}.navigation{gap:6px}.navigation button{font-size:11px;padding:10px}.jump-label{font-size:0;gap:0}.jump-label select{font-size:11px;width:50px}.keyboard-hint{font-size:9px}.study-aside{grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.progress-panel,.study-aside .question-map{padding:13px}#question-grid{grid-template-columns:repeat(4,1fr);max-height:230px}.map-button{height:28px}.panel-label{font-size:8px}.stat-row{font-size:9px}.scope{margin-top:22px}.book-placeholder{padding:25px 20px;margin:10px 0 30px}.book-placeholder h1{font-size:28px}footer span{display:none}.skip{left:16px}.option{padding:11px}.answer{padding:14px;font-size:13px}}@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}@media print{.sidebar,header,.filters,.navigation,.keyboard-hint,.study-aside,.actions,footer,.scope,.shuffle{display:none}.shell{margin:0}.study-layout{display:block}.card{box-shadow:none}body{background:var(--paper)}}
+
+/* Theme surfaces and semantic feedback remain distinct in both appearances. */
+:root{color-scheme:light;--field:#fafbfe;--hover:#f5f3ff;--success-bg:#f0f6f3;--success-line:#d4e6db;--warning-bg:#fff8ee;--warning-line:#f0dfc2}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#11131d;--paper:#1a1e2c;--ink:#eceef8;--muted:#a9b1c7;--line:#30364a;--accent:#b1a5ff;--accent-soft:#30294d;--green:#7dd6b3;--amber:#edc37e;--field:#151925;--hover:#29253f;--success-bg:#18382f;--success-line:#356452;--warning-bg:#392d1e;--warning-line:#705231}
+.theme-toggle{margin:18px 8px 0;text-align:left;font-size:12px;background:var(--field);color:var(--ink)}
+header{background:var(--paper)}
+textarea,.map-button{background:var(--field)}
+button:hover{background:var(--hover)}
+.primary{background:#6256d9;color:#fff;border-color:#6256d9}.primary:hover{background:#5144c3;color:#fff}
+#topic-nav button.active{background:var(--accent-soft)}#topic-nav button:hover{background:var(--hover)}
+.answer,.actions .badge{background:var(--success-bg);border-color:var(--success-line)}
+.answer.wrong{background:var(--warning-bg);border-color:var(--warning-line)}
+.answer.wrong .result{color:var(--amber)}
+.option-letter{background:var(--field);border-color:var(--line)}
+.option:has(input:checked){background:var(--accent-soft)}
+.option:has(input:checked) .option-letter{background:#6256d9;border-color:#6256d9;color:white}
+.option.correct-option,.map-button.done{background:var(--success-bg);border-color:var(--success-line)}
+.option.incorrect-option,.map-button.retry,.book-status{background:var(--warning-bg);border-color:var(--warning-line)}
+.map-button.done{color:var(--green)}.map-button.retry{color:var(--amber)}
+progress::-webkit-progress-bar{background:var(--accent-soft)}
+:root[data-theme="dark"] .section-nav small{background:var(--field)}
+:root[data-theme="dark"] .keyboard-hint,:root[data-theme="dark"] footer,:root[data-theme="dark"] .nav-label,:root[data-theme="dark"] .topic-icon,:root[data-theme="dark"] .topic-count{color:var(--muted)}
+:root[data-theme="dark"] .dot:not(.done):not(.retry){background:#78819c}
+@media(max-width:700px){.theme-toggle{position:absolute;right:16px;top:17px;margin:0;padding:7px 10px;font-size:11px}}
+@media print{:root[data-theme="dark"]{color-scheme:light;--bg:#fff;--paper:#fff;--ink:#22283d;--muted:#566078;--line:#d7dbe6;--accent:#6256d9;--field:#fff;--success-bg:#fff;--warning-bg:#fff}.theme-toggle{display:none}}
+.review-banner{display:flex;gap:10px;align-items:center;background:var(--accent-soft);border:1px solid var(--line);padding:12px 16px;border-radius:9px;margin:-5px 0 24px;font-size:11px;color:var(--muted)}.review-banner>span{color:var(--accent);font-size:18px}.review-banner p{margin:0}.review-banner strong{color:var(--ink);font-weight:600}.review-banner a{white-space:nowrap}.book-reference{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;line-height:1.7;margin:18px 0 0;color:var(--muted)}.book-reference p{margin:0}.exercise-card .book-reference{margin:-12px 0 18px}.exercise-prompt{white-space:pre-wrap;line-height:1.9;font-size:14px;overflow-wrap:anywhere}.exercise-hint{background:var(--field);border:1px solid var(--line);padding:12px 15px;border-radius:8px;margin:20px 0}.exercise-hint p{font-size:13px;line-height:1.8;margin:10px 0 0;color:var(--muted)}.worked-solution{white-space:normal;background:var(--field);border-color:var(--line)}.worked-solution h4{margin:0 0 16px;font-size:16px}.solution-step+.solution-step{border-top:1px solid var(--line);padding-top:16px;margin-top:16px}.solution-step h5{font-size:13px;margin:0 0 8px;color:var(--accent)}.solution-step p{white-space:pre-wrap;font-size:14px;line-height:1.95;overflow-wrap:anywhere}.worked-solution .solution-note{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:15px;margin-top:20px}.exercise-grid .map-button{font-size:9px}.jump-label select{width:75px}#review-details{scroll-margin-top:25px}.exercise-card .actions{margin-bottom:12px}@media(max-width:700px){.review-banner{font-size:10px;margin-bottom:20px}.exercise-prompt,.solution-step p{font-size:13px}.jump-label select{width:65px}.exercise-card{padding:19px}.book-reference{font-size:10px}.review-banner a{white-space:normal}}
+
+</style></head>
+<body>
+<a href="#workspace" class="skip">Skip to practice</a>
+<aside class="sidebar">
+<a class="brand" href="study-desk.html"><span class="mark">rl<span>.</span></span><span>Study Desk<small>REINFORCEMENT LEARNING</small></span></a>
+<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Dark theme" aria-pressed="false">☾ &nbsp; Dark theme</button>
+<div class="course-label">UNIPD <span>2026 / 27</span></div>
+<nav class="section-nav" aria-label="Study sections"><button id="theory-tab" class="active" aria-pressed="true"><span>▦</span> Theory practice</button><button id="book-tab" aria-pressed="false"><span>▤</span> Book exercises <small>27</small></button></nav>
+<p class="nav-label">YOUR TOPICS</p><nav id="topic-nav" aria-label="Topics"></nav>
+<div class="sidebar-bottom"><div class="save-dot"></div><span id="storage-note">Progress saved on this device</span></div>
+</aside>
+<div class="shell"><header><div class="breadcrumb">Your workspace <span>/</span> <b id="section-name">Theory practice</b></div><span class="course-tag">EXAM PREP</span></header>
+<main id="workspace">
+<section id="theory" aria-labelledby="practice-heading">
+<div class="page-heading"><div><p class="eyebrow">A LITTLE PRACTICE, EVERY DAY</p><h1 id="practice-heading">Let’s make it click.</h1><p id="practice-intro">One question at a time. Think it through, then check your reasoning.</p></div><button id="shuffle" class="shuffle">⇄ &nbsp; Shuffle</button></div>
+<div class="review-banner"><span>✓</span><p><strong>Theory checked against your book.</strong> All 61 questions reviewed; 9 answers clarified. <a href="#review-details">See review notes</a></p></div>
+<div class="study-layout"><div class="practice-column">
+<div class="filters"><label>Question type<select id="type"><option value="all">All questions</option><option value="open">Open questions</option><option value="mc">Multiple choice</option></select></label><label>Status<select id="review"><option value="all">Everything</option><option value="new">Not answered</option><option value="retry">Needs review</option><option value="done">Confident / correct</option></select></label><label class="search">Search<input id="search" type="search" placeholder="Find a concept…"></label></div>
+<select id="topic" hidden aria-label="Selected topic"><option value="all">All topics</option></select>
+<div class="session-line"><span id="count" aria-live="polite"></span><span id="current-topic"></span></div>
+<div id="questions"></div>
+<div class="navigation"><button id="previous">← &nbsp; Previous</button><label class="jump-label">Go to <select id="jump" aria-label="Go to question"></select></label><button id="next" class="primary">Next question &nbsp; →</button></div>
+<div class="keyboard-hint"><kbd>←</kbd> <kbd>→</kbd> to navigate <span>•</span> Your notes are saved automatically</div>
+</div><aside class="study-aside">
+<section class="progress-panel"><div class="panel-label">YOUR PROGRESS <span>↗</span></div><div class="progress-value"><strong id="mastered">0</strong><span id="bank-total">/ 61</span></div><p id="progress-caption">questions confident or correct</p><progress id="progress-bar" max="61" value="0" aria-label="Questions confident or correct"></progress><div class="stat-row"><span><i class="dot done"></i> Confident / correct</span><b id="done-count">0</b></div><div class="stat-row"><span><i class="dot retry"></i> Needs review</span><b id="retry-count">0</b></div><div class="stat-row"><span><i class="dot"></i> Not answered</span><b id="new-count">61</b></div><p id="progress" role="status" aria-live="polite"></p></section>
+<details class="question-map" open><summary id="navigator-title">Question navigator</summary><div class="map-legend">Pick a number to jump directly.</div><div id="question-grid"></div></details>
+<section class="tip"><span>STUDY TIP</span><p id="study-tip">Try explaining the answer out loud before revealing it. If you get stuck, open the linked slide and try again.</p></section>
+</aside></div>
+</section>
+<details id="review-details" class="scope"><summary>Theory review: what was checked and clarified</summary><p>All 61 theory questions, explanations, and multiple-choice keys were reviewed against the supplied Sutton &amp; Barto second edition and lectures 02–10. No multiple-choice key changes were needed. Nine answers were clarified: Q04 (sample-mean indexing), Q20 (optimality assumptions), Q24/Q26 (evaluation and improvement conditions), Q44 (state versus action importance weights), Q46 (first-visit versus every-visit bias), Q53/Q54 (SARSA and Q-learning convergence), and Q55 (Expected SARSA’s target policy).</p><p>Every theory card now links to a book reference as well as its slide. The Markov-process presentation and matrix-inverse formula remain based on the slides; their book references provide complementary support. Prioritized sweeping remains limited to its brief introduction in lecture 06.</p><p>Exercise numbers are not section numbers: Exercise 5.6 belongs to §5.5, Exercise 5.10 to §5.6, and Exercise 6.8 to §6.4. These selected exercises remain in scope. Optional/excluded textbook sections have not been added as practical topics.</p><p><a href="study/CONTENT_REVIEW.md" target="_blank" rel="noopener">Full question-by-question review record ↗</a> · <a href="RLbook2020.pdf#page=3" target="_blank" rel="noopener">Your textbook ↗</a></p></details>
+<details class="scope"><summary>Course scope &amp; exam notes from the slides</summary><p>This is an original revision bank based on the nine available decks, lectures 02–10. It is not an official exam or a substitute for all assigned reading. References use PDF page numbers, including title pages. Questions are in English, matching the slides.</p><ul><li><a href="RL_lecture%2002.pdf#page=87" target="_blank" rel="noopener">Lecture 02, p. 87:</a> Chapter 2 may be examined, except contextual bandits (§2.9) and the gradient-bandit stochastic-gradient-ascent derivation.</li><li><a href="RL_lecture%2004.pdf#page=74" target="_blank" rel="noopener">Lecture 04, p. 74:</a> Chapter 3 may be examined; use the slides for Markov chains and MRPs.</li><li><a href="RL_lecture%2006.pdf#page=65" target="_blank" rel="noopener">Lecture 06, p. 65:</a> All Chapter 4 is exam material. Pay particular attention to algorithms.</li><li><a href="RL_lecture%2007.pdf#page=70" target="_blank" rel="noopener">Lecture 07, p. 70:</a> The ε-soft policy-improvement proof in §5.4 is optional; §§5.7–5.9 can be skipped.</li><li><a href="RL_lecture%2010.pdf#page=48" target="_blank" rel="noopener">Lecture 10, p. 48:</a> Chapter 6 is exam material, with §6.7 skipped and §6.8 optional.</li></ul><p>Chapter and section references above are those stated in the slides. The available slides briefly introduce prioritized sweeping; this page covers that introduction only. The practical bank contains 27 selected exercises from the supplied second edition (2018/2020), restated for this page with independently worked solutions. This is a selected set, not every exercise in the chapters. Printed book page p corresponds to PDF page p+22.</p><p><button id="reset">Reset all saved progress and notes</button></p></details>
+<footer>Built around your lecture slides <span>Lectures 02–10 · 61 theory questions · 27 book exercises</span></footer>
+</main></div><noscript>Please enable JavaScript to use the study desk.</noscript>
+<script>
+const QUESTIONS = [
+  {
+    "id": "q01",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 17,
+    "q": "Describe one step of the agent–environment interaction. What is the objective?",
+    "a": "At time t the agent observes state Sₜ and selects Aₜ according to its policy. The environment produces reward Rₜ₊₁ and next state Sₜ₊₁. The objective is to maximize expected cumulative return, so the action with the largest immediate reward need not be best.",
+    "options": null,
+    "book": {
+      "section": "3.1",
+      "page": 48,
+      "pdfPage": 70
+    }
+  },
+  {
+    "id": "q02",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 20,
+    "q": "Distinguish a policy, a value function, and a model.",
+    "a": "A policy specifies behaviour: π(a|s) is an action probability. A value function predicts expected return. A model predicts environment dynamics and rewards, enabling planning. An agent need not explicitly contain all three.",
+    "options": null,
+    "book": {
+      "section": "1.3",
+      "page": 6,
+      "pdfPage": 28
+    }
+  },
+  {
+    "id": "q03",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 36,
+    "q": "What does q*(a) mean in a stationary bandit, and how does Qₜ(a) differ?",
+    "a": "q*(a) = E[Rₜ | Aₜ=a] is the true expected reward for action a. Qₜ(a) is an estimate based on observations. Stationarity means the action reward distributions do not change with time.",
+    "options": null,
+    "book": {
+      "section": "2.1–2.2",
+      "page": 26,
+      "pdfPage": 48
+    }
+  },
+  {
+    "id": "q04",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 48,
+    "q": "Derive the incremental sample-average update and explain constant step sizes.",
+    "a": "Let Qₙ denote the estimate before the nth reward Rₙ for one action (so it summarizes n−1 observations). After observing Rₙ, Qₙ₊₁ = Qₙ + (1/n)(Rₙ − Qₙ). Separating the newest reward from the average of n rewards gives this identity. Replacing 1/n by constant α gives exponentially decreasing weights to older rewards, plus weight (1−α)ⁿ on Q₁. Constant α helps tracking, but generally keeps fluctuating under reward noise rather than converging exactly.",
+    "options": null,
+    "book": {
+      "section": "2.4–2.5",
+      "page": 31,
+      "pdfPage": 53
+    },
+    "auditNote": "Clarified the sample-average indexing"
+  },
+  {
+    "id": "q05",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 65,
+    "q": "Why do optimistic initial values encourage exploration, and what is their limitation?",
+    "a": "High initial estimates make untried actions attractive. Disappointing rewards lower tried-action estimates, encouraging the agent to try alternatives. This incentive mainly acts early: it does not reliably restart exploration when reward distributions later change.",
+    "options": null,
+    "book": {
+      "section": "2.6",
+      "page": 34,
+      "pdfPage": 56
+    }
+  },
+  {
+    "id": "q06",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 80,
+    "q": "How does a gradient bandit learn? Explain the role of its baseline.",
+    "a": "It learns preferences H(a), with π(a)=exp(H(a))/Σᵦ exp(H(b)). For chosen action A, H(A) ← H(A)+α(R−b)(1−π(A)); for other actions a, H(a) ← H(a)−α(R−b)π(a). The baseline b is an estimate of average reward: rewards above it increase the chosen action’s preference. Preferences are not estimates of reward.",
+    "options": null,
+    "book": {
+      "section": "2.8",
+      "page": 37,
+      "pdfPage": 59
+    }
+  },
+  {
+    "id": "q07",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 43,
+    "q": "With k actions and one greedy action, what is its ε-greedy selection probability?",
+    "a": "The random branch samples all k actions, including the greedy one. Its total probability is (1−ε)+ε/k.",
+    "options": [
+      "1/k",
+      "1 − ε + ε/k",
+      "1 − ε",
+      "ε/k"
+    ],
+    "correct": 1,
+    "book": {
+      "section": "2.2",
+      "page": 28,
+      "pdfPage": 50
+    }
+  },
+  {
+    "id": "q08",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 55,
+    "q": "Which update is generally useful for tracking a changing reward distribution?",
+    "a": "A constant step size continues giving substantial weight to recent observations. A sample average increasingly dilutes new observations.",
+    "options": [
+      "Always average every past reward equally",
+      "Stop updating after each action is tried",
+      "A constant positive step size",
+      "A step size fixed to zero"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "2.5",
+      "page": 32,
+      "pdfPage": 54
+    }
+  },
+  {
+    "id": "q09",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 66,
+    "q": "What drives exploration in UCB action selection?",
+    "a": "UCB selects an action maximizing Qₜ(a)+c√(ln(t)/Nₜ(a)). The bonus is larger for less sampled actions. Untried actions must be handled separately, typically by selecting them first.",
+    "options": [
+      "Uniform random action selection at every step",
+      "Only the largest observed individual reward",
+      "A penalty for actions with few observations",
+      "An uncertainty bonus favouring less sampled actions"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "2.7",
+      "page": 35,
+      "pdfPage": 57
+    }
+  },
+  {
+    "id": "q10",
+    "topic": "Foundations & bandits",
+    "lecture": 2,
+    "page": 40,
+    "q": "Why can a purely greedy bandit policy perform poorly?",
+    "a": "Early noisy estimates can undervalue the best arm. A greedy policy may keep choosing another arm and never collect evidence that corrects the mistake.",
+    "options": [
+      "It may never revisit an initially underestimated action",
+      "It always chooses uniformly at random",
+      "It needs the transition matrix of an MDP",
+      "It optimizes only the variance of rewards"
+    ],
+    "correct": 0,
+    "book": {
+      "section": "2.2–2.3",
+      "page": 27,
+      "pdfPage": 49
+    }
+  },
+  {
+    "id": "q11",
+    "topic": "Foundations & bandits",
+    "lecture": 3,
+    "page": 46,
+    "q": "Adding the same constant to every softmax preference has what effect?",
+    "a": "The common exponential factor cancels between numerator and denominator, leaving every action probability unchanged.",
+    "options": [
+      "The greedy action necessarily changes",
+      "No change to action probabilities",
+      "All probabilities increase",
+      "The policy becomes uniform"
+    ],
+    "correct": 1,
+    "book": {
+      "section": "2.8",
+      "page": 37,
+      "pdfPage": 59
+    }
+  },
+  {
+    "id": "q12",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 3,
+    "page": 69,
+    "q": "State the Markov property. Must the latest observation always be a Markov state?",
+    "a": "A Markov state contains the information needed to predict the next transition: conditioning on the full past adds nothing once the current state (and action, in an MDP) is known. A raw observation may omit relevant information; an appropriate state representation may need history.",
+    "options": null,
+    "book": {
+      "section": "3.1",
+      "page": 49,
+      "pdfPage": 71
+    }
+  },
+  {
+    "id": "q13",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 3,
+    "page": 100,
+    "q": "Distinguish a Markov chain, an MRP, and an MDP.",
+    "a": "A Markov chain has states and transition probabilities. A Markov reward process adds rewards and a discount factor. A Markov decision process adds actions and action-dependent dynamics and rewards. Fixing a stationary policy in an MDP induces an MRP.",
+    "options": null,
+    "book": {
+      "section": "3.1; Example 6.2",
+      "page": 125,
+      "pdfPage": 147
+    },
+    "bookNote": "The Markov chain → MRP → MDP presentation is from lecture 03. The book defines MRPs in Example 6.2 and introduces MDPs directly in §3.1."
+  },
+  {
+    "id": "q14",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 3,
+    "page": 84,
+    "q": "Define return and explain discounting.",
+    "a": "Gₜ = Σₖ≥₀ γᵏRₜ₊ₖ₊₁, truncated at termination for an episode. γ weights delayed rewards. For bounded rewards, γ<1 ensures an infinite-horizon discounted return is finite. γ=0 values only the next reward; γ=1 needs conditions such as finite expected episodic returns.",
+    "options": null,
+    "book": {
+      "section": "3.3",
+      "page": 54,
+      "pdfPage": 76
+    }
+  },
+  {
+    "id": "q15",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 4,
+    "page": 34,
+    "q": "Define vπ and qπ and give their relationship.",
+    "a": "vπ(s)=Eπ[Gₜ | Sₜ=s]. qπ(s,a)=Eπ[Gₜ | Sₜ=s,Aₜ=a], following π after the initial action. Thus vπ(s)=Σₐπ(a|s)qπ(s,a). An action value includes future rewards, not just the immediate reward.",
+    "options": null,
+    "book": {
+      "section": "3.5",
+      "page": 58,
+      "pdfPage": 80
+    }
+  },
+  {
+    "id": "q16",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 4,
+    "page": 40,
+    "q": "Write the Bellman expectation and optimality equations for state values.",
+    "a": "Expectation: vπ(s)=Σₐπ(a|s)Σₛ′,ᵣp(s′,r|s,a)[r+γvπ(s′)]. Optimality: v*(s)=maxₐ Σₛ′,ᵣp(s′,r|s,a)[r+γv*(s′)]. Optimality replaces the policy average over actions with a maximum; environment outcomes still require an expectation.",
+    "options": null,
+    "book": {
+      "section": "3.5–3.6",
+      "page": 59,
+      "pdfPage": 81
+    }
+  },
+  {
+    "id": "q17",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 4,
+    "page": 26,
+    "q": "How can a finite discounted MRP be solved in matrix form?",
+    "a": "v=r+γPv, hence v=(I−γP)⁻¹r when the inverse exists, in particular for a finite MRP with γ<1. Direct solution becomes costly for large state spaces; iterative methods avoid explicitly inverting the matrix.",
+    "options": null,
+    "book": {
+      "section": "4.1",
+      "page": 74,
+      "pdfPage": 96
+    },
+    "bookNote": "The matrix-inverse formula is the lecture’s rearrangement of the linear Bellman system. The linked book page supports the linear-system formulation; it does not display this exact matrix formula."
+  },
+  {
+    "id": "q18",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 4,
+    "page": 69,
+    "q": "What is the difference between prediction and control?",
+    "a": "Prediction evaluates a specified policy; control seeks an optimal policy. Both can involve estimating value functions.",
+    "options": [
+      "Prediction evaluates a policy; control seeks a better or optimal policy",
+      "Prediction needs rewards; control ignores them",
+      "Prediction always means predicting the next state",
+      "Control means evaluating a fixed policy only"
+    ],
+    "correct": 0,
+    "book": {
+      "section": "4.1–4.2",
+      "page": 74,
+      "pdfPage": 96
+    }
+  },
+  {
+    "id": "q19",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 4,
+    "page": 63,
+    "q": "Where does a maximum appear in the Bellman optimality equation?",
+    "a": "The agent can choose actions but cannot choose random environment outcomes. We maximize over actions and average over possible transitions and rewards.",
+    "options": [
+      "Over policies inside the immediate reward only",
+      "Over actions, while averaging over environment outcomes",
+      "Over possible random rewards instead of averaging",
+      "Over next states regardless of transition probabilities"
+    ],
+    "correct": 1,
+    "book": {
+      "section": "3.6",
+      "page": 63,
+      "pdfPage": 85
+    }
+  },
+  {
+    "id": "q20",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 5,
+    "page": 10,
+    "q": "Can two distinct optimal policies have different optimal state values?",
+    "a": "In the finite discounted setting, all optimal policies attain the same v* in every state and the same q*. Policies may differ when several actions maximize the value. These statements assume the usual well-defined-return setting; a finite state space alone does not guarantee finite undiscounted continuing returns.",
+    "options": [
+      "Yes; each optimal policy defines a different v*",
+      "Only if both policies are deterministic",
+      "No; both attain v* in every state",
+      "Yes; optimality means best in just one state"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "3.6",
+      "page": 62,
+      "pdfPage": 84
+    },
+    "auditNote": "Made the optimal-policy setting explicit"
+  },
+  {
+    "id": "q21",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 5,
+    "page": 12,
+    "q": "Given q*, how can an optimal policy be obtained in a finite discounted MDP?",
+    "a": "Choose an action attaining maxₐ q*(s,a) in each state. Ties can be resolved deterministically; stochastic mixtures among maximizing actions are also optimal.",
+    "options": [
+      "Choose the action with maximum immediate reward",
+      "Choose actions uniformly in every state",
+      "Minimize q* to minimize future uncertainty",
+      "Choose a maximizing action in each state"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "3.6",
+      "page": 64,
+      "pdfPage": 86
+    }
+  },
+  {
+    "id": "q22",
+    "topic": "MDPs & Bellman equations",
+    "lecture": 4,
+    "page": 67,
+    "q": "Why is the Bellman optimality equation not the same linear system as policy evaluation?",
+    "a": "The max operator depends on the unknown values and makes the optimality equation nonlinear. With a fixed policy, its probabilities are given and the expectation equations are linear.",
+    "options": [
+      "It contains a maximum over actions",
+      "It contains a discount factor",
+      "Rewards are always nonlinear functions",
+      "It has no next-state values"
+    ],
+    "correct": 0,
+    "book": {
+      "section": "3.6",
+      "page": 64,
+      "pdfPage": 86
+    }
+  },
+  {
+    "id": "q23",
+    "topic": "Dynamic programming",
+    "lecture": 5,
+    "page": 38,
+    "q": "What information does classical DP require, and why is it called planning?",
+    "a": "DP uses a known transition and reward model to compute expected backups. It solves prediction or control from that model, rather than estimating backups only from sampled experience.",
+    "options": null,
+    "book": {
+      "section": "4",
+      "page": 73,
+      "pdfPage": 95
+    }
+  },
+  {
+    "id": "q24",
+    "topic": "Dynamic programming",
+    "lecture": 5,
+    "page": 40,
+    "q": "Describe iterative policy evaluation, including its update and stopping rule.",
+    "a": "For fixed π, update V(s) ← Σₐπ(a|s)Σₛ′,ᵣp(s′,r|s,a)[r+γV(s′)]. Repeat sweeps until the largest absolute change is below a chosen tolerance. Keep terminal values at zero under the convention of no rewards after termination. In a finite discounted MDP this converges to vπ; undiscounted episodic evaluation requires appropriate termination conditions. A positive tolerance gives an approximation, not exact equality.",
+    "options": null,
+    "book": {
+      "section": "4.1",
+      "page": 74,
+      "pdfPage": 96
+    },
+    "auditNote": "Added the convergence assumptions"
+  },
+  {
+    "id": "q25",
+    "topic": "Dynamic programming",
+    "lecture": 5,
+    "page": 43,
+    "q": "Compare synchronous and in-place value updates.",
+    "a": "Synchronous updates read only the previous sweep’s values and write to a separate array. In-place updates use one array and immediately reuse newly updated values. Their intermediate estimates can differ, and order matters for in-place updates.",
+    "options": null,
+    "book": {
+      "section": "4.1",
+      "page": 75,
+      "pdfPage": 97
+    }
+  },
+  {
+    "id": "q26",
+    "topic": "Dynamic programming",
+    "lecture": 5,
+    "page": 64,
+    "q": "Explain policy improvement and why a stable greedy policy is optimal.",
+    "a": "Construct π′ greedily with respect to the exact qπ. Then qπ(s,π′(s))≥vπ(s), and the policy improvement theorem gives vπ′≥vπ. If a policy is greedy with respect to its own exact value, it satisfies the Bellman optimality equation in the standard finite discounted setting (or an appropriate episodic setting). Consistent tie-breaking prevents endless switches between equally good actions. Approximate evaluation requires numerical care.",
+    "options": null,
+    "book": {
+      "section": "4.2–4.3",
+      "page": 78,
+      "pdfPage": 100
+    },
+    "auditNote": "Qualified exact policy improvement"
+  },
+  {
+    "id": "q27",
+    "topic": "Dynamic programming",
+    "lecture": 6,
+    "page": 38,
+    "q": "Compare policy iteration, value iteration, and GPI.",
+    "a": "Policy iteration alternates policy evaluation and greedy improvement. Value iteration applies V(s) ← maxₐ Σₛ′,ᵣp(s′,r|s,a)[r+γV(s′)], combining improvement with a truncated evaluation update. Generalized policy iteration describes the interaction of evaluation and improvement at varying granularities.",
+    "options": null,
+    "book": {
+      "section": "4.3–4.6",
+      "page": 82,
+      "pdfPage": 104
+    }
+  },
+  {
+    "id": "q28",
+    "topic": "Dynamic programming",
+    "lecture": 6,
+    "page": 64,
+    "q": "What is the idea behind prioritized sweeping in the slides?",
+    "a": "Use the magnitude of the Bellman error to prioritize updates, then revise priorities of affected predecessor states. A priority queue can implement this efficiently. The slides introduce this as an example of asynchronous DP, rather than covering all of Chapter 8.",
+    "options": null,
+    "book": {
+      "section": "8.4 (slide introduction only)",
+      "page": 169,
+      "pdfPage": 191
+    },
+    "bookNote": "Only the brief lecture 06 introduction is in this question; the reference does not add the rest of Chapter 8 to the practice scope."
+  },
+  {
+    "id": "q29",
+    "topic": "Dynamic programming",
+    "lecture": 6,
+    "page": 42,
+    "q": "Which backup distinguishes value iteration from evaluation of a fixed policy?",
+    "a": "Value iteration uses a maximum over actions. Policy evaluation uses the action probabilities of the given policy.",
+    "options": [
+      "An average over the fixed policy’s actions",
+      "A complete sampled episode",
+      "A gradient of softmax preferences",
+      "A maximum over actions"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "4.4",
+      "page": 83,
+      "pdfPage": 105
+    }
+  },
+  {
+    "id": "q30",
+    "topic": "Dynamic programming",
+    "lecture": 6,
+    "page": 62,
+    "q": "What scheduling condition supports convergence of asynchronous DP in the usual discounted setting?",
+    "a": "Updates can be in arbitrary order, but every state must continue to receive updates for the general all-state convergence guarantee.",
+    "options": [
+      "Every state continues to be updated",
+      "Only the initial state is ever updated",
+      "Every sweep must use alphabetical state order",
+      "Only states with positive rewards are updated"
+    ],
+    "correct": 0,
+    "book": {
+      "section": "4.5",
+      "page": 85,
+      "pdfPage": 107
+    }
+  },
+  {
+    "id": "q31",
+    "topic": "Dynamic programming",
+    "lecture": 5,
+    "page": 64,
+    "q": "Policy improvement is greedy with respect to which quantity?",
+    "a": "qπ(s,a) includes the immediate reward and the discounted value of following π afterwards. Greediness here is not simply maximizing immediate reward.",
+    "options": [
+      "The number of previous visits",
+      "Expected return from an action followed by the current policy",
+      "Only the immediate reward",
+      "Only the transition probability"
+    ],
+    "correct": 1,
+    "book": {
+      "section": "4.2",
+      "page": 78,
+      "pdfPage": 100
+    }
+  },
+  {
+    "id": "q32",
+    "topic": "Dynamic programming",
+    "lecture": 6,
+    "page": 55,
+    "q": "Must evaluation converge fully before every improvement step in GPI?",
+    "a": "GPI allows evaluation and improvement to interact before either process finishes. Value iteration is an important example of tightly interleaving them.",
+    "options": [
+      "Yes; otherwise there is no control",
+      "No; evaluation must always be omitted",
+      "No; evaluation and improvement can be interleaved",
+      "Yes; exact matrix inversion is mandatory"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "4.6",
+      "page": 86,
+      "pdfPage": 108
+    }
+  },
+  {
+    "id": "q33",
+    "topic": "Monte Carlo learning",
+    "lecture": 6,
+    "page": 70,
+    "q": "Why are the Monte Carlo methods in these lectures model-free and episodic?",
+    "a": "They estimate expected returns by averaging sampled complete returns from experience, without a transition/reward model. They wait for termination to observe those returns, which is why this version requires episodes.",
+    "options": null,
+    "book": {
+      "section": "5",
+      "page": 91,
+      "pdfPage": 113
+    }
+  },
+  {
+    "id": "q34",
+    "topic": "Monte Carlo learning",
+    "lecture": 6,
+    "page": 90,
+    "q": "Distinguish first-visit and every-visit MC prediction.",
+    "a": "First-visit MC uses the return following the earliest visit to a state within each episode. Every-visit MC uses the return after every occurrence. When scanning an episode backwards, the first occurrence encountered is the last chronological visit, so a first-visit check must still test the earlier part of the episode.",
+    "options": null,
+    "book": {
+      "section": "5.1",
+      "page": 92,
+      "pdfPage": 114
+    }
+  },
+  {
+    "id": "q35",
+    "topic": "Monte Carlo learning",
+    "lecture": 6,
+    "page": 84,
+    "q": "How can all returns in an episode be computed efficiently?",
+    "a": "Initialize G=0 at termination, then scan t=T−1,…,0 with G ← Rₜ₊₁+γG. Each step gives Gₜ in constant work, making the full return computation linear in episode length.",
+    "options": null,
+    "book": {
+      "section": "5.1",
+      "page": 92,
+      "pdfPage": 114
+    }
+  },
+  {
+    "id": "q36",
+    "topic": "Monte Carlo learning",
+    "lecture": 7,
+    "page": 15,
+    "q": "Why does model-free MC control estimate Q rather than only V?",
+    "a": "Greedy improvement from V needs a model to compare each action’s expected reward and successor value. Q(s,a) already estimates that action-conditioned return, so improvement can select argmaxₐQ(s,a) without a model.",
+    "options": null,
+    "book": {
+      "section": "5.2",
+      "page": 96,
+      "pdfPage": 118
+    }
+  },
+  {
+    "id": "q37",
+    "topic": "Monte Carlo learning",
+    "lecture": 7,
+    "page": 34,
+    "q": "What do exploring starts assume, and how can ε-soft policies help?",
+    "a": "Exploring starts give every state–action pair positive probability of starting an episode. This may be impossible in a real system. An ε-soft policy instead assigns every available action probability at least ε/|A(s)| in each visited state. Adequate state visitation is still needed.",
+    "options": null,
+    "book": {
+      "section": "5.2; 5.4",
+      "page": 96,
+      "pdfPage": 118
+    }
+  },
+  {
+    "id": "q38",
+    "topic": "Monte Carlo learning",
+    "lecture": 6,
+    "page": 105,
+    "q": "Does ordinary MC prediction bootstrap?",
+    "a": "Its target is an observed full return, not another estimated value. It therefore does not bootstrap.",
+    "options": [
+      "No; its target is a sampled complete return",
+      "Yes; it uses V of the next state",
+      "Yes; it uses max Q of the next state",
+      "Only first-visit MC bootstraps"
+    ],
+    "correct": 0,
+    "book": {
+      "section": "5.1",
+      "page": 94,
+      "pdfPage": 116
+    }
+  },
+  {
+    "id": "q39",
+    "topic": "Monte Carlo learning",
+    "lecture": 7,
+    "page": 35,
+    "q": "Which statement defines an ε-soft policy?",
+    "a": "Every action has probability at least ε/|A(s)|. ε-greedy is one particular way to satisfy this bound; not every ε-soft policy is ε-greedy.",
+    "options": [
+      "Only one action has nonzero probability",
+      "Every action must have equal probability",
+      "π(a|s) ≥ ε/|A(s)| for every available action",
+      "The policy always selects a non-greedy action"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "5.4",
+      "page": 100,
+      "pdfPage": 122
+    }
+  },
+  {
+    "id": "q40",
+    "topic": "Monte Carlo learning",
+    "lecture": 7,
+    "page": 44,
+    "q": "Why can a fixed ε>0 prevent an ε-greedy policy from being optimal?",
+    "a": "When genuinely suboptimal actions exist, persistent exploration assigns them positive probability, reducing expected return. If all available actions are optimal, this issue disappears.",
+    "options": [
+      "It requires a known transition model",
+      "It changes the reward function",
+      "It keeps selecting suboptimal actions with positive probability",
+      "It eliminates all exploration"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "5.4",
+      "page": 103,
+      "pdfPage": 125
+    }
+  },
+  {
+    "id": "q41",
+    "topic": "Monte Carlo learning",
+    "lecture": 6,
+    "page": 86,
+    "q": "Which states receive updates from a sampled episode in ordinary MC prediction?",
+    "a": "Only states visited in that episode have observed returns to use. A full sweep over all environment states is unnecessary.",
+    "options": [
+      "Every state in the MDP",
+      "Only terminal states",
+      "Only states whose value is already exact",
+      "States visited in that episode"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "5.1",
+      "page": 92,
+      "pdfPage": 114
+    }
+  },
+  {
+    "id": "q42",
+    "topic": "Off-policy learning",
+    "lecture": 7,
+    "page": 48,
+    "q": "Define target and behaviour policies. Give a reason to learn off-policy.",
+    "a": "The behaviour policy b generates experience; the target policy π is the policy being evaluated or improved. Separating them allows exploration while learning a greedy target, reusing older experience, or learning from another agent.",
+    "options": null,
+    "book": {
+      "section": "5.5",
+      "page": 103,
+      "pdfPage": 125
+    }
+  },
+  {
+    "id": "q43",
+    "topic": "Off-policy learning",
+    "lecture": 7,
+    "page": 54,
+    "q": "State the coverage condition and explain why it matters.",
+    "a": "π(a|s)>0 implies b(a|s)>0 for relevant states and actions. Without coverage, target-policy outcomes may never be observed under b, so importance sampling cannot recover their contribution. The needed behaviour probabilities must also be known for computing ratios.",
+    "options": null,
+    "book": {
+      "section": "5.5",
+      "page": 103,
+      "pdfPage": 125
+    }
+  },
+  {
+    "id": "q44",
+    "topic": "Off-policy learning",
+    "lecture": 8,
+    "page": 15,
+    "q": "Write the trajectory importance-sampling ratio and explain cancellation of dynamics.",
+    "a": "For a state-value return starting at Sₜ, define ρ[t:T−1] = ∏(k=t,…,T−1) π(Aₖ|Sₖ)/b(Aₖ|Sₖ). Conditional on Sₜ, both policies use the same environment dynamics, so these factors cancel in their trajectory likelihood ratio. For qπ(Sₜ,Aₜ), the first action is already conditioned on: the corresponding product starts at t+1. An empty product equals 1.",
+    "options": null,
+    "book": {
+      "section": "5.5",
+      "page": 104,
+      "pdfPage": 126
+    },
+    "auditNote": "Distinguished state-value and action-value importance weights"
+  },
+  {
+    "id": "q45",
+    "topic": "Off-policy learning",
+    "lecture": 8,
+    "page": 15,
+    "q": "Why can importance sampling have high variance on long episodes?",
+    "a": "Trajectory weights multiply action-probability ratios across time. Rare trajectories can obtain very large weights and dominate an estimate. Coverage makes reweighting possible, but does not ensure low variance or efficient learning.",
+    "options": null,
+    "book": {
+      "section": "5.5",
+      "page": 106,
+      "pdfPage": 128
+    }
+  },
+  {
+    "id": "q46",
+    "topic": "Off-policy learning",
+    "lecture": 7,
+    "page": 63,
+    "q": "Compare ordinary and weighted importance-sampling averages.",
+    "a": "Ordinary IS uses (1/n)ΣᵢρᵢGᵢ. Weighted IS uses ΣᵢρᵢGᵢ/Σᵢρᵢ when the denominator is positive. In the standard first-visit setting, ordinary IS is unbiased but can have very high or infinite variance. Weighted IS is generally biased for finite samples but consistent under suitable conditions and often more stable. The book notes that every-visit versions of both estimators are generally biased for finite samples. If total weight is zero, no weighted average is defined; keep an initial estimate until positive weight is available.",
+    "options": null,
+    "book": {
+      "section": "5.5",
+      "page": 105,
+      "pdfPage": 127
+    },
+    "auditNote": "Made the first-visit/every-visit distinction explicit"
+  },
+  {
+    "id": "q47",
+    "topic": "Off-policy learning",
+    "lecture": 7,
+    "page": 54,
+    "q": "The target chooses an action with positive probability, but the behaviour policy never chooses it. What fails?",
+    "a": "The coverage requirement fails. A zero denominator cannot be repaired by simply collecting more samples from the same behaviour policy.",
+    "options": [
+      "The existence of terminal states",
+      "Coverage",
+      "The Markov property necessarily fails",
+      "The definition of a reward"
+    ],
+    "correct": 1,
+    "book": {
+      "section": "5.5",
+      "page": 103,
+      "pdfPage": 125
+    }
+  },
+  {
+    "id": "q48",
+    "topic": "Off-policy learning",
+    "lecture": 8,
+    "page": 15,
+    "q": "If π=b for every sampled action, what is the trajectory importance weight?",
+    "a": "Each probability ratio is one, so their product is one. On-policy sampling requires no distribution correction.",
+    "options": [
+      "The episode length",
+      "The discount factor",
+      "1",
+      "0"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "5.5–5.6",
+      "page": 104,
+      "pdfPage": 126
+    }
+  },
+  {
+    "id": "q49",
+    "topic": "Off-policy learning",
+    "lecture": 7,
+    "page": 62,
+    "q": "Why not directly average behaviour-policy returns to evaluate a different target policy?",
+    "a": "An uncorrected average estimates the behaviour-policy return. Reweighting adjusts for the difference in trajectory probabilities.",
+    "options": [
+      "All behaviour-policy rewards are zero",
+      "The target cannot be stochastic",
+      "An MDP cannot contain two policies",
+      "The returns follow the behaviour distribution"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "5.5",
+      "page": 104,
+      "pdfPage": 126
+    }
+  },
+  {
+    "id": "q50",
+    "topic": "TD prediction & control",
+    "lecture": 8,
+    "page": 43,
+    "q": "Write the TD(0) update and identify the target and TD error.",
+    "a": "δₜ=Rₜ₊₁+γV(Sₜ₊₁)−V(Sₜ); V(Sₜ) ← V(Sₜ)+αδₜ. The target is Rₜ₊₁+γV(Sₜ₊₁). At a terminal successor, its value is zero. TD can update after one transition and bootstraps from its current estimate.",
+    "options": null,
+    "book": {
+      "section": "6.1",
+      "page": 120,
+      "pdfPage": 142
+    }
+  },
+  {
+    "id": "q51",
+    "topic": "TD prediction & control",
+    "lecture": 8,
+    "page": 82,
+    "q": "Compare the bias and variance of MC and TD prediction targets.",
+    "a": "A complete on-policy return is an unbiased sample of vπ but can vary greatly across trajectories. TD uses one reward plus an estimated successor value, typically reducing variance while introducing bias from that estimate. With the true vπ as successor value, the TD target is unbiased. These are target properties, not a claim that TD can never converge to vπ.",
+    "options": null,
+    "book": {
+      "section": "6.1–6.2",
+      "page": 120,
+      "pdfPage": 142
+    }
+  },
+  {
+    "id": "q52",
+    "topic": "TD prediction & control",
+    "lecture": 9,
+    "page": 36,
+    "q": "Why can batch MC and batch TD converge to different answers on the same finite data?",
+    "a": "Batch MC fits the observed returns by minimizing their squared prediction errors. Batch TD fits values consistent with the empirical Markov transition and reward model. Their different use of the data can give different predictions when experience is limited.",
+    "options": null,
+    "book": {
+      "section": "6.3",
+      "page": 126,
+      "pdfPage": 148
+    }
+  },
+  {
+    "id": "q53",
+    "topic": "TD prediction & control",
+    "lecture": 9,
+    "page": 45,
+    "q": "Write the SARSA update. Why is SARSA on-policy?",
+    "a": "Q(Sₜ,Aₜ) ← Q(Sₜ,Aₜ)+α[Rₜ₊₁+γQ(Sₜ₊₁,Aₜ₊₁)−Q(Sₜ,Aₜ)]. Aₜ₊₁ is sampled from the policy actually followed, so the update evaluates that behaviour, including exploration. The five quantities are state, action, reward, next state, next action. Terminal continuation is zero. Tabular optimality requires sufficient visitation, suitable diminishing step sizes, and a policy that becomes greedy in the limit; fixed ε>0 does not generally give an optimal behaviour policy.",
+    "options": null,
+    "book": {
+      "section": "6.4",
+      "page": 129,
+      "pdfPage": 151
+    },
+    "auditNote": "Added SARSA convergence qualifications"
+  },
+  {
+    "id": "q54",
+    "topic": "TD prediction & control",
+    "lecture": 9,
+    "page": 57,
+    "q": "Write the Q-learning update and explain why it is off-policy.",
+    "a": "Q(Sₜ,Aₜ) ← Q(Sₜ,Aₜ)+α[Rₜ₊₁+γmaxₐQ(Sₜ₊₁,a)−Q(Sₜ,Aₜ)]. The target uses a greedy continuation even if the behaviour selects something else. Conditional on (Sₜ,Aₜ), the sampled next reward and state follow the correct environment dynamics; the continuation is computed directly, so no trajectory importance ratio is needed. Terminal continuation is zero. Tabular convergence to q* requires all relevant state–action pairs to keep being updated and suitable step sizes, in the usual discounted or appropriate episodic setting.",
+    "options": null,
+    "book": {
+      "section": "6.5",
+      "page": 131,
+      "pdfPage": 153
+    },
+    "auditNote": "Added Q-learning convergence qualifications"
+  },
+  {
+    "id": "q55",
+    "topic": "TD prediction & control",
+    "lecture": 10,
+    "page": 36,
+    "q": "Write the Expected SARSA target. What source of randomness does it remove?",
+    "a": "The target is Rₜ₊₁+γΣₐπ(a|Sₜ₊₁)Q(Sₜ₊₁,a). It averages over next actions under the target policy instead of sampling one as SARSA does, removing that action-selection variance. Randomness in rewards and next states remains. Computing the sum costs more work per update. Expected SARSA is on-policy when the behaviour equals π, but it can also be off-policy; a greedy target yields the Q-learning target.",
+    "options": null,
+    "book": {
+      "section": "6.6",
+      "page": 133,
+      "pdfPage": 155
+    },
+    "auditNote": "Clarified the policy in Expected SARSA"
+  },
+  {
+    "id": "q56",
+    "topic": "TD prediction & control",
+    "lecture": 10,
+    "page": 24,
+    "q": "Explain SARSA and Q-learning in the cliff-walking example.",
+    "a": "With persistent ε-greedy exploration, SARSA accounts for future exploratory moves and can learn a safer path away from the cliff. Q-learning learns values for a greedy continuation near the cliff, while its exploratory behaviour can still fall. Optimal greedy performance and reward collected during learning are different criteria.",
+    "options": null,
+    "book": {
+      "section": "6.5, Example 6.6",
+      "page": 132,
+      "pdfPage": 154
+    }
+  },
+  {
+    "id": "q57",
+    "topic": "TD prediction & control",
+    "lecture": 9,
+    "page": 41,
+    "q": "Which classification of DP, MC, and TD is correct?",
+    "a": "DP bootstraps using model-based expectations. MC samples complete returns without bootstrapping. TD samples experience and bootstraps from current value estimates.",
+    "options": [
+      "Only MC bootstraps",
+      "DP and TD require complete episodes",
+      "All three require a known transition model",
+      "DP bootstraps; MC samples without bootstrapping; TD samples and bootstraps"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "6.1",
+      "page": 120,
+      "pdfPage": 142
+    }
+  },
+  {
+    "id": "q58",
+    "topic": "TD prediction & control",
+    "lecture": 9,
+    "page": 58,
+    "q": "Which next-state quantity appears in the SARSA target?",
+    "a": "SARSA uses Q(Sₜ₊₁,Aₜ₊₁) for the action selected by the current policy; Q-learning instead uses a maximum.",
+    "options": [
+      "Q of the actually selected next action",
+      "The maximum Q regardless of the selected action",
+      "The full return until termination",
+      "The minimum Q over next actions"
+    ],
+    "correct": 0,
+    "book": {
+      "section": "6.4",
+      "page": 129,
+      "pdfPage": 151
+    }
+  },
+  {
+    "id": "q59",
+    "topic": "TD prediction & control",
+    "lecture": 10,
+    "page": 36,
+    "q": "Expected SARSA with a greedy target policy reduces to which target?",
+    "a": "All probability is assigned to maximizing actions, so the expectation equals maxₐQ(s′,a), the Q-learning continuation term.",
+    "options": [
+      "The current state value without a reward",
+      "The Q-learning target",
+      "The complete MC return",
+      "The average over all actions uniformly"
+    ],
+    "correct": 1,
+    "book": {
+      "section": "6.6",
+      "page": 134,
+      "pdfPage": 156
+    }
+  },
+  {
+    "id": "q60",
+    "topic": "TD prediction & control",
+    "lecture": 8,
+    "page": 43,
+    "q": "For a transition into a terminal state, what is the TD(0) target?",
+    "a": "There is no future return beyond termination, so the terminal value is zero and the target is just the final reward Rₜ₊₁.",
+    "options": [
+      "Rₜ₊₁ + γV(Sₜ)",
+      "The previous episode’s return",
+      "Rₜ₊₁",
+      "0 regardless of the final reward"
+    ],
+    "correct": 2,
+    "book": {
+      "section": "6.1",
+      "page": 120,
+      "pdfPage": 142
+    }
+  },
+  {
+    "id": "q61",
+    "topic": "TD prediction & control",
+    "lecture": 10,
+    "page": 40,
+    "q": "Does Expected SARSA remove all randomness from a stochastic environment?",
+    "a": "It removes the extra sampling of the next action in the target. The observed reward and successor state can still be random.",
+    "options": [
+      "Yes; the model becomes deterministic",
+      "Yes; its updates never vary",
+      "No; it still samples the next action for its target",
+      "No; rewards and next states can still be random"
+    ],
+    "correct": 3,
+    "book": {
+      "section": "6.6",
+      "page": 133,
+      "pdfPage": 155
+    }
+  }
+];
+
+const EXERCISES = [
+  {
+    "id": "ex-2-1",
+    "number": "2.1",
+    "bookPage": 28,
+    "pdfPage": 50,
+    "topic": "Foundations & bandits",
+    "kind": "Calculation",
+    "q": "How often is the greedy action selected?",
+    "prompt": "There are two actions and ε = 0.5. Calculate the probability of selecting the greedy action under ε-greedy selection. Assume a unique greedy action.",
+    "hint": "The exploration branch can also select the greedy action.",
+    "steps": [
+      {
+        "title": "Separate the two branches",
+        "text": "Exploit with probability 1 − ε = 0.5. Explore with probability ε = 0.5, choosing either action with probability 1/2."
+      },
+      {
+        "title": "Combine them",
+        "text": "P(greedy) = (1 − ε) + ε/2 = 0.5 + 0.25 = 0.75."
+      }
+    ],
+    "lecture": 2,
+    "page": 43,
+    "options": null
+  },
+  {
+    "id": "ex-2-2",
+    "number": "2.2",
+    "bookPage": 30,
+    "pdfPage": 52,
+    "topic": "Foundations & bandits",
+    "kind": "Calculation",
+    "q": "Identify the exploratory steps",
+    "prompt": "Use four actions, ε-greedy selection, sample-average estimates, and initial Q₁(a)=0. The observations are:\n\nt:     1   2   3   4   5\nAₜ:    1   2   2   2   3\nRₜ:   −1   1  −2   2   0\n\nWhich steps must have used the random exploration branch? At which steps could that branch have been used?",
+    "hint": "Classify an action using Q before observing its reward. All maximizing actions count as greedy.",
+    "steps": [
+      {
+        "title": "Track the estimates before selection",
+        "text": "t=1: Q=(0,0,0,0); all actions are greedy.\nt=2: Q=(−1,0,0,0); action 2 is greedy.\nt=3: Q=(−1,1,0,0); action 2 is greedy.\nt=4: Q=(−1,−0.5,0,0); action 2 is not greedy.\nt=5: Q=(−1,1/3,0,0); action 3 is not greedy."
+      },
+      {
+        "title": "Identify the branch",
+        "text": "Exploration is necessary at steps 4 and 5. It is possible at every step, 1–5, because random selection can also pick a greedy action. A greedy-looking action does not prove exploitation occurred."
+      }
+    ],
+    "lecture": 2,
+    "page": 43,
+    "options": null
+  },
+  {
+    "id": "ex-2-4",
+    "number": "2.4",
+    "bookPage": 33,
+    "pdfPage": 55,
+    "topic": "Foundations & bandits",
+    "kind": "Derivation",
+    "q": "Expand an update with varying step sizes",
+    "prompt": "For Qₙ₊₁ = Qₙ + αₙ(Rₙ − Qₙ), derive the weight of each earlier reward and of the initial estimate when αₙ varies with n. Use the book convention that Qₙ is the estimate before reward Rₙ.",
+    "hint": "Write each update as (1−αₙ)Qₙ + αₙRₙ, then substitute the previous update.",
+    "steps": [
+      {
+        "title": "Unroll the recurrence",
+        "text": "Qₙ₊₁ = Q₁ ∏ⱼ₌₁ⁿ(1−αⱼ) + Σᵢ₌₁ⁿ [αᵢ ∏ⱼ₌ᵢ₊₁ⁿ(1−αⱼ)] Rᵢ.\nAn empty product is 1. Thus the newest reward has weight αₙ."
+      },
+      {
+        "title": "Match the requested Qₙ notation",
+        "text": "For Qₙ itself, replace every upper limit n in the expansion by n−1. The weight of Rᵢ, for i<n, is αᵢ∏ⱼ₌ᵢ₊₁ⁿ⁻¹(1−αⱼ)."
+      },
+      {
+        "title": "Sanity checks",
+        "text": "For constant α, the reward weight is α(1−α)ⁿ⁻ᶦ in Qₙ₊₁. For αᵢ=1/i, every reward has weight 1/n and Q₁ has weight zero. For step sizes in [0,1], all weights are nonnegative and sum to one."
+      }
+    ],
+    "lecture": 2,
+    "page": 55,
+    "options": null
+  },
+  {
+    "id": "ex-2-9",
+    "number": "2.9",
+    "bookPage": 37,
+    "pdfPage": 59,
+    "topic": "Foundations & bandits",
+    "kind": "Derivation",
+    "q": "Recover the sigmoid from softmax",
+    "prompt": "With two action preferences H₁ and H₂, show that the softmax probability for action 1 can be written as a logistic (sigmoid) function.",
+    "hint": "Divide the numerator and denominator by exp(H₁).",
+    "steps": [
+      {
+        "title": "Rewrite the probability",
+        "text": "π(1) = exp(H₁)/(exp(H₁)+exp(H₂))\n     = 1/(1+exp(H₂−H₁))\n     = σ(H₁−H₂), where σ(x)=1/(1+exp(−x))."
+      },
+      {
+        "title": "Interpret it",
+        "text": "π(2)=1−π(1)=σ(H₂−H₁). Only the preference difference matters. Equal preferences give probability 1/2 for each action. This algebra does not require the excluded gradient-ascent proof."
+      }
+    ],
+    "lecture": 3,
+    "page": 46,
+    "options": null
+  },
+  {
+    "id": "ex-3-6",
+    "number": "3.6",
+    "bookPage": 56,
+    "pdfPage": 78,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Derivation",
+    "q": "Discount a single terminal failure",
+    "prompt": "Consider episodic pole-balancing with reward zero until failure, then −1 on the terminal transition at time T. With discount γ, derive Gₜ. Contrast this with the continuing formulation, in which the pole is reset and further failures can occur.",
+    "hint": "Count the powers of γ: the immediate next reward has exponent zero.",
+    "steps": [
+      {
+        "title": "Episodic return",
+        "text": "For t<T, only R_T is nonzero, so Gₜ = −γ^(T−t−1). G_T=0. The final reward is not discounted when failure occurs on the next transition."
+      },
+      {
+        "title": "Continuing return",
+        "text": "If future failure times are T₁,T₂,…, the continuing return is −Σⱼγ^(Tⱼ−t−1). The episodic return includes only the first failure; the continuing return also penalizes later failures after resetting."
+      }
+    ],
+    "lecture": 3,
+    "page": 84,
+    "options": null
+  },
+  {
+    "id": "ex-3-7",
+    "number": "3.7",
+    "bookPage": 56,
+    "pdfPage": 78,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Conceptual",
+    "q": "Does the maze reward encourage speed?",
+    "prompt": "A maze agent receives +1 on escape and zero otherwise. Episodes end at escape and γ=1. The agent is not becoming faster. Explain the mismatch between the intended goal and the reward objective, and suggest a repair.",
+    "hint": "Compare the returns of two successful routes of different lengths.",
+    "steps": [
+      {
+        "title": "Diagnose the objective",
+        "text": "Every successful finite episode has return 1, regardless of its length. Among policies that escape with probability one, the objective does not distinguish a fast route from a slow one. It can still prefer escaping to never escaping."
+      },
+      {
+        "title": "Align rewards with speed",
+        "text": "A reward of −1 per transition until escape makes Gₜ the negative number of remaining steps. Alternatively, retaining +1 on escape and using 0<γ<1 gives γ^(T−t−1), favouring earlier escape; under uncertainty this discounted objective is not identical to minimizing expected duration."
+      }
+    ],
+    "lecture": 2,
+    "page": 15,
+    "options": null
+  },
+  {
+    "id": "ex-3-8",
+    "number": "3.8",
+    "bookPage": 56,
+    "pdfPage": 78,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Calculation",
+    "q": "Compute every return backwards",
+    "prompt": "Let γ=0.5 and T=5. Rewards are R₁=−1, R₂=2, R₃=6, R₄=3, R₅=2. Compute G₀,G₁,…,G₅.",
+    "hint": "Start with G₅=0 and use Gₜ=Rₜ₊₁+γGₜ₊₁.",
+    "steps": [
+      {
+        "title": "Work backwards",
+        "text": "G₅ = 0\nG₄ = 2 + 0.5·0 = 2\nG₃ = 3 + 0.5·2 = 4\nG₂ = 6 + 0.5·4 = 8\nG₁ = 2 + 0.5·8 = 6\nG₀ = −1 + 0.5·6 = 2"
+      },
+      {
+        "title": "Final answer",
+        "text": "(G₀,G₁,G₂,G₃,G₄,G₅) = (2,6,8,4,2,0). The first reward is negative in the original PDF."
+      }
+    ],
+    "lecture": 3,
+    "page": 84,
+    "options": null
+  },
+  {
+    "id": "ex-3-9",
+    "number": "3.9",
+    "bookPage": 56,
+    "pdfPage": 78,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Calculation",
+    "q": "An infinite discounted reward stream",
+    "prompt": "Let γ=0.9. The first reward is R₁=2; every subsequent reward is 7. Find G₁ and G₀.",
+    "hint": "Use the geometric series for G₁, then take one backward step.",
+    "steps": [
+      {
+        "title": "Sum the tail",
+        "text": "G₁ = 7 + 0.9·7 + 0.9²·7 + … = 7/(1−0.9) = 70."
+      },
+      {
+        "title": "Add the first reward",
+        "text": "G₀ = R₁ + γG₁ = 2 + 0.9·70 = 65. G₁ begins at R₂, not R₁."
+      }
+    ],
+    "lecture": 3,
+    "page": 85,
+    "options": null
+  },
+  {
+    "id": "ex-3-11",
+    "number": "3.11",
+    "bookPage": 58,
+    "pdfPage": 80,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Derivation",
+    "q": "Expected next reward under a policy",
+    "prompt": "Given Sₜ=s, express Eπ[Rₜ₊₁ | Sₜ=s] using the stochastic policy π and the joint dynamics p(s′,r|s,a).",
+    "hint": "Average over actions first, then over the possible next states and rewards.",
+    "steps": [
+      {
+        "title": "Condition on the selected action",
+        "text": "Eπ[Rₜ₊₁ | Sₜ=s] = Σₐ π(a|s) E[Rₜ₊₁ | Sₜ=s,Aₜ=a]."
+      },
+      {
+        "title": "Expand the dynamics",
+        "text": "Eπ[Rₜ₊₁ | Sₜ=s] = Σₐ π(a|s) Σₛ′,ᵣ r p(s′,r|s,a).\nThis is the expected immediate reward, so no discounted successor value appears."
+      }
+    ],
+    "lecture": 4,
+    "page": 40,
+    "options": null
+  },
+  {
+    "id": "ex-3-14",
+    "number": "3.14",
+    "bookPage": 60,
+    "pdfPage": 82,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Calculation",
+    "q": "Check a Bellman equation numerically",
+    "prompt": "In the book’s gridworld, the center state has displayed value +0.7. Its four neighbours have values +2.3, +0.4, −0.4, and +0.7. The policy selects directions uniformly, the immediate reward is 0, and γ=0.9. Check the Bellman equation using these rounded values.",
+    "hint": "Take the average of the four neighbour values and discount it.",
+    "steps": [
+      {
+        "title": "Calculate the backup",
+        "text": "(1/4)·0.9·(2.3+0.4−0.4+0.7) = 0.675."
+      },
+      {
+        "title": "Account for rounding",
+        "text": "0.675 rounds to 0.7 to one decimal place, consistent with the displayed value. The neighbours are rounded too, so exact equality is not expected from these printed numbers."
+      }
+    ],
+    "lecture": 4,
+    "page": 40,
+    "options": null
+  },
+  {
+    "id": "ex-3-15",
+    "number": "3.15",
+    "bookPage": 61,
+    "pdfPage": 83,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Derivation",
+    "q": "Shift all continuing rewards by a constant",
+    "prompt": "For a continuing discounted task with 0≤γ<1, add c to every reward. Show how each state value changes and whether this changes policy rankings.",
+    "hint": "Separate the original rewards from the added constant in the infinite sum.",
+    "steps": [
+      {
+        "title": "Separate the return",
+        "text": "G′ₜ = Σₖ≥₀γᵏ(Rₜ₊ₖ₊₁+c) = Gₜ + cΣₖ≥₀γᵏ = Gₜ+c/(1−γ)."
+      },
+      {
+        "title": "Take expectations",
+        "text": "v′π(s)=vπ(s)+c/(1−γ). The shift is independent of both state and policy, so value differences and optimal policies are unchanged. This argument assumes a continuing discounted reward stream, with the shift applied at every step."
+      }
+    ],
+    "lecture": 3,
+    "page": 84,
+    "options": null
+  },
+  {
+    "id": "ex-3-16",
+    "number": "3.16",
+    "bookPage": 61,
+    "pdfPage": 83,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Derivation",
+    "q": "Why episodic reward shifts can change behaviour",
+    "prompt": "Now add c to rewards only until termination in an episodic task. Does this leave the task unchanged? Explain and give a counterexample.",
+    "hint": "The number of rewards receiving the shift can depend on the policy.",
+    "steps": [
+      {
+        "title": "Derive the extra return",
+        "text": "The extra return is cΣₖ₌₀^(T−t−1)γᵏ. For γ=1, it is c(T−t); for γ<1 it is c(1−γ^(T−t))/(1−γ). Its expectation can depend on the policy’s episode length."
+      },
+      {
+        "title": "Give a counterexample",
+        "text": "Consider two deterministic zero-reward routes to termination, of lengths 1 and 2, with γ=1. They originally tie at return 0. Adding c=1 makes their returns 1 and 2, favouring the longer route. Adding c=−1 favours the shorter route. This differs from shifting rewards forever, including after termination."
+      }
+    ],
+    "lecture": 3,
+    "page": 84,
+    "options": null
+  },
+  {
+    "id": "ex-3-17",
+    "number": "3.17",
+    "bookPage": 61,
+    "pdfPage": 83,
+    "topic": "MDPs & Bellman equations",
+    "kind": "Derivation",
+    "q": "Derive the action-value Bellman equation",
+    "prompt": "Derive qπ(s,a) recursively in terms of successor action values qπ(s′,a′), the policy, and the joint dynamics.",
+    "hint": "Use Gₜ=Rₜ₊₁+γGₜ₊₁, then condition on the next state, reward, and next action.",
+    "steps": [
+      {
+        "title": "Split the return",
+        "text": "qπ(s,a)=Eπ[Rₜ₊₁+γGₜ₊₁ | Sₜ=s,Aₜ=a]."
+      },
+      {
+        "title": "Average over successors",
+        "text": "qπ(s,a)=Σₛ′,ᵣ p(s′,r|s,a) [r+γΣₐ′π(a′|s′)qπ(s′,a′)]."
+      },
+      {
+        "title": "Interpret the two averages",
+        "text": "The first action a is already fixed. The environment determines (s′,r), then π selects a′. There is no maximization in this policy-evaluation equation. At a terminal successor, the continuation term is zero."
+      }
+    ],
+    "lecture": 4,
+    "page": 41,
+    "options": null
+  },
+  {
+    "id": "ex-4-1",
+    "number": "4.1",
+    "bookPage": 76,
+    "pdfPage": 98,
+    "topic": "Dynamic programming",
+    "kind": "Calculation",
+    "q": "One-step action values in the 4×4 gridworld",
+    "prompt": "Use Example 4.1: a 4×4 grid numbered row-wise, with the upper-left and lower-right cells terminal, and nonterminal cells numbered 1–14. Each move gives −1, γ=1, and π is uniform over the four directions. The evaluated policy has vπ(11)=−14. Find qπ(11,down) and qπ(7,down).",
+    "hint": "Down from 11 reaches the lower-right terminal; down from 7 reaches 11.",
+    "steps": [
+      {
+        "title": "From state 11",
+        "text": "qπ(11,down)=−1+vπ(terminal)=−1."
+      },
+      {
+        "title": "From state 7",
+        "text": "qπ(7,down)=−1+vπ(11)=−1−14=−15. Even when the first action is fixed, the continuation follows the random policy."
+      }
+    ],
+    "lecture": 5,
+    "page": 48,
+    "options": null
+  },
+  {
+    "id": "ex-4-2",
+    "number": "4.2",
+    "bookPage": 76,
+    "pdfPage": 98,
+    "topic": "Dynamic programming",
+    "kind": "Calculation",
+    "q": "Add a state to the gridworld",
+    "prompt": "Extend Example 4.1 with state 15 below state 13. From 15, actions left/up/right/down go to 12/13/14/15. Keep reward −1, γ=1, and uniform action probabilities. Originally vπ(12)=−22, vπ(13)=−20, vπ(14)=−14.\n\n(a) Find vπ(15) when all original transitions stay unchanged.\n(b) Find it when down from 13 is also redirected to 15.",
+    "hint": "In (a), the value of 15 appears on both sides. For (b), ask whether replacing 13’s self-loop by a transition to a state of equal value changes its Bellman equation.",
+    "steps": [
+      {
+        "title": "Solve the new equation",
+        "text": "Let x=vπ(15). Then x=−1+(−22−20−14+x)/4. Thus 4x=−60+x, so x=−20."
+      },
+      {
+        "title": "Check the redirected transition",
+        "text": "Originally down from 13 hits the boundary and stays in 13, with value −20. Redirecting it to 15, also valued −20, leaves the backup for 13 unchanged. The old values together with vπ(15)=−20 satisfy every equation in the modified model."
+      },
+      {
+        "title": "Conclude",
+        "text": "Both answers are −20. Under this random policy the finite grid is absorbing with finite expected episode lengths, so the Bellman solution is unique."
+      }
+    ],
+    "lecture": 5,
+    "page": 48,
+    "options": null
+  },
+  {
+    "id": "ex-4-4",
+    "number": "4.4",
+    "bookPage": 82,
+    "pdfPage": 104,
+    "topic": "Dynamic programming",
+    "kind": "Algorithm",
+    "q": "Prevent policy iteration from cycling on ties",
+    "prompt": "The policy-iteration pseudocode can switch repeatedly between equally good policies. Modify its improvement step to prevent cycling caused by ties.",
+    "hint": "If the old action is already a maximizer, there is no need to change it.",
+    "steps": [
+      {
+        "title": "Use a stable tie rule",
+        "text": "For each state, compute the full set M of actions maximizing the one-step lookahead using the evaluated V. Keep old_action if it belongs to M; otherwise choose a fixed canonical member of M. Mark the policy unstable only when the action actually changes."
+      },
+      {
+        "title": "Why it works",
+        "text": "With exact evaluation in the usual finite discounted setting, any actual policy change includes a strict improvement. There are finitely many deterministic policies, so ties cannot create a cycle. A fixed canonical argmax rule is another solution. Approximate evaluation and floating-point ties need an appropriate numerical tolerance; a coarse tolerance is not an exact optimality guarantee."
+      }
+    ],
+    "lecture": 5,
+    "page": 71,
+    "options": null
+  },
+  {
+    "id": "ex-4-5",
+    "number": "4.5",
+    "bookPage": 82,
+    "pdfPage": 104,
+    "topic": "Dynamic programming",
+    "kind": "Algorithm",
+    "q": "Policy iteration directly over action values",
+    "prompt": "Give a complete action-value version of policy iteration: initialize Q and π, evaluate the policy using the model, improve it, and specify stopping and terminal conventions.",
+    "hint": "To evaluate Q(s,a), take a first, then follow π at the successor.",
+    "steps": [
+      {
+        "title": "Initialize",
+        "text": "Choose a deterministic π(s) for each nonterminal state. Initialize Q(s,a) arbitrarily. Terminal continuation values are zero. Choose an evaluation tolerance θ>0."
+      },
+      {
+        "title": "Evaluate the fixed policy",
+        "text": "Repeat synchronous sweeps until the maximum change is below θ:\nQ_new(s,a) = Σₛ′,ᵣ p(s′,r|s,a)[r+γQ_old(s′,π(s′))].\nFor terminal s′, omit the Q continuation. Update every nonterminal (s,a)."
+      },
+      {
+        "title": "Improve and stop",
+        "text": "For every state, choose a maximizer of Q(s,a), retaining the old action if it is tied for best. If no action changes, return Q and π; otherwise repeat evaluation. With exact evaluation, standard finite discounted assumptions give optimality; finite θ yields approximate evaluation. This DP algorithm still requires a model."
+      }
+    ],
+    "lecture": 6,
+    "page": 7,
+    "options": null
+  },
+  {
+    "id": "ex-4-10",
+    "number": "4.10",
+    "bookPage": 84,
+    "pdfPage": 106,
+    "topic": "Dynamic programming",
+    "kind": "Derivation",
+    "q": "Value iteration for action values",
+    "prompt": "Write the action-value analogue of the value-iteration update. State the meaning of the expectation and maximum.",
+    "hint": "The current action is fixed; maximize at the next state.",
+    "steps": [
+      {
+        "title": "Write the update",
+        "text": "Qₖ₊₁(s,a)=Σₛ′,ᵣ p(s′,r|s,a)[r+γ maxₐ′Qₖ(s′,a′)]."
+      },
+      {
+        "title": "Explain the order",
+        "text": "Average over stochastic outcomes of the current (s,a), then use the best continuation action at each resulting s′. The terminal continuation is zero. Sampling (s′,r) and taking a step toward that target leads to the Q-learning update; the displayed DP update uses the full model."
+      }
+    ],
+    "lecture": 6,
+    "page": 42,
+    "options": null
+  },
+  {
+    "id": "ex-5-2",
+    "number": "5.2",
+    "bookPage": 94,
+    "pdfPage": 116,
+    "topic": "Monte Carlo learning",
+    "kind": "Conceptual",
+    "q": "First-visit versus every-visit blackjack",
+    "prompt": "In the book’s blackjack task, would replacing first-visit MC by every-visit MC materially change the estimates? Use the full state definition: player sum, dealer’s showing card, and whether the player has a usable ace.",
+    "hint": "A usable ace can become unusable, so reasoning from the player sum alone is insufficient.",
+    "steps": [
+      {
+        "title": "Check whether a full state can recur",
+        "text": "While the usable-ace flag is unchanged, additional cards increase the player’s sum. A usable ace can be converted from 11 to 1, lowering the sum, but that changes the flag. Once no ace is usable and the sum is at least 12, a later hit cannot restore a usable ace without busting."
+      },
+      {
+        "title": "Compare the estimators",
+        "text": "The same full decision state cannot recur within an episode. Consequently every visit is a first visit. On the same episodes, the two MC estimators use the same returns and give identical estimates. The argument relies on the blackjack rules and state representation used in the book."
+      }
+    ],
+    "lecture": 6,
+    "page": 93,
+    "options": null
+  },
+  {
+    "id": "ex-5-4",
+    "number": "5.4",
+    "bookPage": 99,
+    "pdfPage": 121,
+    "topic": "Monte Carlo learning",
+    "kind": "Algorithm",
+    "q": "Remove stored return lists from MC control",
+    "prompt": "Rewrite the Monte Carlo Exploring Starts algorithm so each state–action pair stores only its estimate and a count, rather than the full list of observed returns.",
+    "hint": "Use the incremental sample mean, while preserving the first-visit condition.",
+    "steps": [
+      {
+        "title": "Replace the return list",
+        "text": "Initialize N(s,a)=0. Keep Q(s,a) and the policy as before; no Returns(s,a) list is needed."
+      },
+      {
+        "title": "Update each eligible first visit",
+        "text": "Compute G backwards with G ← Rₜ₊₁+γG. If (Sₜ,Aₜ) does not appear earlier in the episode:\nN(Sₜ,Aₜ) ← N(Sₜ,Aₜ)+1\nQ(Sₜ,Aₜ) ← Q(Sₜ,Aₜ)+(G−Q(Sₜ,Aₜ))/N(Sₜ,Aₜ)\nπ(Sₜ) ← an action maximizing Q(Sₜ,·)."
+      },
+      {
+        "title": "Preserve what matters",
+        "text": "Exploring starts and the chronological first-visit test remain unchanged. The count is per pair, not a global episode count. This saves accumulated return-list storage, although the episode is still needed for computing returns and visits."
+      }
+    ],
+    "lecture": 7,
+    "page": 15,
+    "options": null
+  },
+  {
+    "id": "ex-5-5",
+    "number": "5.5",
+    "bookPage": 105,
+    "pdfPage": 127,
+    "topic": "Monte Carlo learning",
+    "kind": "Calculation",
+    "q": "Ten visits in a single episode",
+    "prompt": "There is one nonterminal state and one action. Each transition gives +1, returns to the state with probability p, and terminates with probability 1−p. Set γ=1. You observe one episode of 10 transitions. Compute the first-visit and every-visit MC estimates from this episode.",
+    "hint": "Write the remaining return after each of the ten visits.",
+    "steps": [
+      {
+        "title": "First-visit estimate",
+        "text": "The first occurrence has return 10. With only one first-visit sample, V_first=10."
+      },
+      {
+        "title": "Every-visit estimate",
+        "text": "The ten returns are 10,9,8,…,1. Their sum is 55, so V_every=55/10=5.5."
+      },
+      {
+        "title": "Separate an estimate from the true value",
+        "text": "These are estimates from one episode. For 0≤p<1, the true value solves v=1+pv and is 1/(1−p); p was not given numerically. The example does not establish that either estimate is closer to the truth."
+      }
+    ],
+    "lecture": 6,
+    "page": 90,
+    "options": null
+  },
+  {
+    "id": "ex-5-6",
+    "number": "5.6",
+    "bookPage": 108,
+    "pdfPage": 130,
+    "topic": "Off-policy learning",
+    "kind": "Derivation",
+    "q": "Importance weights for action values",
+    "prompt": "Adapt the weighted importance-sampling estimator for V(s) to estimate Q(s,a) from episodes generated by a covering behaviour policy b. Define the visit set and the required trajectory ratio.",
+    "hint": "For qπ(s,a), the current action a is conditioned on already. Which action is the first that must be reweighted?",
+    "steps": [
+      {
+        "title": "Define the samples and weights",
+        "text": "Let T(s,a) contain visit times to (s,a), using first visits or every visits consistently. For visit t, let T_end(t) be its episode’s terminal time. Set Wₜ = ∏ₖ₌ₜ₊₁^(T_end(t)−1) π(Aₖ|Sₖ)/b(Aₖ|Sₖ). An empty product is 1."
+      },
+      {
+        "title": "Form the weighted mean",
+        "text": "Q(s,a) = [Σₜ∈T(s,a) WₜGₜ] / [Σₜ∈T(s,a) Wₜ].\nIf the denominator is zero, retain the initial estimate or use the book’s zero convention until there is positive weight."
+      },
+      {
+        "title": "Explain the missing factor",
+        "text": "The ratio begins at t+1, not t, because Q conditions on the first action a. The environment’s next-state and reward distribution conditional on (s,a) is the same under both policies. This is off-policy prediction (§5.5), within the slides’ scope."
+      }
+    ],
+    "lecture": 8,
+    "page": 18,
+    "options": null
+  },
+  {
+    "id": "ex-5-10",
+    "number": "5.10",
+    "bookPage": 109,
+    "pdfPage": 131,
+    "topic": "Off-policy learning",
+    "kind": "Derivation",
+    "q": "Derive the incremental weighted mean",
+    "prompt": "Let Vₙ be the weighted average of returns G₁,…,Gₙ₋₁ with nonnegative weights W₁,…,Wₙ₋₁. Define Cₙ=Σᵢ₌₁ⁿWᵢ. Derive an update incorporating (Gₙ,Wₙ).",
+    "hint": "Replace the old weighted numerator by Cₙ₋₁Vₙ and use Cₙ=Cₙ₋₁+Wₙ.",
+    "steps": [
+      {
+        "title": "Expand the new average",
+        "text": "Vₙ₊₁ = (Cₙ₋₁Vₙ+WₙGₙ)/Cₙ\n      = ((Cₙ−Wₙ)Vₙ+WₙGₙ)/Cₙ\n      = Vₙ+(Wₙ/Cₙ)(Gₙ−Vₙ)."
+      },
+      {
+        "title": "Implement safely",
+        "text": "Start with C=0. On a sample: set C ← C+W, then update V ← V+(W/C)(G−V) only if C>0. A zero-weight sample makes no change. The first positive-weight sample sets V to its return, regardless of initialization."
+      },
+      {
+        "title": "Check the ordinary-average case",
+        "text": "When every W=1, Cₙ=n and the step size is 1/n. Using the old cumulative weight in the denominator would be incorrect."
+      }
+    ],
+    "lecture": 7,
+    "page": 65,
+    "options": null
+  },
+  {
+    "id": "ex-6-3",
+    "number": "6.3",
+    "bookPage": 126,
+    "pdfPage": 148,
+    "topic": "TD prediction & control",
+    "kind": "Calculation",
+    "q": "The first random-walk TD update",
+    "prompt": "In Example 6.2, states A–E lie between two terminal ends. Episodes start at C; left and right are equiprobable. Only right termination rewards +1; all other rewards are 0. Initialize nonterminal V=0.5, terminal V=0, γ=1, and α=0.1. After episode 1, only V(A) has changed. What happened, and by how much did V(A) change?",
+    "hint": "Before the first terminal transition, every successor estimate equals the current estimate.",
+    "steps": [
+      {
+        "title": "Explain the zero updates",
+        "text": "All transitions between nonterminal states initially have TD error 0+0.5−0.5=0. The trajectory may loop, but no estimate changes before termination."
+      },
+      {
+        "title": "Identify the ending",
+        "text": "The episode must terminate on the left, from A. Its TD target is 0 and its error is −0.5. Thus V(A) ← 0.5+0.1(−0.5)=0.45: a change of −0.05. The entire trajectory cannot be reconstructed from this fact."
+      }
+    ],
+    "lecture": 9,
+    "page": 15,
+    "options": null
+  },
+  {
+    "id": "ex-6-6",
+    "number": "6.6",
+    "bookPage": 126,
+    "pdfPage": 148,
+    "topic": "TD prediction & control",
+    "kind": "Derivation",
+    "q": "Solve the five-state random walk two ways",
+    "prompt": "For the random walk in Example 6.2 (equiprobable moves, γ=1, reward +1 only at right termination), obtain v(A),…,v(E) by at least two methods. Explain which method seems likely to have produced the book’s simple fractions.",
+    "hint": "The value is the probability of reaching the right terminal first.",
+    "steps": [
+      {
+        "title": "Method 1: Bellman equations",
+        "text": "v(A)=0.5v(B), v(B)=0.5[v(A)+v(C)], v(C)=0.5[v(B)+v(D)], v(D)=0.5[v(C)+v(E)], v(E)=0.5v(D)+0.5. Solving gives (1/6,2/6,3/6,4/6,5/6)."
+      },
+      {
+        "title": "Method 2: hitting probabilities",
+        "text": "Index positions 0,…,6, with A at 1 and E at 5. For the probability hᵢ of hitting 6 before 0, h₀=0, h₆=1, and hᵢ=(hᵢ₋₁+hᵢ₊₁)/2. Hence the differences are constant and hᵢ=i/6. Here h₆=1 is a success probability, not the RL terminal-state value (which is zero)."
+      },
+      {
+        "title": "What the book probably used",
+        "text": "The symmetry and equal-spacing argument is a plausible source of the simple fractions, but the authors’ actual method cannot be determined from the values alone. Simulation could approximate them, whereas these calculations give them exactly."
+      }
+    ],
+    "lecture": 9,
+    "page": 13,
+    "options": null
+  },
+  {
+    "id": "ex-6-8",
+    "number": "6.8",
+    "bookPage": 129,
+    "pdfPage": 151,
+    "topic": "TD prediction & control",
+    "kind": "Derivation",
+    "q": "Telescope the SARSA errors",
+    "prompt": "Assume Q is held fixed during an episode and terminal continuation is zero. For δₖ=Rₖ₊₁+γQ(Sₖ₊₁,Aₖ₊₁)−Q(Sₖ,Aₖ), show the action-value version of the return/TD-error identity.",
+    "hint": "Expand Σₖ₌ₜ^(T−1)γ^(k−t)δₖ and pair each positive successor term with the next negative term.",
+    "steps": [
+      {
+        "title": "Expand and cancel",
+        "text": "Σₖ₌ₜ^(T−1)γ^(k−t)δₖ\n= Σₖ₌ₜ^(T−1)γ^(k−t)Rₖ₊₁ − Q(Sₜ,Aₜ) + γ^(T−t)Q(S_T,A_T)."
+      },
+      {
+        "title": "Apply the terminal convention",
+        "text": "Q(S_T,A_T)=0, so Gₜ−Q(Sₜ,Aₜ)=Σₖ₌ₜ^(T−1)γ^(k−t)δₖ. A_T is just a formal placeholder; no actual terminal action is required."
+      },
+      {
+        "title": "State the limitation",
+        "text": "Cancellation assumes the same Q values in successive errors. If Q changes during online updates, additional correction terms appear. Exercise 6.8 is in section 6.4, so it is not the optional section 6.8 mentioned in the slides."
+      }
+    ],
+    "lecture": 9,
+    "page": 45,
+    "options": null
+  },
+  {
+    "id": "ex-6-12",
+    "number": "6.12",
+    "bookPage": 132,
+    "pdfPage": 154,
+    "topic": "TD prediction & control",
+    "kind": "Conceptual",
+    "q": "Are greedy SARSA and Q-learning identical?",
+    "prompt": "If both algorithms use greedy action selection, must SARSA and Q-learning make exactly the same updates and choose the same actions? Consider the ordering of action selection and the update in their standard pseudocode.",
+    "hint": "A greedy SARSA next action gives a maximum in the current table. But SARSA chooses that next action before the update; Q-learning chooses it on the next loop iteration.",
+    "steps": [
+      {
+        "title": "Compare a single matched update",
+        "text": "Given the same transition and the same pre-update Q table, a greedy next action A′ satisfies Q(S′,A′)=maxₐQ(S′,a). Their numerical update targets therefore agree. Different random tie-breaking can already make chosen actions differ."
+      },
+      {
+        "title": "Check a self-transition without ties",
+        "text": "Let S′=S, Q(S,a)=1, Q(S,b)=0, reward R=−2, α=1, and γ=0.9. Both start with greedy action a. SARSA selects its next action a before updating. Both then set Q(S,a)=−2+0.9·1=−1.1."
+      },
+      {
+        "title": "Compare the next executed action",
+        "text": "SARSA carries forward its already selected a. Standard Q-learning selects again after the update and now chooses b, whose value is 0. Thus greedy targets coincide on a matched step, but complete algorithms need not have identical action sequences or later updates. With matched selection timing and tie-breaking, the equivalence can hold."
+      }
+    ],
+    "lecture": 9,
+    "page": 58,
+    "options": null
+  }
+];
+
+'use strict';
+const $ = id => document.getElementById(id);
+const KEY = 'rl-study-desk-v1';
+let activeMode = 'theory', bank = QUESTIONS;
+let state = {}, order = [...bank], storageOK = true, currentId = bank[0].id;
+const views = {};
+try { const saved=JSON.parse(localStorage.getItem(KEY)||'{}'); if(saved && typeof saved==='object' && !Array.isArray(saved)) state=saved; } catch { storageOK=false; }
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{storageOK=false;} storageStatus();}
+function storageStatus(){if(!storageOK)$('storage-note').textContent='Browser storage is unavailable. You can still practise, but progress may not survive closing this page.';}
+function record(q){const s=state[q.id];return s && typeof s==='object'?s:{};}
+function status(q){const s=record(q);if(q.options)return Number.isInteger(s.choice)?(s.choice===q.correct?'done':'retry'):'new';return s.rating==='done'?'done':s.rating==='retry'?'retry':'new';}
+function stats(){
+ const totals={done:0,retry:0,new:0};bank.forEach(q=>totals[status(q)]++);
+ for(const key of Object.keys(totals))$(key+'-count').textContent=totals[key];
+ $('mastered').textContent=totals.done;$('progress-bar').max=bank.length;$('progress-bar').value=totals.done;$('bank-total').textContent='/ '+bank.length;
+ const mc=bank.filter(q=>q.options && Number.isInteger(record(q).choice));
+ $('progress').textContent=activeMode==='book'?`${totals.done} solved · ${totals.retry} to revisit. Self-assessed after comparing your work.`:mc.length?`Quiz accuracy: ${Math.round(100*mc.filter(q=>status(q)==='done').length/mc.length)}% · ${mc.length} answered`:'Answer a quiz question to start tracking accuracy.';
+}
+function el(tag, cls, text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
+function button(text,fn,cls=''){const b=el('button',cls,text);b.type='button';b.addEventListener('click',fn);return b;}
+function source(q){const file=q.lecture===3?'RL_lecture 03 - corrected slides.pdf':`RL_lecture ${String(q.lecture).padStart(2,'0')}.pdf`;const a=el('a','',`Lecture ${String(q.lecture).padStart(2,'0')} · PDF p. ${q.page} ↗`);a.href=encodeURI(file)+`#page=${q.page}`;a.target='_blank';a.rel='noopener';return a;}
+function renderCard(q){
+ const s=record(q),card=el('article','card');card.id=q.id;
+ const meta=el('div','card-meta');meta.append(el('span','',`${q.options?'MULTIPLE CHOICE':'OPEN QUESTION'}  ·  ${q.id.toUpperCase()}`),source(q));card.append(meta);
+ const h=el('h3','',q.q);h.id=q.id+'-title';card.append(h);card.setAttribute('aria-labelledby',h.id);
+ const actions=el('div','actions'),answer=el('div','answer');answer.id=q.id+'-answer';answer.hidden=true;
+ if(q.options){
+  const field=el('fieldset','options');field.setAttribute('aria-labelledby',h.id);const submitted=Number.isInteger(s.choice);let selected=submitted?s.choice:null;
+  q.options.forEach((opt,i)=>{const label=el('label','option');const input=el('input');input.type='radio';input.name=q.id;input.value=i;input.checked=selected===i;input.disabled=submitted;input.addEventListener('change',()=>{selected=i;check.disabled=false;});label.append(input,el('span','option-letter',String.fromCharCode(65+i)),el('span','option-text',opt));if(submitted && i===q.correct)label.classList.add('correct-option');if(submitted && i===s.choice && i!==q.correct)label.classList.add('incorrect-option');field.append(label);});card.append(field);
+  const check=button('Check answer',()=>{if(selected===null)return;state[q.id]={...s,choice:selected};save();render();const target=$(q.id);if(target)target.querySelector('.answer').focus();},'primary');check.disabled=selected===null;
+  if(submitted){answer.hidden=false;answer.tabIndex=-1;const correct=s.choice===q.correct;answer.classList.toggle('wrong',!correct);answer.append(el('p','result',correct?'Correct.':`Not quite. Correct answer: ${q.options[q.correct]}`),el('p','',q.a));actions.append(button('Try again',()=>{const next={...s};delete next.choice;state[q.id]=next;save();render();$(q.id)?.querySelector('input')?.focus();}));}else actions.append(check);
+ } else {
+  const label=el('label','', 'Your explanation (optional)');const area=el('textarea');area.id=q.id+'-notes';label.htmlFor=area.id;area.placeholder='Explain it in your own words…';area.value=typeof s.notes==='string'?s.notes:'';area.addEventListener('input',()=>{state[q.id]={...record(q),notes:area.value};save();});card.append(label,area);
+  answer.hidden=!s.revealed;answer.append(el('p','result','Model answer'),el('p','',q.a));
+  const reveal=button(s.revealed?'Hide answer':'Reveal model answer',()=>{const now=!answer.hidden;answer.hidden=now;state[q.id]={...record(q),revealed:!now};save();reveal.textContent=now?'Reveal model answer':'Hide answer';reveal.setAttribute('aria-expanded',String(!now));},'primary');reveal.setAttribute('aria-expanded',String(!!s.revealed));reveal.setAttribute('aria-controls',answer.id);actions.append(reveal);
+  for(const [value,label] of [['retry','Needs review'],['done','I can explain this']]){const b=button(label,()=>{state[q.id]={...record(q),rating:value};save();render();$(q.id)?.querySelector('.actions button')?.focus();});b.setAttribute('aria-pressed',String(s.rating===value));if(s.rating===value)b.classList.add('badge');actions.append(b);}
+ }
+ card.append(answer,actions);const refs=el('div','book-reference');refs.append(bookSource(q));if(q.auditNote)refs.append(el('span','',q.auditNote+'.'));if(q.bookNote)refs.append(el('p','',q.bookNote));card.append(refs);return card;
+}
+function bookSource(q){const ref=q.book||{page:q.bookPage,pdfPage:q.pdfPage};const a=el('a','',q.number?`Sutton & Barto · Exercise ${q.number} · p. ${ref.page} (PDF ${ref.pdfPage}) ↗`:`Book §${ref.section} · p. ${ref.page} (PDF ${ref.pdfPage}) ↗`);a.href=`RLbook2020.pdf#page=${ref.pdfPage}`;a.target='_blank';a.rel='noopener';return a;}
+function renderExercise(q){
+ const s=record(q),card=el('article','card exercise-card');card.id=q.id;
+ const meta=el('div','card-meta');meta.append(el('span','',`EXERCISE ${q.number} · ${q.kind.toUpperCase()}`),source(q));card.append(meta);
+ const h=el('h3','',q.q);h.id=q.id+'-title';card.setAttribute('aria-labelledby',h.id);card.append(h);
+ const ref=el('div','book-reference');ref.append(bookSource(q));card.append(ref,el('p','exercise-prompt',q.prompt));
+ const hint=el('details','exercise-hint');hint.append(el('summary','','Need a hint?'),el('p','',q.hint));card.append(hint);
+ const label=el('label','','Your working');const area=el('textarea');area.id=q.id+'-notes';label.htmlFor=area.id;area.placeholder='Write your steps, calculations, or pseudocode…';area.value=typeof s.notes==='string'?s.notes:'';area.addEventListener('input',()=>{state[q.id]={...record(q),notes:area.value};save();});card.append(label,area);
+ const solution=el('section','answer worked-solution');solution.id=q.id+'-solution';solution.hidden=!s.revealed;solution.append(el('h4','','Worked solution'));
+ q.steps.forEach((step,i)=>{const part=el('div','solution-step');part.append(el('h5','',`${i+1}. ${step.title}`),el('p','',step.text));solution.append(part);});
+ solution.append(el('p','solution-note','Compare the reasoning with your own work. This solution was worked for the study desk; it is not an official answer key.'));
+ const actions=el('div','actions');const reveal=button(s.revealed?'Hide solution':'Reveal worked solution',()=>{const show=solution.hidden;solution.hidden=!show;state[q.id]={...record(q),revealed:show};save();reveal.textContent=show?'Hide solution':'Reveal worked solution';reveal.setAttribute('aria-expanded',String(show));},'primary');reveal.setAttribute('aria-expanded',String(!!s.revealed));reveal.setAttribute('aria-controls',solution.id);actions.append(reveal);
+ for(const [value,text] of [['retry','Needs review'],['done','I solved this']]){const b=button(text,()=>{state[q.id]={...record(q),rating:value};save();render();});b.setAttribute('aria-pressed',String(s.rating===value));if(s.rating===value)b.classList.add('badge');actions.append(b);}
+ card.append(actions,solution);return card;
+}
+function filtered(){const term=$('search').value.trim().toLowerCase();return order.filter(q=>($('topic').value==='all'||q.topic===$('topic').value)&&($('type').value==='all'||(activeMode==='book'?q.kind===$('type').value:($('type').value==='mc')===!!q.options))&&($('review').value==='all'||status(q)===$('review').value)&&(!term||[q.q,q.a,q.prompt,q.number,q.topic,...(q.options||[]),...(q.steps||[]).map(x=>x.text)].join(' ').toLowerCase().includes(term)));}
+function render(){
+ const list=filtered();let index=list.findIndex(q=>q.id===currentId);if(index<0)index=0;
+ const q=list[index];if(q)currentId=q.id;
+ $('questions').replaceChildren();if(q){$('questions').append(activeMode==='book'?renderExercise(q):renderCard(q));}else{const empty=el('div','empty');empty.append(el('h3','','No questions here yet.'),el('p','','Try another topic or clear your filters.'),button('Clear filters',()=>{$('topic').value='all';$('type').value='all';$('review').value='all';$('search').value='';render();},'primary'));$('questions').append(empty);}
+ $('count').textContent=q?`${activeMode==='book'?'EXERCISE':'QUESTION'} ${index+1} OF ${list.length}`:'NO MATCHES';$('current-topic').textContent=q?q.topic:'';
+ $('previous').disabled=!q||index===0;$('next').disabled=!q||index===list.length-1;$('next').textContent=activeMode==='book'?'Next exercise →':'Next question →';
+ $('jump').replaceChildren(...list.map((item,i)=>{const o=el('option','',activeMode==='book'?item.number:String(i+1));o.value=item.id;return o;}));$('jump').value=q?q.id:'';$('jump').disabled=!q;
+ $('question-grid').replaceChildren(...list.map((item,i)=>{const b=button(activeMode==='book'?item.number:String(i+1),()=>{currentId=item.id;render();focusQuestion();},'map-button '+status(item));b.title=item.q;b.setAttribute('aria-label',`Question ${i+1}: ${item.q} (${status(item)})`);if(item.id===q?.id){b.classList.add('current');b.setAttribute('aria-current','true');}return b;}));
+ document.querySelectorAll('[data-topic]').forEach(b=>{const active=b.dataset.topic===$('topic').value;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});stats();
+}
+function focusQuestion(){const h=$('questions').querySelector('h3');if(h){h.tabIndex=-1;h.focus({preventScroll:true});}if(innerWidth<800)$('questions').scrollIntoView({behavior:'smooth',block:'start'});}
+function move(delta){const list=filtered(),index=list.findIndex(q=>q.id===currentId);if(list[index+delta]){currentId=list[index+delta].id;render();focusQuestion();}}
+function buildTopics(){
+ $('topic').replaceChildren();const all=el('option','','All topics');all.value='all';$('topic').append(all);$('topic-nav').replaceChildren();
+ const topics=[...new Set(bank.map(q=>q.topic))];
+ for(const topic of topics){const opt=el('option','',topic);opt.value=topic;$('topic').append(opt);}
+ for(const [i,topic] of ['all',...topics].entries()){const b=button('',()=>{$('topic').value=topic;currentId='';render();});b.dataset.topic=topic;b.append(el('span','topic-icon',i===0?'◈':String(i).padStart(2,'0')),el('span','topic-text',topic==='all'?'All topics':topic),el('span','topic-count',String(topic==='all'?bank.length:bank.filter(q=>q.topic===topic).length)));$('topic-nav').append(b);}
+}
+for(const id of ['topic','type','review'])$(id).addEventListener('change',()=>{currentId='';render();});$('search').addEventListener('input',()=>{currentId='';render();});
+$('previous').addEventListener('click',()=>move(-1));$('next').addEventListener('click',()=>move(1));$('jump').addEventListener('change',()=>{currentId=$('jump').value;render();focusQuestion();});
+document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement.tagName)||$('theory').hidden)return;if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();move(event.key==='ArrowRight'?1:-1);}});
+$('shuffle').addEventListener('click',()=>{for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}currentId='';render();});
+$('reset').addEventListener('click',()=>{if(confirm('Clear all quiz answers, written notes and self-assessments?')){state={};save();render();}});
+function switchTab(tab){
+ views[activeMode]={currentId,order,topic:$('topic').value,type:$('type').value,review:$('review').value,search:$('search').value};
+ activeMode=tab;bank=tab==='book'?EXERCISES:QUESTIONS;const saved=views[tab];order=saved?.order||[...bank];currentId=saved?.currentId||bank[0].id;
+ for(const name of ['theory','book']){$(name+'-tab').classList.toggle('active',name===tab);$(name+'-tab').setAttribute('aria-pressed',String(name===tab));}
+ const practical=tab==='book';$('section-name').textContent=practical?'Book exercises':'Theory practice';$('practice-heading').textContent=practical?'Put theory into practice.':'Let’s make it click.';
+ $('practice-intro').textContent=practical?'27 selected Sutton & Barto exercises. Work through a problem, use a hint, then compare your solution.':'One question at a time. Think it through, then check your reasoning.';
+ $('progress-caption').textContent=practical?'exercises marked solved':'questions confident or correct';$('progress-bar').setAttribute('aria-label',practical?'Exercises marked solved':'Questions confident or correct');
+ $('done-count').previousElementSibling.innerHTML=practical?'<i class="dot done"></i> Solved':'<i class="dot done"></i> Confident / correct';
+ $('navigator-title').textContent=practical?'Exercise navigator':'Question navigator';$('question-grid').classList.toggle('exercise-grid',practical);
+ $('study-tip').textContent=practical?'Write down the return, target, or Bellman equation before calculating. Exercise numbers match the book; use the PDF link for the original wording.':'Try explaining the answer out loud before revealing it. If you get stuck, open the linked slide and try again.';
+ const types=practical?[['all','All exercise types'],...['Calculation','Derivation','Algorithm','Conceptual'].map(x=>[x,x])]:[['all','All questions'],['open','Open questions'],['mc','Multiple choice']];
+ $('type').replaceChildren(...types.map(([value,text])=>{const opt=el('option','',text);opt.value=value;return opt;}));buildTopics();
+ $('topic').value=saved?.topic||'all';$('type').value=saved?.type||'all';$('review').value=saved?.review||'all';$('search').value=saved?.search||'';
+ render();
+}
+for(const tab of ['theory','book'])$(tab+'-tab').addEventListener('click',()=>{if(activeMode!==tab)switchTab(tab);});
+buildTopics();storageStatus();render();
+
+const themeToggle = $('theme-toggle');
+function syncThemeToggle(){const dark=document.documentElement.dataset.theme==='dark';themeToggle.setAttribute('aria-pressed',String(dark));themeToggle.textContent=dark?'☀  Light theme':'☾  Dark theme';themeToggle.setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme');}
+themeToggle.addEventListener('click',()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('rl-study-theme',theme);}catch{}syncThemeToggle();});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',event=>{let saved;try{saved=localStorage.getItem('rl-study-theme');}catch{}if(saved!=='dark'&&saved!=='light'){document.documentElement.dataset.theme=event.matches?'dark':'light';syncThemeToggle();}});
+syncThemeToggle();
+
+</script></body></html>

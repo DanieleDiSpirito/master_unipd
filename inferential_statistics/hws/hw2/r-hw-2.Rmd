@@ -1,0 +1,85 @@
+---
+title: "Homework #2"
+subtitle: "Inferential Statistics 2026/2027"
+author: "Name and Surname"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    toc: true
+    fig_height: 6
+editor_options: 
+  markdown: 
+    wrap: 80
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
+```
+
+# Problem 1 (Central Limit Theorem for two proportions)
+Let $X_1\sim \text{Bin}(n_1, \theta_1)$ and $X_2\sim \text{Bin}(n_2,\theta_2)$
+be two independent random variables. For each $(n_1,n_2)\in\{(15,20),(30,40), (50,80)\}$,
+and each $(\theta_1,\theta_2)\in\{(0.1, 0.2),(0.5,0.5),(0.8,0.9)\}$ compute via
+simulation the distribution of the Z statistic (the two sample version of that in slide~111)
+$$
+Z = \frac{(\hat \theta_1 - \hat \theta_2) - (\theta_1-\theta_2)}{
+\sqrt{\frac{\hat\theta_1(1-\hat\theta_1)}{n_1}+\frac{\hat\theta_2(1-\hat\theta_2)}{n_2}}},
+$$
+where $\hat \theta_i = X_i/n_i$. Using $N = 10^5$ simulations and random seed equal
+to 21:
+(i) Compare the histogram of $Z$ with that of the $N(0,1)$. 
+(ii) Argue why the histogram should behave as a standard normal distribution 
+as $n_1$ and $n_2$ are both large.
+(iii) With the estimated standard error in the denominator, \(Z\) can be 
+undefined when both sample proportions are 0 or 1. Report how often that 
+occurs and how did you handle it.
+
+## Solution to Problem 1
+
+
+
+
+
+\newpage
+# Problem 2 (The Empirical Distribution Function)
+So far, we used the histogram in order to compare a sample with a theoretical 
+distribution 
+(e.g. standard normal). While this is a popular choice, it's not the best one. 
+
+ (a)  Read about the empirical distribution function (eCDF, written $\hat F$) at https://en.wikipedia.org/wiki/Empirical_distribution_function.
+ (b)  Then read Chapter6.pdf. 
+ (c)  Choose one of the cases illustrated in Problem 1 and draw the 
+ empirical distribution function of Z along with the distribution function of $N(0,1)$ 
+ (d)  Explain why the empirical distribution function is preferable to the histogram for comparing the distribution of \(Z\) with the \(N(0,1)\) distribution. In your answer, discuss the Glivenko–Cantelli theorem’s guarantee of uniform convergence and the convergence rate covered in the reading. Explain how the histogram’s dependence on binning affects the comparison.
+ (e)  On the above picture, draw a horizontal line at $\hat F=0.1$. What value 
+ do you read in the $x$-axis? What does it represent?
+
+## Solution to Problem 2
+
+
+
+
+\newpage
+# Problem 3 (More on the power of a test)
+
+(a) Let 3.97, 3.39, 3.08, 4.11, 4.83, 3.80, 4.51, 3.60, 4.53, 3.60, 4.87, be an observed
+sample of CO levels (in ppm) measured on a synthetic air sample. Assume the data are independent realisations from a normal distribution with 
+random measurement error having variance $\sigma_0=0.5\,$ (in ppm$^2$). Test 
+$H_0:\mu\leq 3.7$ against a proper alternative at the significance level
+$\alpha=0.10$. Conclude using both the p-value and the acceptance region.
+
+(b) While keeping $H_0:\mu\leq 3.7$, assume $H_1$ is true with $\mu=3.9$. What is the
+amount the type II error? Illustrate the type II error by means of a diagram.
+
+(c) While keeping $H_0:\mu\leq 3.7$, define an R function that given the 
+sample size $n$, the value of 
+$\mu$ under the alternative hypothesis and $\alpha=0.10$, computes the type II 
+error ($\beta$) of the test. Draw this function for $n=2:50$ on the $x$-axis when: (i) $\mu=3.9$, (ii) $\mu=4.0$ and (iii) $\mu=4.1$. Comment the results.
+
+(d) While keeping $H_0:\mu\leq 3.7$, define an R function that, with $n=20$, and $\mu=3.95$, 
+takes as input $\beta$ and outputs $\alpha$. Draw the function on a regular
+grid of $\beta \in (0,0.5]$.
+
+## Solution to Problem 3

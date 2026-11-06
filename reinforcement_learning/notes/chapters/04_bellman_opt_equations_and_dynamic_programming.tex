@@ -1,16 +1,22 @@
 % !TEX root = ../main.tex
 \chapter{Bellman Optimality Equations and DP}
 
-\section{Optimal Policy}
-We can define an order over policies: $\pi\geq\pi'$ if $v_\pi(s)\geq v_{\pi'}(s)$ for all stestes.
+\section{Optimal Value Functions and Optimal Policy}
+The \textit{optimal state-value function} $v_*(s)$ is the maximum state-value function over all policies, and the \textit{optimal action-value function} $q_*(s,a)$ is the maximum action-value function over all policies:
+\[v_*(s)=\max_\pi v_\pi(s)\qquad q_*(s,a)=\max_\pi q_\pi(s,a)\]
+An MDP can be considered `solved' when $q_*$ is known: we always know the optimal action to take in each state. (Notation: a $*$ always denotes optimality.)
+
+We can define an order over policies: $\pi\geq\pi'$ if $v_\pi(s)\geq v_{\pi'}(s)$ for all $s\in\mathcal{S}$.
 \begin{theorem}
     For any finite MDP ($\mathcal{S},\mathcal{A}, \mathcal{R}$ finite sets):
     \begin{enumerate}
-        \item There exists an optimal polici $\pi_*$ such that $\pi_*\geq\pi$ for all possible $\pi$;
+        \item There exists an optimal policy $\pi_*$ such that $\pi_*\geq\pi$ for all possible $\pi$;
         \item All optimal policies achieve the optimal state-value function \[v_{\pi_*}(s)=v_*(s)\]
         \item All optimal policies achieve the optimal action-value function \[q_{\pi_*}(s,a)=q_*(s,a)\]
     \end{enumerate}
 \end{theorem}
+Intuitively, given two policies we can build a new one that, in each state, follows the policy with the higher value in that state: it is at least as good as both. In a finite MDP, repeating this yields a policy that is at least as good as all the others.
+
 A simple approach to find the optimal policy, if we have $q_*(s,a)$, is to maximize over the actions:
 \[
   \pi_*(a \mid s) =
@@ -19,10 +25,10 @@ A simple approach to find the optimal policy, if we have $q_*(s,a)$, is to maxim
     0 & \textit{otherwise}
   \end{dcases}
 \]
-but how do we get $q_*$?
+So there is always a deterministic optimal policy for any MDP. But how do we get $q_*$?
 
 \section{Bellman Optimality Equation}
-The Bellman Optimality Equation is a way to define the optimal $v_*$:
+The Bellman Optimality Equation (not to be confused with the Bellman Expectation Equation, which holds for a generic policy) defines $v_*$ recursively with itself, again with a 1-step look-ahead:
 \begin{figure}[H]
 \centering
 \tikzset{
@@ -64,28 +70,45 @@ The Bellman Optimality Equation is a way to define the optimal $v_*$:
 \caption{Backup diagrams for $v_*$ and $q_*$.}
 \label{fig:backup-optimal}
 \end{figure}
-\[\mathrm{v}_*(s)=\max_a\mathrm{q}_*(s,a)\qquad \mathrm{q}_*(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}^{}\mathcal{P}_{ss'}^a*\mathrm{v}_*(s')\]
+\[\mathrm{v}_*(s)=\max_a\mathrm{q}_*(s,a)\qquad \mathrm{q}_*(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}\mathcal{P}_{ss'}^a\,\mathrm{v}_*(s')\]
 so, if we plug one into the other we obtain:
-\[\mathrm{v}_*(s)=\max_a\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}^{}\mathcal{P}_{ss'}^a*\mathrm{v}_*(s')\]
-Since there is a non linear operation (max) we don't have a closed-form solution.
+\[\mathrm{v}_*(s)=\max_a\left(\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}\mathcal{P}_{ss'}^a\,\mathrm{v}_*(s')\right)\]
+\[\mathrm{q}_*(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}\mathcal{P}_{ss'}^a\max_{a'}\mathrm{q}_*(s',a')\]
+Since there is a non-linear operation (max) we don't have a closed-form solution, and we need iterative methods (value iteration, policy iteration, Q-learning, SARSA, \dots).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}l l p{4.2cm}@{}}
+\toprule
+\textbf{Equation} & \textbf{Used for} & \textbf{Solution} \\
+\midrule
+MRP Bellman equation & $v$ & linear: closed form for small MRPs \\
+MDP Bellman expectation equation & $v_\pi$, $q_\pi$ & linear: closed form for small MDPs \\
+MDP Bellman optimality equation & $v_*$, $q_*$ & non-linear: iterative methods \\
+\bottomrule
+\end{tabular}
+\caption{The three Bellman equations.}
+\label{tab:bellman-eqs}
+\end{table}
 
 \section{Dynamic Programming for MDPs}
-In real Reinforcement Learning problems we don't have access to $\mathcal{P}$ and $\mathcal{R}$.
+In real Reinforcement Learning problems we don't have access to $\mathcal{P}$ and $\mathcal{R}$, but in this chapter we assume that the MDP is fully known (this is a strong assumption, called the \textit{planning} problem).
 Our goal is to solve the Markov Decision Process:
 \begin{itemize}
-    \item Policy Evaluation: given a policiy $\pi$ we want to derive the value function $v_\pi$ and $q_\pi$;
+    \item Policy Evaluation: given a policy $\pi$ we want to derive the value function $v_\pi$ and $q_\pi$;
     \item Policy improvement (control): improve the current policy $\pi$ to a better one $\pi'$, in order to find the optimal policy $\pi_*$ typically deriving $v_*$ and $q_*$;
 \end{itemize}
-There can be multiple optimal polices, but they all achieve the same optimal value function $v_*$ and $q_*$.
+There can be multiple optimal policies, but they all achieve the same optimal value function $v_*$ and $q_*$.
 
-Even in case $\mathcal{P}$ and $\mathcal{R}$ are known, we can use Dynamic Programming to solve the MDP. The idea is to use the Bellman Optimality Equations (non-linear) to iteratively update our estimates of $v_*$ and $q_*$ until they converge. This is useful also in linear problems in case they are complex problems where we can't solve the Bellman Expectiation Equations analytically.
+Even if $\mathcal{P}$ and $\mathcal{R}$ are known, solving the MDP may not be straightforward: prediction could be solved with a set of linear equations, but this is too expensive for large MDPs, and control requires the non-linear Bellman Optimality Equation. Dynamic Programming solves both by using the Bellman equations as iterative update rules for our estimates, until they converge.
 
 The idea of Dynamic Programming is to break complex problems into simpler subproblems and solve them recursively. Then we combine the solutions to the subproblems for solving the original one.
-DP is a tool that allow us to solve problems with this two properties:
+DP is a tool that allows us to solve problems with these two properties:
 \begin{itemize}
-    \item Problems that have a substructure;
-    \item Problems that have overlapping subproblems;
+    \item \textit{optimal substructure}: an optimal solution can be decomposed into optimal solutions of subproblems (principle of optimality);
+    \item \textit{overlapping subproblems}: subproblems recur many times, so their solutions can be cached and reused.
 \end{itemize}
+MDPs satisfy both properties, thanks to the recursive structure of the Bellman equations.
 
 \subsection{Prediction: Policy Evaluation}
 \begin{equation}
@@ -100,13 +123,12 @@ Instead of solving the Bellman equation directly we can use it as an update rule
 \begin{equation}
   v_{k+1}(s) \doteq \sum_{a}\pi(a|s)\sum_{s',r}p(s',r|s,a)\bigl[r+\gamma v_k(s')\bigr]
 \end{equation}
-The dynamic programming procedure is associated with initial guesses of \textit{v} that are iteratively improved by repeatedly applying of the Bellman Expectation Equation.
-Iteratively the sequence ${v_k}$ coverges to $v_\pi$ as $k\to\infty$.
+The dynamic programming procedure starts from an initial guess of $v$ that is iteratively improved by repeatedly applying the Bellman Expectation Equation. $v_k=v_\pi$ is a fixed point of this update, and the sequence $\{v_k\}$ converges to $v_\pi$ as $k\to\infty$.
 
 \emph{Synchronous} policy evaluation stores two copies of the value
 function, for all states:
 \[
-  \mathrm{v}_{\text{new}}(s) \leftarrow \max_{a \in \mathcal{A}}
+  \mathrm{v}_{\text{new}}(s) \leftarrow \sum_{a \in \mathcal{A}}\pi(a\mid s)
   \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
   \mathcal{P}_{ss'}^a \, \mathrm{v}_{\text{old}}(s') \right)
 \]
@@ -117,12 +139,12 @@ function, for all states:
 \emph{In-place} policy evaluation only stores one copy of the value
 function:
 \[
-  \mathrm{v}(s) \leftarrow \max_{a \in \mathcal{A}}
+  \mathrm{v}(s) \leftarrow \sum_{a \in \mathcal{A}}\pi(a\mid s)
   \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
   \mathcal{P}_{ss'}^a \, \mathrm{v}(s') \right)
 \]
-While syncronous updates are more rigorous, in-place updates achieves faster convergence since we use the new estimations as soon as they are available. In practice we will typically use in-palce updates.
-\begin{algobox}{Iterative Policy Evaluation, for estimating $V \approx \mathrm{v}_\pi$} (in-place version)
+While synchronous updates seem more rigorous, in-place updates achieve faster convergence, since we use the new estimates as soon as they are available. In practice we will typically use in-place updates. If we have domain knowledge, a reasonable initialization can also speed up convergence.
+\begin{algobox}{Iterative Policy Evaluation (in-place version), for estimating $V \approx \mathrm{v}_\pi$}
 Input $\pi$, the policy to be evaluated\\
 Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation\\
 Initialize $V(s)$, for all $s \in \mathcal{S}^+$, arbitrarily except that
@@ -140,9 +162,9 @@ until $\Delta < \theta$
 \end{algobox}
 
 \subsection{Control: Policy Improvement}
-One way to improve a policy is to evaluate a policy $\pi$ and improving it by acting greedly  with respect to $$v_\pi$$. 
-\[\pi'=greedy(\mathrm{v}_\pi)\]
-We can evaluate $v_{\pi'}$ and then improve it agian. This procedure of policy iteration will procede untill policy converges to the optimal policy $\pi_*$ and $v_{\pi_*}=v_*$.
+One way to improve a policy is to evaluate it and then improve it by acting greedily with respect to $v_\pi$:
+\[\pi'=\text{greedy}(\mathrm{v}_\pi),\qquad \pi'(s)=\argmax_a q_\pi(s,a)=\argmax_a\left(\mathcal{R}_s^a+\gamma\sum_{s'}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\right)\]
+We can evaluate $v_{\pi'}$ and then improve the policy again. This procedure, called \textit{policy iteration}, proceeds until the policy converges to the optimal policy $\pi_*$, with $v_{\pi_*}=v_*$.
 We will show that acting greedily can improve the policy and allow us to reach optimality.
 
 \begin{algobox}{Policy Iteration (using iterative policy evaluation) for estimating $\pi \approx \pi_*$}
@@ -199,14 +221,14 @@ We will show that acting greedily can improve the policy and allow us to reach o
   \node[above, rotate=-15.6, font=\small] at (3.0, {\k*7.0}) {$V = \mathrm{v}_\pi$};
   \node[below, rotate=15.6, font=\small] at (4.5, {-\k*5.5}) {$\pi = \text{greedy}(V)$};
 \end{tikzpicture}
-\caption{}
+\caption{Policy iteration: evaluation ($V=\mathrm{v}_\pi$) and greedy improvement ($\pi=\text{greedy}(V)$) alternate until they converge to $\mathrm{v}_*$ and $\pi_*$.}
 \label{fig:policy-iteration}
 \end{figure}
 
 \begin{theorem}[Policy Improvement Theorem]
     Let's consider a deterministic policy $\pi$. We can improve the policy by acting greedily:
     \[\pi'(s)=\argmax_{a\in\mathcal{A}}q_\pi(s,a)\]
-    we pick the one action that provides the best value and then we follow $\pi$. Then the new policy $\pi'$ is better than or equal to the old one $\pi$:
+    that is, we pick the action that provides the best value and then we follow $\pi$. Then the new policy $\pi'$ is better than or equal to the old one $\pi$:
     \[q_\pi(s,\pi'(s))=\max_{a\in\mathcal{A}}q_\pi(s,a)\geq q_\pi(s,\pi(s))=\mathrm{v}_\pi(s)\]
     A policy $\pi'\geq\pi$ if $\mathrm{v}_{\pi'}(s)\geq\mathrm{v}_\pi(s)$ for all $s\in\mathcal{S}$. This improves the whole value function:
     \begin{equation}
@@ -214,29 +236,30 @@ We will show that acting greedily can improve the policy and allow us to reach o
         \mathrm{v}_\pi(s)\leq q_\pi(s,\pi'(s))&=\mathbb{E}_{\pi'}[R_{t+1}+\gamma \mathrm{v}_\pi(S_{t+1})\mid S_t=s]\\
         &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma q_\pi(S_{t+1},\pi'(S_{t+1}))\mid S_t=s]\\
         &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma R_{t+2}+\gamma^2q_\pi(S_{t+2},\pi'(S_{t+2}))\mid S_t=s]\\
-        &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma R_{t+2}+\gamma^2+\cdots\mid S_t=s]\\
+        &\leq \mathbb{E}_{\pi'}[R_{t+1}+\gamma R_{t+2}+\gamma^2R_{t+3}+\cdots\mid S_t=s]\\
         &=\mathrm{v}_{\pi'}(s)
       \end{split}
     \end{equation}
-    Now we are sure that acting greedily we are not going to do worse, but we have to prove that we reach optimality. Let's consider the case in which improvement stops:
+    Now we are sure that by acting greedily we are not going to do worse, but we still have to prove that we reach optimality. Let's consider the case in which improvement stops:
     \[q_\pi(s,\pi'(s))=\max_{a\in\mathcal{A}}q_\pi(s,a)=q_\pi(s,\pi(s))=\mathrm{v}_\pi(s)\]
     In this case we have satisfied the Bellman Optimality Equation:
     \[\mathrm{v}_\pi(s)=\max_{a\in\mathcal{A}}q_\pi(s,a)\]
     Therefore we have reached optimality and $\pi$ is an optimal policy:
-    \[\mathrm{v}_\pi(s)=\mathrm{v}_*(s)\] for all $s\in\mathcal{S}$.
+    \[\mathrm{v}_\pi(s)=\mathrm{v}_*(s)\quad\text{for all } s\in\mathcal{S}.\]
+    Policy iteration actually solves MDPs.
 \end{theorem}
 
 \subsection{Control: Value Iteration}
-In this case the evalutation step is stopped after one update. The approach can be written as:
+Policy evaluation can be slow, and we do not need the exact value of $v_\pi$: the evaluation step can be truncated without losing the convergence guarantees. In \textit{value iteration} the evaluation step is stopped after a single update. The approach can be written as:
 \begin{equation}
   \begin{split}
-    v_{k+1}(s)&\doteq\max_a\mathbb{E}\left[R_{t+1}+\gamma v_k(\mathcal{S}_{t+1})|\mathcal{S}_t=s,\mathcal{A}_t=a\right]\\
+    v_{k+1}(s)&\doteq\max_a\mathbb{E}\left[R_{t+1}+\gamma v_k(S_{t+1})\mid S_t=s,A_t=a\right]\\
     &=\max_a\sum_{s',r}^{}p(s',r|s,a)\left[r+\gamma v_k(s')\right]
   \end{split}
 \end{equation}
-for all steps. We are combining policy evaluation and policy update in a single step. It can be shown that this approach converges to the optimal value function $v_*$ and then we can derive the optimal policy $\pi_*$ by acting greedily with respect to $v_*$
-The main difference with policy evaluation is that in this case we use the Bellman Optimality Equation instad of using the Bellman Expectation Equation.
-In fact, instead of averaging over the all actions, we just consider the best one according to the current policy.
+for all $s\in\mathcal{S}$. We are combining policy evaluation and policy improvement in a single step. It can be shown that this approach converges to the optimal value function $v_*$, and then we can derive the optimal policy $\pi_*$ by acting greedily with respect to $v_*$.
+The main difference with policy evaluation is that here we use the Bellman Optimality Equation instead of the Bellman Expectation Equation:
+instead of averaging over all actions, we just consider the best one. No policy is needed during the iterations, and value iteration also works for continuing problems (no terminal states), provided that $\gamma<1$.
 \begin{algobox}{Value Iteration, for estimating $\pi \approx \pi_*$}
 Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation\\
 Initialize $V(s)$, for all $s \in \mathcal{S}^+$, arbitrarily except that
@@ -299,6 +322,9 @@ between them.}
 \label{fig:pi-vs-vi}
 \end{figure}
 
+\subsection{Generalized Policy Iteration (GPI)}
+We may also use hybrid strategies between policy iteration and value iteration. \textit{Generalized Policy Iteration} is the general idea of letting policy evaluation and policy improvement interact, independently of the granularity of the two processes: almost all RL methods can be described as GPI.
+
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}l p{5.5cm} l@{}}
@@ -310,35 +336,29 @@ Control    & Bellman expectation equation + Greedy Policy Improvement & Policy I
 Control    & Bellman optimality equation & Value Iteration \\
 \bottomrule
 \end{tabular}
-\caption{Summary of the (synchronous) DP algorithms.}
+\caption{Summary of the (synchronous) DP algorithms. They are based on $v_\pi(s)$ or $v_*(s)$, with complexity $O(mn^2)$ per iteration for $m$ actions and $n$ states; they could also be applied to $q_\pi(s,a)$ or $q_*(s,a)$, with complexity $O(m^2n^2)$ per iteration.}
 \label{tab:dp-summary}
 \end{table}
 
-\subsection{Synchronous vs.\ In-place Updates}
-Asynchronous DP (In-place) can speed up things:
-\subsection{Recap: in-place vs.\ synchronous}
-
-\emph{Synchronous} policy evaluation stores two copies of the value
-function, for all states:
+\subsection{Asynchronous DP}
+All the approaches seen so far are \emph{sweep-based}: each iteration backs up all the states. The same two implementations seen for policy evaluation also hold for value iteration (with the max instead of the expectation over $\pi$): the \emph{synchronous} version stores two copies of the value function,
 \[
   \mathrm{v}_{\text{new}}(s) \leftarrow \max_{a \in \mathcal{A}}
   \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
-  \mathcal{P}_{ss'}^a \, \mathrm{v}_{\text{old}}(s') \right)
+  \mathcal{P}_{ss'}^a \, \mathrm{v}_{\text{old}}(s') \right),
+  \qquad
+  \mathrm{v}_{\text{old}} \leftarrow \mathrm{v}_{\text{new}},
 \]
-\[
-  \mathrm{v}_{\text{old}} \leftarrow \mathrm{v}_{\text{new}}
-\]
-
-\emph{In-place} (or \emph{asynchronous}) policy evaluation only stores one
-copy of the value function:
+while the \emph{in-place} version only stores one copy:
 \[
   \mathrm{v}(s) \leftarrow \max_{a \in \mathcal{A}}
   \left( \mathcal{R}_s^a + \gamma \sum_{s' \in \mathcal{S}}
-  \mathcal{P}_{ss'}^a \, \mathrm{v}(s') \right)
+  \mathcal{P}_{ss'}^a \, \mathrm{v}(s') \right).
 \]
-This approach can significantly reduce the computation. Moreover, if the state set is very large, then even a single sweep can be prohibitively expensive. 
-
-Asynchronous DP approaches update the values of states in any order
-whatsoever, using whatever values of other states happen to be
-available and, still converge if all states continue to be
-selected.
+\emph{Asynchronous} DP methods are in-place methods that are not organized in systematic sweeps: they back up states individually, in any order whatsoever, using whatever values of other states happen to be available. This can significantly reduce computation: if the state set is very large, even a single sweep can be prohibitively expensive. Asynchronous DP still converges if all states continue to be selected. Some examples:
+\begin{itemize}
+    \item select the states to update so as to improve the rate of progress of the algorithm;
+    \item skip states that are not relevant to optimal behavior;
+    \item collect trajectories and only update the states that are actually visited by the policy;
+    \item \emph{prioritized sweeping} (Chapter 8): back up the state with the largest remaining Bellman error, using a priority queue (it requires knowledge of the predecessor states).
+\end{itemize}

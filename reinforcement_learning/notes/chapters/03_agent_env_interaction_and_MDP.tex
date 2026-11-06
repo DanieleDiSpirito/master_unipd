@@ -2,18 +2,21 @@
 \chapter{MDPs and Bellman Equations}
 
 \section{The story so far ...}
-With multiharmed bandits, we have not yet reached a real RL scenario:
+With multi-armed bandits, we have not yet reached a real RL scenario:
 \begin{itemize}
     \item The state is always the same, the same action is always optimal;
     \item A single action does not influence future rewards and states.
 \end{itemize}
+In a real RL problem the consequences of actions must be taken into account: sequences of states depend on the actions taken.
 
-In a real RL scenario, \textit{Markov Decision Processes (MDPs)} describes the environment for Reinforcement Learning.
+In a real RL scenario, \textit{Markov Decision Processes (MDPs)} formally describe the environment for Reinforcement Learning. In RL problems the MDP is typically not given (e.g., the transition probabilities are unknown to the agent), but an MDP is always `hidden' behind the problem. We consider the fully observable case.
 
 \section{Markov Processes}
-A state $s_t$ is \textit{Markov} if and only if: 
-\[P[S_{t+1}|S_t]=P[S_{t+1}|S_1,\cdots,S_t]\]
-In Markov processes, we don't have rewards and actions, so the agent has no agency in this case. \textit{State transiction matrix} $\mathcal{P}$ defines the transition probabilities between all states in the environment.
+A state $S_t$ is \textit{Markov} if and only if:
+\[\mathbb{P}[S_{t+1}\mid S_t]=\mathbb{P}[S_{t+1}\mid S_1,\dots,S_t]\]
+The state is a sufficient statistic of the past (it contains all the useful information from the history), so we can throw away the rest of the history. Defining a good state is fundamental and typically requires domain expertise.
+
+In Markov processes, we don't have rewards and actions, so the agent has no agency in this case. The \textit{state transition matrix} $\mathcal{P}$ defines the transition probabilities between all states in the environment (each row sums to 1).
 \[
   \mathcal{P} = \textit{from}\;
   \overset{\textstyle\textit{to}}{
@@ -25,11 +28,10 @@ In Markov processes, we don't have rewards and actions, so the agent has no agen
 \]
 
 \begin{defbox}{Markov Process}
-A Markov Process (or \textit{Markov Chain}) is a tuple $\langle \mathcal{S}, \mathcal{P} \rangle$ such that:
+A Markov Process (or \textit{Markov Chain}) is a memoryless random process, i.e., a sequence of random states $S_1, S_2, \dots$ with the Markov property. Formally, it is a tuple $\langle \mathcal{S}, \mathcal{P} \rangle$ such that:
 \begin{itemize}
     \item $\mathcal{S}$ is a finite set of states;
-    \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{s,s'} = P[S_{t+1}=s'|S_t=s]\]
-        
+    \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{ss'} = \mathbb{P}[S_{t+1}=s'\mid S_t=s]\]
 \end{itemize}
 We will always consider finite cases when dealing with episodic tasks.
 \end{defbox}
@@ -40,24 +42,32 @@ We will always consider finite cases when dealing with episodic tasks.
 A \textit{Markov Reward Process} is a tuple $\langle \mathcal{S}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ such that:
 \begin{itemize}
     \item $\mathcal{S}$ is a finite set of states;
-    \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{s,s'} = P[S_{t+1}=s'|S_t=s]\]
-    \item $\mathcal{R}$ is a reward function, $\mathcal{R}_s=\mathbb{E}[R_{t+1}|S_t=s]$;
+    \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{ss'} = \mathbb{P}[S_{t+1}=s'\mid S_t=s]\]
+    \item $\mathcal{R}$ is a reward function, $\mathcal{R}_s=\mathbb{E}[R_{t+1}\mid S_t=s]$ (the expected immediate reward in state $s$);
     \item $\gamma$ is the discount factor, $\gamma\in[0, 1]$.
 \end{itemize}
 \end{defbox}
 
-\begin{defbox}{}
+\begin{defbox}{Return}
     The Return $G_t$ is the total discounted reward from time-step $t$:
     \[G_t \doteq R_{t+1} + \gamma R_{t+2} + \cdots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}\]
-    where $\gamma$ is a discount factor, $\gamma\in[0, 1]$ (0=miopic, 1=far-sighted)
+    where $\gamma$ is a discount factor, $\gamma\in[0, 1]$ (0 = myopic, 1 = far-sighted)
 \end{defbox}
 
-The discount is the present value of future rewards.
+In RL we want to maximize the expected return, not the reward of a single step. The discount is the present value of future rewards: $\gamma=0$ gives value only to the immediate reward, while with $\gamma=1$ all rewards are equally important, even if far in the future. Discounting is used because:
+\begin{itemize}
+    \item it is mathematically convenient (e.g., it avoids infinite returns in Markov processes with cycles);
+    \item uncertainty about the future may not be fully represented;
+    \item immediate rewards may earn more interest than delayed ones (financial inspiration);
+    \item animals and humans show preference for immediate rewards.
+\end{itemize}
+It is a general formulation: with $\gamma=1$ we get undiscounted Markov reward processes.
 
 \begin{defbox}{State Value Function}
     The \textit{state value function} $v(s)$ of a Markov Reward Process is the expected return starting from state $s$:
-    \[v(s)=\mathbb{E}[G_t|S_t=s]\]
+    \[v(s)=\mathbb{E}[G_t\mid S_t=s]\]
 \end{defbox}
+The expectation is fundamental, since we are in stochastic settings. If we have sampled episodes, an estimate of $v(s)$ is the average of the returns observed from $s$ (this is the idea behind Monte Carlo methods).
 
 \subsection{Bellman Equation}
 We can exploit $G_t$ as follows:
@@ -71,13 +81,13 @@ We can exploit $G_t$ as follows:
 so we have that: 
 \begin{equation}
     \begin{split}
-        v(s) &= \mathbb{E}[G_t|S_t=s] = \mathbb{E}[R_{t+1} + \gamma G_{t+1}] \\
-        &= \mathbb{E}[R_{t+1}+\gamma v(S_{t+1})|S_t=s]
+        v(s) &= \mathbb{E}[G_t\mid S_t=s] = \mathbb{E}[R_{t+1} + \gamma G_{t+1}\mid S_t=s] \\
+        &= \mathbb{E}[R_{t+1}+\gamma v(S_{t+1})\mid S_t=s]
     \end{split}
 \end{equation}
 
-We need to consider all possible successor states with the related transition probabilities (real value of $v(s)$, empirical):
-\[\mathrm{v}=\mathcal{R}_s+ \gamma \sum_{s'\in S}^{}\mathcal{P}_{ss'}\mathrm{v}(s')\]
+where the second step uses the law of iterated expectations. This is a 1-step look-ahead: the value of a state is related to the value of its successors. Considering all possible successor states with their transition probabilities we get:
+\[\mathrm{v}(s)=\mathcal{R}_s+ \gamma \sum_{s'\in \mathcal{S}}\mathcal{P}_{ss'}\mathrm{v}(s')\]
 The Bellman equation can be written concisely in matrix form:
 \[
   \mathrm{v} = \mathcal{R} + \gamma \mathcal{P} \mathrm{v}
@@ -99,55 +109,63 @@ so this is a linear system of equations that can be solved in closed form:
 \[\mathrm{v}=\mathcal{R}+\gamma \mathcal{P}\mathrm{v}\]
 \[(I-\gamma\mathcal{P})\mathrm{v}=\mathcal{R}\]
 \[\mathrm{v}=(I-\gamma\mathcal{P})^{-1}\mathcal{R}\]
-if we have $n$ states, the cost is $O(n^3)$, affordable only for small Markov Reward Processes. For large MRPs we will look for efficient methods (Dynamic Programming, Monte Carlo evaluation, Temporal Difference Learning).
+If we have $n$ states, the cost is $O(n^3)$, affordable only for small Markov Reward Processes. For large MRPs we will look for efficient methods (Dynamic Programming, Monte Carlo evaluation, Temporal Difference Learning).
 
 \subsection{Markov Decision Processes}
-A Markov Decision Process (MDP) is a Markov Reward Process with decisions. The agent can choose an action that influences the next state and the reward.
+A Markov Decision Process (MDP) is a Markov Reward Process with decisions, i.e., an environment in which all states are Markov. The agent can choose an action that influences the next state and the reward.
 \begin{defbox}{Markov Decision Process}
     A Markov Decision Process is a tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ such that:
     \begin{itemize}
         \item $\mathcal{S}$ is a finite set of states;
         \item $\mathcal{A}$ is a finite set of actions;
-        \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{ss'}^a = P[S_{t+1}=s'|S_t=s, A_t=a]\]
-        \item $\mathcal{R}$ is a reward function, $\mathcal{R}_s^a=\mathbb{E}[R_{t+1}|S_t=s, A_t=a]$;
+        \item $\mathcal{P}$ is a state transition probability matrix with entries \[\mathcal{P}_{ss'}^a = \mathbb{P}[S_{t+1}=s'\mid S_t=s, A_t=a]\]
+        \item $\mathcal{R}$ is a reward function, $\mathcal{R}_s^a=\mathbb{E}[R_{t+1}\mid S_t=s, A_t=a]$ (the expected immediate reward when taking $a$ in $s$);
         \item $\gamma$ is the discount factor, $\gamma\in[0, 1]$.
     \end{itemize}
 \end{defbox}
-Now there is control and agency, whe should define a policy and we can try to maximize the reward.
+Now there is control and agency: we should define a policy, and we can try to maximize the expected reward.
 \begin{definition}[Policy]
     A policy $\pi$ is a distribution over actions given that we are in a state:
-    \[\pi(a|s)=P[A_t=a|S_t=s]\]
+    \[\pi(a\mid s)=\mathbb{P}[A_t=a\mid S_t=s]\]
 \end{definition}
-The policy fully defines the agent's behavior. In MDP policies are stationary (independent of $t$). Moreover we consider stochastic policies, that is, the agent can choose an action with a certain probability, this allow us to deal with exploration.
+The policy fully defines the agent's behavior. MDP policies depend only on the current state (not on the history), and they are stationary (independent of $t$), although we can change the policy in future episodes. Moreover, we consider stochastic policies, i.e., the agent chooses an action with a certain probability: this allows us to deal with exploration.
 
 Given an MDP $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$ and a policy $\pi$:
 \begin{itemize}
-    \item The state sequence $S_0, S_1, S_2, \ldots$ is a Markov Process where: \\ \[\mathcal{P}_{ss'}^\pi=\sum_{a\in\mathcal{A}}\pi(a|s)\mathcal{P}_{ss'}^a\]
-    \item The state and reward sequence $S_0, R_1, S_1, R_2, S_2, R_3, \ldots$ is a Markov Reward Process where: \\ \[\mathcal{R}_s^\pi=\sum_{a\in\mathcal{A}}\pi(a|s)\mathcal{R}_s^a\] 
+    \item The state sequence $S_0, S_1, S_2, \ldots$ is a Markov Process $\langle\mathcal{S},\mathcal{P}^\pi\rangle$ where: \[\mathcal{P}_{ss'}^\pi=\sum_{a\in\mathcal{A}}\pi(a|s)\mathcal{P}_{ss'}^a\]
+    \item The state and reward sequence $S_0, R_1, S_1, R_2, S_2, R_3, \ldots$ is a Markov Reward Process $\langle\mathcal{S},\mathcal{P}^\pi,\mathcal{R}^\pi,\gamma\rangle$ where: \[\mathcal{R}_s^\pi=\sum_{a\in\mathcal{A}}\pi(a|s)\mathcal{R}_s^a\] 
 \end{itemize}
 
 Now we can define the value function, and also a q-value function, for a policy $\pi$:
 \begin{defbox}{State Value Function for a Policy}
     The \textit{state value function} $v_\pi(s)$ of a Markov Decision Process is the expected return starting from state $s$ and following policy $\pi$:
-    \[v_\pi(s)=\mathbb{E}_\pi[G_t|S_t=s]\]
+    \[v_\pi(s)=\mathbb{E}_\pi[G_t\mid S_t=s]\]
 \end{defbox}
 \begin{defbox}{Action Value Function for a Policy}
     The \textit{action value function} $q_\pi(s, a)$ of a Markov Decision Process is the expected return starting from state $s$, taking action $a$ and following policy $\pi$:
-    \[q_\pi(s, a)=\mathbb{E}_\pi[G_t|S_t=s, A_t=a]\]
+    \[q_\pi(s, a)=\mathbb{E}_\pi[G_t\mid S_t=s, A_t=a]\]
+    It is defined for all actions, also for the ones that are not taken by $\pi$ in state $s$.
 \end{defbox}
 
-\subsection{Bellaman Expectation Equation}
+\subsection{Bellman Expectation Equation}
 The value function $v_{\pi}(s)$ can, again, be decomposed as before:
-\[v_\pi(s) = \mathbb{E}_\pi[R_{t+1} + \gamma v_\pi(S_{t+1}) | S_t = s]\]
+\[v_\pi(s) = \mathbb{E}_\pi[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s]\]
 similarly for the action value function:
-\[q_\pi(s, a) = \mathbb{E}_\pi[R_{t+1} + \gamma q_\pi(S_{t+1}, A_{t+1}) | S_t = s, A_t = a]\]
-We can define the true values for value and action-value functions as follows:
-\[\mathrm{v}_\pi(s)=\sum_{a\in A}^{}\pi(a|s)\mathrm{q}_\pi(s,a)\]
-\[\mathrm{q}_\pi(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in S}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\]
-and we can obtain recursive description of $\mathrm{v}$:
-\[\mathrm{v}_\pi(s)=\sum_{a\in A}^{}\pi(a|s)\left(\mathcal{R}_s^a+\gamma\sum_{s'\in S}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\right)\]
-and also for $\mathrm{q}$:
-\[\mathrm{q}_\pi(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in S}\mathcal{P}_{ss'}^a\sum_{a'\in A}\pi(a'|s')\mathrm{q}_\pi(s',a')\]
-Also Bellman Expectation Equations can be written in matrix form:
+\[q_\pi(s, a) = \mathbb{E}_\pi[R_{t+1} + \gamma q_\pi(S_{t+1}, A_{t+1}) \mid S_t = s, A_t = a]\]
+The value and action-value functions are related as follows:
+\[\mathrm{v}_\pi(s)=\sum_{a\in \mathcal{A}}\pi(a|s)\mathrm{q}_\pi(s,a)\]
+\[\mathrm{q}_\pi(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\]
+and by substituting one into the other we obtain a recursive description of $\mathrm{v}_\pi$:
+\[\mathrm{v}_\pi(s)=\sum_{a\in \mathcal{A}}\pi(a|s)\left(\mathcal{R}_s^a+\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}_{ss'}^a\mathrm{v}_\pi(s')\right)\]
+and also of $\mathrm{q}_\pi$:
+\[\mathrm{q}_\pi(s,a)=\mathcal{R}_s^a+\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}_{ss'}^a\sum_{a'\in \mathcal{A}}\pi(a'|s')\mathrm{q}_\pi(s',a')\]
+The Bellman Expectation Equation can also be written in matrix form, using the induced Markov Reward Process ($\mathcal{R}^\pi$, $\mathcal{P}^\pi$):
 \[\mathrm{v}_\pi=\mathcal{R}^\pi+\gamma\mathcal{P}^\pi\mathrm{v}_\pi\]
 \[\mathrm{v}_\pi=(I-\gamma\mathcal{P}^\pi)^{-1}\mathcal{R}^\pi\]
+A good part of the course is dedicated to finding efficient ways to avoid solving this set of linear equations.
+
+MRPs and MDPs can be `solved' with respect to two problems:
+\begin{itemize}
+    \item \textbf{Prediction} (policy evaluation): derive the value function and the action-value function of a given policy;
+    \item \textbf{Control} (policy improvement): find the best policy.
+\end{itemize}

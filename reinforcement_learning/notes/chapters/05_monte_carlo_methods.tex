@@ -1,15 +1,15 @@
 % !TEX root = ../main.tex
 \chapter{Monte Carlo Methods}
 
-\textit{Monte Carlo (MD) Methods} are simple and effective approaches to dela with 'full' RL problems (not knowing $\mathcal{P}$ e $\mathcal{R}$). This methods only require experience (sample sequences of states, actions and rewards that are real world data gathered by interacting with the environment) and episodic tasks.
+\textit{Monte Carlo (MC) Methods} are simple and effective approaches to deal with `full' RL problems (without knowing $\mathcal{P}$ and $\mathcal{R}$). These methods only require experience (sample sequences of states, actions and rewards, i.e., real-world data gathered by interacting with the environment) and episodic tasks. MC is our first \textit{model-free} approach, for both prediction and control.
 
 MC methods estimate expectations by averaging over a large number of random samples. 
-We can appriximate the true expected returns (state-value and action-value functions) with the average of the returns seen if we collect enough data.
+Since $v_\pi(s)=\mathbb{E}_\pi[G_t\mid S_t=s]$ and $q_\pi(s,a)=\mathbb{E}_\pi[G_t\mid S_t=s,A_t=a]$ are expectations, we can approximate the true expected returns (state-value and action-value functions) with the average of the returns seen if we collect enough data.
 
 Pay attention! Even if $\mathcal{P}$ and $\mathcal{R}$ are not known, we will not use data to estimate such quantities.
-For efficiency, we will resort to \textit{model-free} RL approaches, that will estimate instead $\mathrm{v}$ and $\mathrm{q}$ (later directly $\pi$). There are also \textit{model-based} RL approches.
+For efficiency, we will resort to \textit{model-free} RL approaches, that will estimate instead $\mathrm{v}$ and $\mathrm{q}$ (later directly $\pi$). There are also \textit{model-based} RL approaches.
 \section{Prediction: First-visit MC prediction}
-If the $S_t$ state already appears in a previous step, skip the update. It only updates if this is the first time the state appears in the episode.
+We generate an episode and, going backwards, we update the estimate of each visited state with the return observed after its \emph{first} visit: if $S_t$ already appears at an earlier step of the episode, the update is skipped. Only visited states are updated.
 
 \begin{algobox}{First-visit MC prediction, for estimating $V \approx \mathrm{v}_\pi$}
 \raggedright
@@ -32,9 +32,18 @@ Loop forever (for each episode):\\
 \hspace*{4.5em}$V(S_t) \leftarrow \operatorname{average}\bigl(\mathit{Returns}(S_t)\bigr)$
 \end{algobox}
 
-The \textit{Every-visit} MC prediction algorithm is similar to the first-visit one, but it updates the value of a state every time it appears in an episode, not just the first time. This means that the same state can be updated multiple times in a single episode. So the difference in the pseudo-code is that the Unless condition no longer appears. 
+The \textit{Every-visit} MC prediction algorithm is similar to the first-visit one, but it updates the value of a state every time it appears in an episode, not just the first time. This means that the same state can be updated multiple times in a single episode. So the difference in the pseudo-code is that the \textit{Unless} condition no longer appears. Instead of storing all the returns, a more efficient implementation uses incremental updates:
+\[N(S_t)\leftarrow N(S_t)+1,\qquad V(S_t)\leftarrow V(S_t)+\frac{1}{N(S_t)}\bigl[G_t-V(S_t)\bigr]\]
+or, with a constant step-size (better for non-stationary problems), $V(S_t)\leftarrow V(S_t)+\alpha\bigl[G_t-V(S_t)\bigr]$.
 
-The reason why we calculate the return of each visited state by going backward from the final timestamp is beacause it requires less calculations:
+Some properties of MC prediction:
+\begin{itemize}
+    \item MC learns directly from experience: there is no need to keep a model of the environment;
+    \item the estimate of each state is independent of the estimates of the other states (MC does not bootstrap, unlike DP);
+    \item the computation needed to update each state does not depend on the size of the MDP, but on the length of the episode.
+\end{itemize}
+
+The reason why we compute the return of each visited state by going backwards from the final time-step is that it requires fewer computations:
 
 \begin{figure}[H]
 \centering
@@ -80,16 +89,16 @@ backwards.}
 \end{figure}
 
 \section{Control: Model-free Generalized Policy Iteration (GPI)}
-Applying the GPI framework to model-free RL for solving control is not possible. In fact, in dynamic programming, greedy policy improvement over $v_\pi$ requires model of MDP:
-\[\pi'(s)=\argmax_{a\in\mathcal{A}}\mathcal{R}_s^a+\mathcal{P}_{ss'}^aV(s')\]
-But, now, $\mathcal{P}$ and $\mathcal{R}$ are not known.
+We would like to apply GPI using MC to evaluate the policy, but greedy policy improvement over $V(s)$ (as in dynamic programming) requires a model of the MDP:
+\[\pi'(s)=\argmax_{a\in\mathcal{A}}\left(\mathcal{R}_s^a+\gamma\sum_{s'\in\mathcal{S}}\mathcal{P}_{ss'}^aV(s')\right)\]
+and now $\mathcal{P}$ and $\mathcal{R}$ are not known.
 
-The solution is to use greedy policy improvement over $\mathcal{Q}(s,a)$:
+The solution is to use greedy policy improvement over $Q(s,a)$, which is model-free:
 \[\pi'(s)=\argmax_{a\in\mathcal{A}}Q(s,a)\]
-In this case we have the (state,action) space that is larger than the state space and we may have several (state, action) pairs unexplored. In MC methods we need to collect data for each (state, action) pair to ensure reaching optimality. We need to adopt strategies that guarantee a certain level of exploration.
+In this case we have the (state,action) space that is larger than the state space and we may have several (state, action) pairs unexplored. In MC methods we need to collect data for each (state, action) pair to ensure reaching optimality, and this is not guaranteed, for example, with deterministic policies. We need to adopt strategies that guarantee a certain level of exploration.
 
 \subsection{Control: Exploring Starts (ES)}
-A simple strategy to ensure exploaration is ES. With this method we ensure that episodes starts in every state-action pair and then the agent follows the current policy. 
+A simple strategy to ensure exploration is ES. With this method we ensure that episodes start in every state-action pair (each pair has non-zero probability of being selected as the start), and then the agent follows the current policy. 
 \begin{algobox}{Monte Carlo ES (Exploring Starts), for estimating $\pi \approx \pi_*$}
 \raggedright
 Initialize:\\
@@ -119,11 +128,11 @@ For two consecutive policies ($\pi_k$ and $\pi_{k+1}$):
     &\geq q_{\pi_k}(s,\pi_k(s))=v_{\pi_k}(s)
   \end{split}
 \end{equation}
-For all states, the next ploicy is better than or equal to the previous one.
+For all states, the next policy is better than or equal to the previous one (assuming exact action values). In practice MC ES works, but its convergence to the optimal policy has not been formally proved.
 
-However, in many scenarios, it is impossible to start an episode with all the possible (state,action) pairs. For this reason we see some different approaches to ensure exploaration without ES.
+However, in many scenarios, it is impossible to start an episode with all the possible (state,action) pairs. For this reason we look at different approaches to ensure exploration without ES.
 \subsection{Control: \texorpdfstring{$\epsilon$}{epsilon}-greedy and \texorpdfstring{$\epsilon$}{epsilon}-soft policies}
-We can report to stochastic policies like the $\epsilon$-Greedy Policy:
+We can resort to stochastic policies like the $\varepsilon$-greedy policy seen for bandits:
 \[
 A_t \overset{\mathrm{def}}{=}
 \begin{cases}
@@ -131,9 +140,9 @@ A_t \overset{\mathrm{def}}{=}
 \text{a random action (among all actions)} & \text{with probability } \varepsilon.
 \end{cases}
 \]
-More in general we can resort to \textit{soft-policies} that is stochastic policies that have $\pi(a|s)>0$ for all $a$ and $s$.
+More generally, we can resort to \textit{soft policies}, i.e., stochastic policies that have $\pi(a|s)>0$ for all $a$ and $s$.
 
-We call \textit{$\epsilon$-soft policies} the soft policies that have $\pi(a|s)\geq\frac{\epsilon}{|A(s)|}$ for all $a$ and $s$, for some $\epsilon>0$ ($\epsilon$-greedy is the greediest $\epsilon$-soft policy).
+We call \textit{$\varepsilon$-soft policies} the soft policies that have $\pi(a|s)\geq\frac{\varepsilon}{|\mathcal{A}(s)|}$ for all $a$ and $s$, for some $\varepsilon>0$ ($\varepsilon$-greedy is the greediest $\varepsilon$-soft policy). $\varepsilon$ governs the trade-off between exploration and exploitation.
 
 \begin{figure}[htbp]
 \centering
@@ -247,48 +256,57 @@ Repeat forever (for each episode):\\
 \]
 \end{algobox}
 
-It can be shown that that the previous algorithm allows improvement, but $\epsilon$-soft policies are not optimal. However they may work quite well and may represent a feasible option when ES cannot be applied. 
+It can be shown (policy improvement theorem) that the previous algorithm allows improvement, but $\varepsilon$-soft policies are not optimal. However they may work quite well and may represent a feasible option when ES cannot be applied. 
 
 \subsection{Prediction/Control: On-policy vs Off-policy learning}
-What we have seen so far is \textit{on-policy} learning, that is the agent learns about the policy it is following. Off-policy is learning about policy $\pi$ (target policy) from experience sampled from policy $b$ (behaviour policy). The behavior policy is the one that generates the data, while the target policy is the one that we want to learn about.
+What we have seen so far is \textit{on-policy} learning (`learning on the job'), i.e., the agent learns about the policy it is following. \textit{Off-policy} learning (`looking over someone's shoulder') is learning about policy $\pi$ (target policy) from experience sampled from policy $b$ (behaviour policy). The behavior policy is the one that generates the data, while the target policy is the one that we want to learn about.
 Why using a behaviour policy?
 \begin{itemize}
-  \item leave the exploration to the behaviour policy and reach optimal policies;
-  \item we can gain experience by observing other agents (or umans);
-  \item re-use experience generated from old policies;
-  \item we can learn multiple policies while followin one policy. 
+  \item we can leave the exploration to the behaviour policy and reach optimal policies;
+  \item we can gain experience by observing other agents (or humans);
+  \item we can re-use experience generated from old policies $\pi_1,\pi_2,\dots,\pi_{k-1}$;
+  \item we can learn multiple policies while following one policy.
 \end{itemize}
 If we resort to off-policy learning we must ensure:
 \begin{enumerate}
-  \item Knowledge of $b(a|s)$;
-  \item Coverage: if $\pi(a|s)>0$ also $b(a|s)>0$.
+  \item Knowledge of $b(a|s)$ (and of the target policy);
+  \item Coverage: $\pi(a|s)>0 \implies b(a|s)>0$.
 \end{enumerate}
-Coverage means that we must ensure that the behaviour policy explores (state,action) pairs that have non zero probability under the target policy, if that does not happen the agent cannot learn the correct action value for that state since it never observed samples of what would happen.
+Coverage means that the behaviour policy must explore the (state, action) pairs that have non-zero probability under the target policy: if this does not happen, the agent cannot learn the correct action value for that state since it never observed samples of what would happen.
 
-Almost all off-policy methods utilize \textit{importance sampling} that is a technique for estimating expected values under one distribution given samples from another.
+Almost all off-policy methods use \textit{importance sampling}, a technique for estimating expected values under one distribution given samples from another.
 In off-policy we have: 
 \[
 \mathbb{E}_{\pi}[X]
 = \sum_{x \in \mathcal{X}} x\pi(x)
 = \sum_{x \in \mathcal{X}} x\pi(x)\frac{b(x)}{b(x)}
 = \sum_{x \in \mathcal{X}} x\rho(x)b(x)
-= \mathbb{E}_{b}[X\rho(x)]
+= \mathbb{E}_{b}[X\rho(X)]
 \]
-where $\rho=\frac{\pi(x)}{b(x)}$ is called Importance Sampling Ratio. We can consider $x\rho(x)$ as a new random variable $X$.
-To actually use this data, we use Monte Carlo to approximate this expectation by computing the average of the weighted samples:
+where $\rho(x)=\frac{\pi(x)}{b(x)}$ is called the \textit{importance sampling ratio} and the samples are drawn as $x\sim b$. We can consider $X\rho(X)$ as a new random variable.
+To actually use this with data, we use Monte Carlo to approximate this expectation by computing the average of the weighted samples:
 \[
 \mathbb{E}_{\pi}[X] \approx \frac{1}{n} \sum_{i=1}^{n} x_i \rho(x_i)
 \]
-In this case we use returns generateb from $b$ to evaluate $\pi$, but in this way we cannot compute $v_\pi$ as the average of the returns seen. We have to correct each return thanks to the importance sampling.
-Given a starting state $S_t$ the probability of the subsequent state-action trajectoriy under policy $\pi$ is:
+\begin{esempio}{Importance sampling in a 2-armed bandit}
+The target policy $\pi$ chooses $a_1$ with probability 0.75 and $a_2$ with probability 0.25; we observe another agent with behaviour policy $b$ that chooses each action with probability 0.5. Initial estimates are $q_b(a_i)=q_\pi(a_i)=0$.
+\begin{itemize}
+    \item Episode 1: $a_2\to+1$, so $q_b(a_2)=1$ and $q_\pi(a_2)=1\cdot\frac{0.25}{0.5}=0.5$;
+    \item Episode 2: $a_1\to-1$, so $q_b(a_1)=-1$ and $q_\pi(a_1)=-1\cdot\frac{0.75}{0.5}=-1.5$;
+    \item Episode 3: $a_1\to+2$, so $q_b(a_1)=\frac{-1+2}{2}=0.5$ and $q_\pi(a_1)=0.5\cdot\frac{0.75}{0.5}=0.75$.
+\end{itemize}
+\end{esempio}
+
+In RL we have to deal with sequences: we use returns generated by $b$ to evaluate $\pi$, so we cannot compute $v_\pi$ directly as the average of the returns seen. We have to correct each return with importance sampling.
+Given a starting state $S_t$, the probability of the subsequent state-action trajectory under policy $\pi$ is:
 \begin{equation}
   \begin{split}
-    &Pr\left\{A_t,S_{t+1},A_{t+1},\cdots,S_T|S_t,A_{t:T-1}~\pi\right\}\\
+    &\Pr\left\{A_t,S_{t+1},A_{t+1},\dots,S_T\mid S_t,A_{t:T-1}\sim\pi\right\}\\
     &=\pi(A_t|S_t)p(S_{t+1}|S_t,A_t)\pi(A_{t+1}|S_{t+1})\cdots p(S_T|S_{T-1},A_{T-1})\\
     &=\prod_{k=t}^{T-1} \pi(A_k|S_k)p(S_{k+1}|S_k,A_k)
   \end{split}
 \end{equation}
-We can compute the realtive probability of the trajectory under the target and the behaviour policy (the importance-sampling ratio) as follows:
+We can compute the relative probability of the trajectory under the target and the behaviour policy (the importance-sampling ratio) as follows:
 \[
 \rho_{t:T-1}
 \doteq
@@ -301,9 +319,9 @@ We can compute the realtive probability of the trajectory under the target and t
 \prod_{k=t}^{T-1}
 \frac{\pi(A_k \mid S_k)}{b(A_k \mid S_k)}
 \]
-We can now exploit return obtained with $b$ to estimate $v_\pi$ with Monte Carlo:
-\[\mathbb{E}[\rho_{t:T-1}G_t|S_t=s]=v_\pi(s)\]
-we can consider importance sampling ratio as weights. 
+The transition probabilities cancel out, so the ratio only depends on the two policies. We can now exploit the returns obtained with $b$ to estimate $v_\pi$ with Monte Carlo:
+\[\mathbb{E}_b[\rho_{t:T-1}G_t\mid S_t=s]=v_\pi(s)\]
+We can consider the importance sampling ratios as weights. 
 
 \begin{algobox}{Off-policy MC prediction (Every-Visit, weighted IS), for estimating $Q \approx q_\pi$}
 \raggedright
@@ -357,6 +375,8 @@ The two algorithms differ in both the importance sampling weights and the update
 
 Moreover, the two algorithms use different importance sampling estimators: $V$ is updated using Ordinary Importance Sampling, which averages the weighted returns using the visit count $N(s)$, whereas $Q$ uses Weighted Importance Sampling, which normalizes the weighted returns by the cumulative weights $C(s,a)$.
 
-Both Ordinary and Weighted Importance Sampling can be used to estimate either $V_\pi(s)$ or $Q_\pi(s,a)$. The distinction lies in how the weighted returns are normalized, rather than in the value function being estimated. Both algorithms perform off-policy Monte Carlo prediction (policy evaluation), since they estimate the value of a fixed target policy without improving it.
+Both Ordinary and Weighted Importance Sampling can be used to estimate either $v_\pi(s)$ or $q_\pi(s,a)$. The distinction lies in how the weighted returns are normalized, rather than in the value function being estimated. Both algorithms perform off-policy Monte Carlo prediction (policy evaluation), since they estimate the value of a fixed target policy without improving it.
 
-To apply off-policy Monte Carlo Control we should keep in mind that coverage can change over time, in practice off-policy MC control is not effective. Over many steps, off-policy estimations are really high-variance and slow to converge. However \textit{Temporal Differnce Learning} will make off-policy also work in practice. 
+The slides use the ordinary-IS algorithm for $V$ as a simplified version of the one in the book.
+
+To apply off-policy Monte Carlo control we should keep in mind that coverage can change over time: if $\pi$ is improved to $\pi'$, it is not guaranteed that $\pi'(a|s)>0\implies b(a|s)>0$. In practice off-policy MC control is not effective: over many steps, off-policy estimates have very high variance and are slow to converge. However, \textit{Temporal Difference Learning} will make off-policy learning work in practice.

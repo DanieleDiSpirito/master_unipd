@@ -1,19 +1,26 @@
 % !TEX root = ../main.tex
 \chapter{Temporal Difference Learning}
-TD learning is a model-free reinforcement learning method that learns by bootstrapping and for this reason also work for incomplete episodes. 
+TD learning is another model-free approach (for both prediction and control). It learns by bootstrapping, and for this reason it also works with incomplete episodes (i.e., also with continuing tasks). A historical result is TD-Gammon (G.~Tesauro, 1992), a program that learned to play backgammon with TD learning; TD principles are also found in neuroscience (dopamine firing).
 
 \section{Limits of Monte Carlo approaches}
-MC only works on episodic tasks (however considering the $\gamma$-discounted return, it can be applied to continuing tasks as well). Moreover MC does not exploit available information as soon as it is collected, so we are not using the rewards as soon as they are available.
+MC only works on episodic tasks (with low values of $\gamma$, however, approximations of the returns can be obtained). Moreover, MC does not exploit the available information as soon as it is collected: we are not using the rewards, which are informative, as soon as they are available.
 
 \section{Monte Carlo vs TD-Learning}
 
-MC methods wait for the actual value of the return $G_t$ to update the estimation of $v(\pi)$.
+MC methods wait for the actual return $G_t$ (available at the end of the episode) to update the estimate of $v_\pi(S_t)$ (here in the constant step-size version):
 \[V(S_t)\leftarrow V(S_t) + \alpha [G_t - V(S_t)]\]
 
-TD methods, on the other hand, update the estimation of $v(\pi)$ after each step, using the immediate reward and the estimated value of the next state.
+TD(0), on the other hand, updates the estimate of $v_\pi(S_t)$ after each step, using the immediate reward and the estimated value of the next state:
 \[V(S_t)\leftarrow V(S_t) + \alpha [R_{t+1} + \gamma V(S_{t+1}) - V(S_t)]\]
-The TD target can be seen as the best estimation of $G_t$ at time $t+1$:
-\[G_t=R_{t+1}+\gamma G_{t+1}\approx R_{t+1}+\gamma\ V(S_{t+1})\]
+The quantity $R_{t+1}+\gamma V(S_{t+1})$ is called the \textit{TD target}, and it can be seen as the best estimate of $G_t$ at time $t+1$:
+\[G_t=R_{t+1}+\gamma G_{t+1}\approx R_{t+1}+\gamma V(S_{t+1})\]
+The difference between the TD target and the current estimate is the \textit{TD error}:
+\[\delta_t\doteq R_{t+1}+\gamma V(S_{t+1})-V(S_t)\]
+TD methods update their estimates based on other estimates, i.e., they \textit{bootstrap}:
+\begin{itemize}
+    \item TD can learn before knowing the final outcome: it learns online after every step, while MC must wait until the end of the episode;
+    \item TD can learn without the final outcome: it learns from incomplete sequences and works in continuing (non-terminating) environments, while MC only works for episodic (terminating) environments.
+\end{itemize}
 
 
 \begin{algobox}{Tabular TD(0) for estimating $v_\pi$}
@@ -47,25 +54,38 @@ TD methods still converge to the right estimation of $v_\pi$ and, typically, are
     \label{fig:td_vs_mc}
 \end{figure}
 
-The lower $\alpha$, the lower the final error. On the other hand, higher $\alpha$ allows faster learning.
+The lower $\alpha$, the lower the final error; on the other hand, a higher $\alpha$ allows faster learning. For both MC and TD, the lower $\alpha$, the lower the `noise' in the performance.
 
 \section{Bias/Variance Trade-off}
-The return $G_t$ is an unbiased estimate of $v_\pi(S_t)$. The true target $R_{t+1}+\gamma v_\pi(S_{t+1})$ is also an unbiased estimate of $v_\pi(S_t)$. However, the TD target $R_{t+1}+\gamma V(S_{t+1})$ is a biased estimate of $v_\pi(S_t)$, since it uses the current estimate $V(S_{t+1})$ instead of the true value $v_\pi(S_{t+1})$. The positve aspect of TD target is that it has much lower variane than the return $G_t$ since it depends on one random action, transition, reward:
+The return $G_t=R_{t+1}+\gamma R_{t+2}+\dots+\gamma^{T-t-1}R_T$ is an unbiased estimate of $v_\pi(S_t)$. The true TD target $R_{t+1}+\gamma v_\pi(S_{t+1})$ is also an unbiased estimate of $v_\pi(S_t)$, but we don't know the true value function. However, the TD target $R_{t+1}+\gamma V(S_{t+1})$ is a biased estimate of $v_\pi(S_t)$, since it uses the current estimate $V(S_{t+1})$ instead of the true value $v_\pi(S_{t+1})$. The positive aspect of the TD target is that it has much lower variance than the return $G_t$: the return depends on many random actions, transitions and rewards, while the TD target depends on only one random action, transition and reward.
 \begin{itemize}
-    \item MC has high variance and low bias
+    \item MC has high variance and zero bias:
     \begin{enumerate}
-        \item Good convergence properties;
-        \item Not very sensitive to initial values;
-        \item Simple to use and understand;
+        \item good convergence properties (even with function approximation);
+        \item not very sensitive to initial values;
+        \item very simple to understand and use.
     \end{enumerate}
-    \item TD has low variance and some bias
+    \item TD has low variance and some bias:
     \begin{enumerate}
-        \item Usually more efficient than MC;
-        \item TD(0) converges to $v_\pi(s)$;
-        \item More sensitive to initial values;
+        \item usually more efficient than MC;
+        \item TD(0) converges to $v_\pi(s)$ (but not always with function approximation);
+        \item more sensitive to initial values.
     \end{enumerate}
 \end{itemize}
-In general we can state that unified view of the Reinforcement Learning:
+
+\section{Batch MC and TD}
+With limited experience, a common approach is to present the experience repeatedly (sampling episodes $k\in[1,K]$ and applying MC or TD(0) to them) until the method converges. Under batch training both converge, but to different solutions.
+
+\begin{esempio}{The AB example}
+Two states, no discounting, 8 episodes: $(A,0,B,0)$, six times $(B,1)$, and $(B,0)$. Both methods give $V(B)=\frac{3}{4}$, but:
+\begin{itemize}
+    \item MC gives $V(A)=0$: it converges to the solution with minimum mean-squared error, the best fit to the observed returns;
+    \item TD(0) gives $V(A)=\frac{3}{4}$: it (implicitly) converges to the solution of the maximum-likelihood Markov model, i.e., the solution of the MDP $\langle\mathcal{S},\mathcal{A},\hat{\mathcal{P}},\hat{\mathcal{R}},\gamma\rangle$ that best fits the data.
+\end{itemize}
+\end{esempio}
+TD exploits the Markov property, so it is usually more efficient in Markov environments. If the amount of experience grows, both MC and TD converge to $V(s)\to v_\pi(s)$.
+
+\section{Unified View of Reinforcement Learning}
 
 \noindent
 \underline{\textbf{Bootstrap}} (update involves an estimate)
@@ -88,11 +108,11 @@ In general we can state that unified view of the Reinforcement Learning:
 \end{itemize}
 
 \section{TD-Learning Control}
-We apply  the GPI (generalized policy iteration) approach (iteration between prediction and improvement) for solving control. Since we are model-free we use interactions over $q_\pi$. We start by considering the on-policy case. As in MC, also in this case we can consider approaches for dealing with exploration, like $\epsilon$-greedy.
-\subsection{Control: SARSA-On-policy TD learning}
-We need to consider transactions from (state,action) to (state,action), the update rule is:
+We apply again the GPI (generalized policy iteration) approach, iterating between prediction and improvement, to solve control. Since we are model-free, we estimate $q_\pi$ instead of $v_\pi$. As in value iteration, we only perform a partial evaluation of $q_\pi$ (in line with the TD principle of using the newest estimate), updating at every step of the episode. As in MC, we need to deal with exploration, e.g., with $\varepsilon$-greedy policies. We will see three approaches: SARSA (on-policy), Q-learning and Expected SARSA.
+\subsection{Control: SARSA, On-policy TD Learning}
+We need to consider transitions from (state, action) pair to (state, action) pair, i.e., the quintuple $(S_t,A_t,R_{t+1},S_{t+1},A_{t+1})$ that gives the algorithm its name. The update rule is:
 \[Q(S_t,A_t)\leftarrow Q(S_t,A_t)+\alpha\left[R_{t+1}+\gamma Q(S_{t+1},A_{t+1})-Q(S_t,A_t)\right]\]
-Pay attention that $A_{t+1}$ is the action taken according to the current policy $\pi$. 
+with TD target $R_{t+1}+\gamma Q(S_{t+1},A_{t+1})$ and TD error $\delta_t=R_{t+1}+\gamma Q(S_{t+1},A_{t+1})-Q(S_t,A_t)$. Pay attention: $A_{t+1}$ is the action taken according to the current policy $\pi$.
 
 \begin{figure}[htbp]
 \centering
@@ -123,9 +143,9 @@ Pay attention that $A_{t+1}$ is the action taken according to the current policy
 In the algorithm there will be the following elements:
 \begin{itemize}
     \item GPI: policy evaluation + policy improvement;
-    \item for loops for both episodes and steps of the episode;
-    \item we will also need to consider the incremental updates (so we also need to set up an $\alpha$ parameter);
-    \item for exploaration we will use $\epsilon$-greedy approach.
+    \item loops over both the episodes (we are model-free, so we need data) and the steps of each episode;
+    \item incremental updates (so we need to set the step-size $\alpha$, a hyperparameter);
+    \item for exploration, an $\varepsilon$-greedy approach.
 \end{itemize}
 
 \begin{algobox}{Sarsa (on-policy TD control), for estimating $Q \approx q_*$}
@@ -146,3 +166,137 @@ Loop for each episode:\\
 \hspace*{3em}$S \leftarrow S';\quad A \leftarrow A'$\\
 \hspace*{1.5em}until $S$ is terminal
 \end{algobox}
+
+Two remarks on SARSA:
+\begin{itemize}
+    \item we actually perform the next action $A'$ according to the policy and then we update $Q(S,A)$; at the next step we act $\varepsilon$-greedily on the updated $Q$, so \emph{when we update $Q$ we also update the policy};
+    \item it is an \emph{on-policy} approach: the policy used to collect the data is the same one used in the update of $Q$.
+\end{itemize}
+
+\begin{esempio}{Windy Gridworld}
+In a gridworld, a crosswind pushes the agent upwards by a number of cells that depends on the column; moving outside the grid has no effect. This is a case where MC does not work well, since many episodes may never end under some policies, while SARSA learns during the episode and quickly discovers that such policies are bad.
+\end{esempio}
+
+\subsection{Control: Q-learning, Off-policy TD Learning}
+Q-learning (Watkins, 1989) is the most popular approach to RL control. It can be derived as a slight modification of SARSA: instead of using the action actually taken in $S_{t+1}$, the target uses the greedy one:
+\[Q(S_t,A_t)\leftarrow Q(S_t,A_t)+\alpha\left[R_{t+1}+\gamma \max_{a}Q(S_{t+1},a)-Q(S_t,A_t)\right]\]
+In SARSA we actually perform the next action, according to the policy, and then update $Q(S_t,A_t)$. In Q-learning we look ahead and imagine taking the greedy next action to update $Q(S_t,A_t)$, but then we perform the actual next action according to the current (e.g., $\varepsilon$-greedy) policy. The learned $Q$ directly approximates $q_*$, independently of the policy being followed.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.5,
+    transform shape,
+    line width=1.5pt,
+    every node/.style={font=\Large}
+]
+\draw (0,0) -- (0,-2.5);
+\draw (0,-2.5) -- (-1.5,-5);
+\draw (0,-2.5) -- (1.5,-5);
+\draw (-1.0,-4.17) arc[start angle=239, end angle=301, radius=1.94];
+\filldraw[black] (0,0) circle (0.35);
+\draw[fill=white] (0,-2.5) circle (0.65);
+\filldraw[black] (-1.5,-5) circle (0.35);
+\filldraw[black] (1.5,-5) circle (0.35);
+\node[anchor=west] at (0.8,0) {$S,A$};
+\node[anchor=west] at (0.3,-1.25) {$R$};
+\node[anchor=west] at (1.0,-2.5) {$S'$};
+\node[anchor=west] at (2.2,-5) {$a'$ (max)};
+\end{tikzpicture}
+\caption{Backup diagram of Q-learning: the arc denotes the max over the next actions.}
+\label{fig:backup-qlearning}
+\end{figure}
+
+\begin{algobox}{Q-learning (off-policy TD control), for estimating $\pi \approx \pi_*$}
+\raggedright
+Algorithm parameters: step size $\alpha \in (0,1]$, small $\varepsilon > 0$
+
+\medskip
+Initialize $Q(s,a)$, for all $s \in \mathcal{S}^+,\, a \in \mathcal{A}(s)$, arbitrarily except that $Q(\text{terminal},\cdot) = 0$
+
+\medskip
+Loop for each episode:\\
+\hspace*{1.5em}Initialize $S$\\
+\hspace*{1.5em}Loop for each step of episode:\\
+\hspace*{3em}Choose $A$ from $S$ using policy derived from $Q$ (e.g., $\varepsilon$-greedy)\\
+\hspace*{3em}Take action $A$, observe $R, S'$\\
+\hspace*{3em}$Q(S,A) \leftarrow Q(S,A) + \alpha \bigl[R + \gamma \max_a Q(S',a) - Q(S,A)\bigr]$\\
+\hspace*{3em}$S \leftarrow S'$\\
+\hspace*{1.5em}until $S$ is terminal
+\end{algobox}
+Note the difference with SARSA: the next action is not chosen before the update, but at the beginning of the next step.
+
+\begin{esempio}{SARSA vs.\ Q-learning: one update}
+With $\gamma=0.5$ and $\alpha=0.1$, we start with $Q(S,a)=1$, take action $a$ in $S$, get $R=+1$ and reach $S'$, where $Q(S',\nearrow)=4$ and $Q(S',\searrow)=2$.
+\begin{itemize}
+    \item \textbf{SARSA}: the target depends on the action chosen by $\pi$ in $S'$:
+    \begin{itemize}
+        \item if $A'=\nearrow$: target $1+0.5\cdot 4=3$, so $Q(S,a)=1+0.1\,(3-1)=1.2$;
+        \item if $A'=\searrow$: target $1+0.5\cdot 2=2$, so $Q(S,a)=1+0.1\,(2-1)=1.1$.
+    \end{itemize}
+    \item \textbf{Q-learning}: the target is $1+0.5\max_{a'}Q(S',a')=1+0.5\cdot4=3$ independently of the current policy (this is why it is off-policy), so $Q(S,a)=1.2$.
+\end{itemize}
+\end{esempio}
+
+\subsubsection{Why is Q-learning off-policy?}
+In SARSA there is only one policy, which is both used to act and evaluated. In Q-learning we have a \emph{behaviour policy} (e.g., $\varepsilon$-greedy) that generates the data and a \emph{target policy} (greedy with respect to $Q$) that is learned. No importance sampling is required: the agent estimates action values, and the target policy gives the probability of each next action, so it can directly compute the expected return under the target policy from any state. Since the target policy is greedy, all non-maximum actions have probability 0, and the expected return from $S_{t+1}$ is just the maximal action value $\max_a Q(S_{t+1},a)$. The action $A_t$ has already been taken, so it does not need to be corrected either.
+
+\subsubsection{SARSA vs.\ Q-learning in practice}
+\begin{itemize}
+    \item \textbf{Windy Gridworld}: SARSA uses the estimate of the next action value in its target, and this changes every time the agent takes an exploratory action (a smaller step-size can help SARSA). SARSA finds the same solution as Q-learning, but more slowly: Q-learning is usually faster.
+    \item \textbf{Cliff Walking}: the agent must go from start to goal along a cliff; falling off the cliff gives a reward of $-100$ and sends the agent back to the start. Q-learning does not iterate between policy evaluation and improvement, but learns the optimal values directly: it quickly learns that the optimal path runs right along the cliff. However, since its actions are $\varepsilon$-greedy, travelling along the cliff occasionally results in falling off. SARSA learns about its current policy, taking into account the effect of $\varepsilon$-greedy action selection, so it learns a longer but safer path and obtains a higher online reward. Learning the optimal values directly is not always ideal.
+\end{itemize}
+
+\subsection{Control: Expected SARSA}
+SARSA approximates the expectation of the Bellman equation by sampling both from the environment and from its policy. However, the policy is already known by the agent: why sample the next action? The agent can instead compute an expectation, the sum of the values of all possible next actions weighted by their probability under the current policy:
+\begin{equation}
+\begin{split}
+Q(S_t,A_t)&\leftarrow Q(S_t,A_t)+\alpha\Bigl[R_{t+1}+\gamma\,\mathbb{E}_\pi\bigl[Q(S_{t+1},A_{t+1})\mid S_{t+1}\bigr]-Q(S_t,A_t)\Bigr]\\
+&=Q(S_t,A_t)+\alpha\Bigl[R_{t+1}+\gamma\sum_a\pi(a\mid S_{t+1})\,Q(S_{t+1},a)-Q(S_t,A_t)\Bigr]
+\end{split}
+\end{equation}
+
+\begin{esempio}{Expected SARSA target}
+If $Q(S_{t+1},\cdot)=(0.0,\,-1.0,\,2.0,\,1.0)$ and $\pi(\cdot\mid S_{t+1})=(0.1,\,0.1,\,0.7,\,0.1)$, then
+\[\sum_{a'}\pi(a'\mid S_{t+1})Q(S_{t+1},a')=0.0-0.1+1.4+0.1=1.4.\]
+\end{esempio}
+
+\begin{algobox}{Expected SARSA, for estimating $Q \approx q_\pi$ (or $q_*$)}
+\raggedright
+Algorithm parameters: step size $\alpha \in (0,1]$, small $\varepsilon > 0$
+
+\medskip
+Initialize $Q(s,a)$, for all $s \in \mathcal{S}^+,\, a \in \mathcal{A}(s)$, arbitrarily except that $Q(\text{terminal},\cdot) = 0$
+
+\medskip
+Loop for each episode:\\
+\hspace*{1.5em}Initialize $S$\\
+\hspace*{1.5em}Loop for each step of episode:\\
+\hspace*{3em}Choose $A$ from $S$ using policy derived from $Q$ (e.g., $\varepsilon$-greedy)\\
+\hspace*{3em}Take action $A$, observe $R, S'$\\
+\hspace*{3em}$Q(S,A) \leftarrow Q(S,A) + \alpha \bigl[R + \gamma \sum_a \pi(a\mid S')\,Q(S',a) - Q(S,A)\bigr]$\\
+\hspace*{3em}$S \leftarrow S'$\\
+\hspace*{1.5em}until $S$ is terminal
+\end{algobox}
+
+Expected SARSA vs.\ SARSA:
+\begin{itemize}
+    \item each update of Expected SARSA is more expensive (it averages over all next actions), but it is more stable: it has lower variance than SARSA, because it removes the randomness due to the selection of $A_{t+1}$;
+    \item Expected SARSA moves deterministically in the same direction in which SARSA moves in expectation;
+    \item thanks to its more stable updates, Expected SARSA can handle higher values of $\alpha$.
+\end{itemize}
+Since the target does not depend on the action actually taken in $S_{t+1}$, the policy used in the expectation can differ from the one that generates the data: Expected SARSA can be used off-policy. If the target policy is greedy, the expectation becomes a max and Expected SARSA reduces to Q-learning.
+
+\subsection{TD Control and Bellman Equations}
+Each TD control algorithm is a sample-based version of a Bellman equation:
+\begin{itemize}
+    \item \textbf{SARSA} samples the Bellman Expectation Equation for $q_\pi$ (a sample-based version of policy iteration):
+    \[q_\pi(s,a)=\sum_{s',r}p(s',r\mid s,a)\Bigl(r+\gamma\sum_{a'}\pi(a'\mid s')q_\pi(s',a')\Bigr)\quad\longrightarrow\quad R_{t+1}+\gamma Q(S_{t+1},A_{t+1})\]
+    \item \textbf{Expected SARSA} uses the same equation, but computes the expectation over the next actions instead of sampling it:
+    \[R_{t+1}+\gamma\sum_{a'}\pi(a'\mid S_{t+1})Q(S_{t+1},a')\]
+    \item \textbf{Q-learning} samples the Bellman Optimality Equation for $q_*$ (a sample-based version of value iteration):
+    \[q_*(s,a)=\sum_{s',r}p(s',r\mid s,a)\Bigl(r+\gamma\max_{a'}q_*(s',a')\Bigr)\quad\longrightarrow\quad R_{t+1}+\gamma\max_{a'}Q(S_{t+1},a')\]
+\end{itemize}
+SARSA is on-policy, while Q-learning and Expected SARSA are off-policy: they look ahead and average (or maximize) over the potential next actions, so the policy used to collect data and the one used for the update can be different.
+
+For the exam, all of Chapter 6 of the book is exam material, except Section 6.7 (which can be skipped) and Section 6.8 (optional).

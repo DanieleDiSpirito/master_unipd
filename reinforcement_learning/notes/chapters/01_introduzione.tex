@@ -1,29 +1,29 @@
 % !TEX root = ../main.tex
 \chapter{Introduction}
 \section{Machine Learning}
-Machine Learning based technologies solve specific tasks very well, while AI chatbots have quite broad and general capabilities.
-However classic machine learning predictions may not be sufficient for decision-making. 
-Machine learning requires a 'supervisor' that provides meaningful data of the phenomenon we want to characterize. Typically we need $(x, y)$ and we look for a relationship $F$.
+Machine-learning-based technologies solve specific tasks very well, while AI chatbots have quite broad and general capabilities.
+However, classic machine learning predictions may not be sufficient for decision-making. 
+Machine learning requires a `supervisor' that provides meaningful data of the phenomenon we want to characterize. Typically, we need historical data $(x, y)$ and we look for a relationship $F$.
 In many scenarios this is not feasible. 
 
-RL aims to solve cases where data must be collected 'in the wild' (agent interacts with the world and learns how to maximize some objectives).
+RL aims to solve cases where data must be collected `in the wild' (the agent interacts with the world and learns how to maximize some objectives).
 
 \section{Limits of Supervised Learning}
-There are some limits for supervised learning techniques like RL:
+Supervised learning techniques have some limits, which RL aims to overcome:
 \begin{itemize}
-    \item Data are not aviable without interacting with the world;
-    \item Collected data may not be explicitly associated to an action;
-    \item Time matters: we don't always have i.i.d. data;
-    \item In many settings, supervised learning do not envision long-term scenarios.
+    \item Data are not available without interacting with the world;
+    \item Collected data may not be explicitly associated with an action (often we only get partial information on how well a task was executed, in the form of rewards);
+    \item Time matters: we don't always have i.i.d.\ data;
+    \item In many settings, supervised learning does not envision long-term scenarios.
 \end{itemize}
 
 \section{RL Formalism}
 \begin{itemize}
-    \item An \textbf{agent}: entity aiming at solving the task;
-    \item A set of \textbf{states ($\textit{S}$)} in which the agent can be;
-    \item A set of \textbf{actions $(\textit{A})$} that can be taken by the agent;
-    \item An \textbf{environment} with which the agents interacts, and that changes after the agent takes an action (also provides back a \textbf{reward $(\textit{R})$});
-    \item The agent can be more interested in long-term rewards more than short-term.
+    \item An \textbf{agent}: the entity aiming at solving the task;
+    \item A set of \textbf{states} $\mathcal{S}$ in which the agent can be;
+    \item A set of \textbf{actions} $\mathcal{A}$ (that could depend on the state) that can be taken by the agent;
+    \item An \textbf{environment} with which the agent interacts: at each time step it provides a \textbf{reward} $R\in\mathcal{R}\subset\mathbb{R}$ and moves the agent to a new state;
+    \item The agent can be more interested in long-term rewards than in short-term ones.
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -34,5 +34,5 @@ There are some limits for supervised learning techniques like RL:
 \end{figure}
 
 \section{RL Problem}
-The agent could initially know very little about the environment and about which reward and next states a give action from a given state could lead to. In other terms the dynamics of the environment is not known in advance, they must be learned by interaction with the environment.
-The goal of the agent is to maximize long term rewards. 
+The agent could initially know very little about the environment and about which rewards and next states a given action from a given state could lead to. In other words, the dynamics of the environment are not known in advance: they must be learned by interaction with the environment.
+The goal of the agent is to maximize long-term rewards, not necessarily the reward at every step (e.g., in chess, losing a piece can be optimal to reach a better position). 
